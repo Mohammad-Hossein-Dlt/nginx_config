@@ -38,20 +38,20 @@ echo "Installing nginx..."
 apt-get install nginx -y
 
 # Create configuration file for port 80
-CONFIG_FILE_80="/etc/nginx/conf.d/load_balancer_8080.conf"
+CONFIG_FILE_80="/etc/nginx/conf.d/load_balancer.conf"
 echo "Creating configuration file for port 80: $CONFIG_FILE_80"
 cat > "$CONFIG_FILE_80" << 'EOF'
 
-upstream load_balancer_8080 {
+upstream load_balancer {
     server 195.177.255.230:8000;
 }
 
 server {
-    listen 8080;
+    listen 80;
     server_name 195.177.255.230;
 
     location / {
-        proxy_pass http://load_balancer_8080;
+        proxy_pass http://load_balancer;
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
