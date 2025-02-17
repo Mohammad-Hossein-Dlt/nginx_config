@@ -1,13 +1,13 @@
 #!/bin/bash
 # Check for root privileges
 if [ "$EUID" -ne 0 ]; then
-    echo "Please run as root (sudo)."
+    echo -e "\e[31m Please run as root (sudo)."
     exit 1
 fi
 
 # If nginx is installed, restore its default configuration
 if [ -x "$(command -v nginx)" ]; then
-    echo "Nginx is installed. Restoring default configuration..."
+    echo -e "\e[32m Nginx is installed. Restoring default configuration..."
     # Remove additional configuration files in conf.d
     rm -f /etc/nginx/conf.d/*.conf
 
@@ -30,16 +30,16 @@ if [ -x "$(command -v nginx)" ]; then
 fi
 
 # Update package list
-echo "Updating package list..."
+echo -e "\e[32m Updating package list..."
 apt-get update -y
 
 # Install nginx
-echo "Installing nginx..."
+echo -e "\e[32m Installing nginx..."
 apt-get install nginx -y
 
 # Create configuration file for port 80
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
-echo "Creating configuration file for port 80: $CONFIG_FILE"
+echo -e "\e[32m Creating configuration file for port 80: $CONFIG_FILE"
 cat > "$CONFIG_FILE" << 'EOF'
 
 upstream load_balancer {
@@ -84,20 +84,25 @@ EOF
 #}
 #EOF
 
+echo -e "\e[32m Removing default settings"
+
+sudo rm /etc/nginx/sites-enabled/default
+sudo systemctl reload nginx
+
 # Test nginx configuration
-echo "Testing nginx configuration..."
+echo -e "\e[32m Testing nginx configuration..."
 sudo nginx -t
 if [ $? -ne 0 ]; then
-    echo "Error in nginx configuration. Please check the config files."
+    echo -e "\e[32m Error in nginx configuration. Please check the config files."
     exit 1
 fi
 
 # Reload nginx to apply changes
-echo "Reloading nginx..."
-systemctl reload nginx
+echo -e "\e[32m Reloading nginx..."
+sudo systemctl reload nginx
 
 # Enable nginx service to automatically start on boot
-echo "Enabling nginx service to automatically start after reboot..."
-systemctl enable nginx
+echo -e "\e[32m Enabling nginx service to automatically start after reboot..."
+sudo systemctl enable nginx
 
-echo "Load balancer installation and configuration for ports 80 and 8080 completed successfully."
+echo -e "\e[32m Load balancer installation and configuration for ports 80 and 8080 completed successfully."
