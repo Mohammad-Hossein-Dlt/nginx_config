@@ -5,6 +5,30 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+# If nginx is installed, restore its default configuration
+if [ -x "$(command -v nginx)" ]; then
+    echo "Nginx is installed. Restoring default configuration..."
+    # Remove additional configuration files in conf.d
+    rm -f /etc/nginx/conf.d/*.conf
+
+    # If using the sites-enabled structure, remove non-default sites
+    if [ -d /etc/nginx/sites-enabled ]; then
+        for site in /etc/nginx/sites-enabled/*; do
+            if [ "$(basename "$site")" != "default" ]; then
+                rm -f "$site"
+            fi
+        done
+    fi
+
+    # (Optional) Restore the original nginx.conf from backup if it exists
+    if [ -f /etc/nginx/nginx.conf.backup ]; then
+        cp /etc/nginx/nginx.conf.backup /etc/nginx/nginx.conf
+    fi
+
+    # Reload nginx to apply the changes
+    systemctl reload nginx
+fi
+
 # Update package list
 echo "Updating package list..."
 apt-get update -y
