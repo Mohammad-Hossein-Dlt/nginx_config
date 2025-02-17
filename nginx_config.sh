@@ -33,11 +33,6 @@ if [ -x "$(command -v nginx)" ]; then
         cp /etc/nginx/nginx.conf.backup /etc/nginx/nginx.conf
     fi
 
-    # (Optional) Restore the original nginx.conf from backup if it exists
-    if [ -f /etc/nginx/nginx.conf.backup ]; then
-        cp /etc/nginx/nginx.conf.backup /etc/nginx/nginx.conf
-    fi
-
     # Reload nginx to apply the changes
     systemctl reload nginx
 fi
@@ -97,10 +92,20 @@ EOF
 #}
 #EOF
 
-colored_text "32" "Removing default settings"
+default_setting1="/etc/nginx/sites-enabled/default"
+default_setting2="/etc/nginx/conf.d/default.conf"
 
-sudo rm /etc/nginx/sites-enabled/default
-sudo systemctl reload nginx
+# Remove the default site configuration to avoid the welcome page
+if [ -f default_setting1 ]; then
+    colored_text "32" "Removing default settings at $default_setting1"
+    rm -f default_setting1
+fi
+
+# Remove any default configuration file in conf.d (e.g., default.conf)
+if [ -f default_setting2 ]; then
+    colored_text "32" "Removing default settings at $default_setting2"
+    rm -f default_setting2
+fi
 
 # Test nginx configuration
 colored_text "32" "Testing nginx configuration..."
