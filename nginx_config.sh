@@ -62,7 +62,7 @@ EOF
 
 # Test nginx configuration
 echo "Testing nginx configuration..."
-nginx -t
+sudo nginx -t
 if [ $? -ne 0 ]; then
     echo "Error in nginx configuration. Please check the config files."
     exit 1
