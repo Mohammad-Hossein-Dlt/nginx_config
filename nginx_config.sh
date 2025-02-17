@@ -18,13 +18,19 @@ if [ -x "$(command -v nginx)" ]; then
     # Remove additional configuration files in conf.d
     rm -f /etc/nginx/conf.d/*.conf
 
-    # If using the sites-enabled structure, remove non-default sites
-    if [ -d /etc/nginx/sites-enabled ]; then
-        for site in /etc/nginx/sites-enabled/*; do
-            if [ "$(basename "$site")" != "default" ]; then
-                rm -f "$site"
-            fi
-        done
+    # Remove the default site configuration to avoid the welcome page
+    if [ -f /etc/nginx/sites-enabled/default ]; then
+        rm -f /etc/nginx/sites-enabled/default
+    fi
+
+    # Remove any default configuration file in conf.d (e.g., default.conf)
+    if [ -f /etc/nginx/conf.d/default.conf ]; then
+        rm -f /etc/nginx/conf.d/default.conf
+    fi
+
+    # (Optional) Restore the original nginx.conf from backup if it exists
+    if [ -f /etc/nginx/nginx.conf.backup ]; then
+        cp /etc/nginx/nginx.conf.backup /etc/nginx/nginx.conf
     fi
 
     # (Optional) Restore the original nginx.conf from backup if it exists
