@@ -47,8 +47,8 @@ upstream load_balancer {
 }
 
 server {
-    listen 80;
-    server_name 195.177.255.230;
+    listen 80 default_server;
+    server_name _;
 
     location / {
         proxy_pass http://load_balancer;
