@@ -96,15 +96,15 @@ default_setting1="/etc/nginx/sites-enabled/default"
 default_setting2="/etc/nginx/conf.d/default.conf"
 
 # Remove the default site configuration to avoid the welcome page
-if [ -f default_setting1 ]; then
+if [ -f "$default_setting1" ]; then
     colored_text "32" "Removing default settings at $default_setting1"
-    rm -f default_setting1
+    rm -f "$default_setting1"
 fi
 
 # Remove any default configuration file in conf.d (e.g., default.conf)
-if [ -f default_setting2 ]; then
+if [ -f "$default_setting2" ]; then
     colored_text "32" "Removing default settings at $default_setting2"
-    rm -f default_setting2
+    rm -f "$default_setting2"
 fi
 
 # Test nginx configuration
