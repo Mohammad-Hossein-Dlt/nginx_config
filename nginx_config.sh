@@ -24,7 +24,7 @@ upstream backend_servers_80 {
 
 server {
     listen 80;
-    server_name 195.177.255.230;  # Enter your domain name or appropriate IP
+    server_name _;  # Enter your domain name or appropriate IP
 
     location / {
         proxy_pass http://backend_servers_80;
