@@ -1,13 +1,13 @@
 #!/bin/bash
 # Check for root privileges
 if [ "$EUID" -ne 0 ]; then
-    echo -e "\e[31m Please run as root (sudo)."
+    echo -e "\e[31m Please run as root (sudo). \e[0m"
     exit 1
 fi
 
 # If nginx is installed, restore its default configuration
 if [ -x "$(command -v nginx)" ]; then
-    echo -e "\e[32m Nginx is installed. Restoring default configuration..."
+    echo -e "\e[32m Nginx is installed. Restoring default configuration... \e[0m"
     # Remove additional configuration files in conf.d
     rm -f /etc/nginx/conf.d/*.conf
 
@@ -30,16 +30,16 @@ if [ -x "$(command -v nginx)" ]; then
 fi
 
 # Update package list
-echo -e "\e[32m Updating package list..."
+echo -e "\e[32m Updating package list... \e[0m"
 apt-get update -y
 
 # Install nginx
-echo -e "\e[32m Installing nginx..."
+echo -e "\e[32m Installing nginx... \e[0m"
 apt-get install nginx -y
 
 # Create configuration file for port 80
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
-echo -e "\e[32m Creating configuration file for port 80: $CONFIG_FILE"
+echo -e "\e[32m Creating configuration file for port 80: $CONFIG_FILE \e[0m"
 cat > "$CONFIG_FILE" << 'EOF'
 
 upstream load_balancer {
@@ -47,7 +47,7 @@ upstream load_balancer {
 }
 
 server {
-    listen 8080;
+    listen 80;
     server_name 195.177.255.230;
 
     location / {
@@ -84,16 +84,16 @@ EOF
 #}
 #EOF
 
-echo -e "\e[32m Removing default settings"
+echo -e "\e[32m Removing default settings \e[0m"
 
 sudo rm /etc/nginx/sites-enabled/default
 sudo systemctl reload nginx
 
 # Test nginx configuration
-echo -e "\e[32m Testing nginx configuration..."
+echo -e "\e[32m Testing nginx configuration... \e[0m"
 sudo nginx -t
 if [ $? -ne 0 ]; then
-    echo -e "\e[32m Error in nginx configuration. Please check the config files."
+    echo -e "\e[32m Error in nginx configuration. Please check the config files. \e[0m"
     exit 1
 fi
 
@@ -102,7 +102,7 @@ echo -e "\e[32m Reloading nginx..."
 sudo systemctl reload nginx
 
 # Enable nginx service to automatically start on boot
-echo -e "\e[32m Enabling nginx service to automatically start after reboot..."
+echo -e "\e[32m Enabling nginx service to automatically start after reboot... \e[0m"
 sudo systemctl enable nginx
 
-echo -e "\e[32m Load balancer installation and configuration for ports 80 and 8080 completed successfully."
+echo -e "\e[32m Load balancer installation and configuration for ports 80 and 8080 completed successfully. \e[0m"
