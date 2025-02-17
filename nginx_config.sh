@@ -38,9 +38,9 @@ echo "Installing nginx..."
 apt-get install nginx -y
 
 # Create configuration file for port 80
-CONFIG_FILE_80="/etc/nginx/conf.d/load_balancer.conf"
-echo "Creating configuration file for port 80: $CONFIG_FILE_80"
-cat > "$CONFIG_FILE_80" << 'EOF'
+CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
+echo "Creating configuration file for port 80: $CONFIG_FILE"
+cat > "$CONFIG_FILE" << 'EOF'
 
 upstream load_balancer {
     server 195.177.255.230:8000;
