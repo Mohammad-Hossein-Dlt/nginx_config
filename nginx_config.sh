@@ -23,7 +23,7 @@ upstream backend_servers_80 {
 }
 
 server {
-    listen 80;
+    listen 80 default_server;
     server_name 195.177.255.230;
 
     location / {
