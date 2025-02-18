@@ -13,18 +13,19 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 # If nginx is installed, restore its default configuration
-#if [ -x "$(command -v nginx)" ]; then
-colored_text "32" "Nginx is installed.Purging existing installation and configuration files..."
+if [ -x "$(command -v nginx)" ]; then
+    colored_text "32" "Nginx is installed.Purging existing installation and configuration files..."
 
-colored_text "32" "Stop nginx service..."
-sudo systemctl stop nginx 2>/dev/null
-colored_text "32" "Purging..."
-sudo apt-get purge -y nginx
-colored_text "32" "Purging..."
-sudo apt-get autoremove -y
-colored_text "32" "Removing nginx directory..."
-sudo rm -rf /etc/nginx
-#fi
+    colored_text "32" "Stop nginx service..."
+    sudo systemctl stop nginx 2>/dev/null
+    colored_text "32" "Purging..."
+    sudo apt-get purge -y nginx
+    colored_text "32" "Purging..."
+    sudo apt-get autoremove -y
+    colored_text "32" "Removing nginx directory..."
+    sudo rm -rf /etc/nginx
+    
+fi
 
 # Update package list
 colored_text "32" "Updating package list..."
