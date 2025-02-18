@@ -46,6 +46,7 @@ colored_text "32" "Installing nginx..."
 apt-get install nginx -y
 
 # Create configuration file for port 80
+DOMAIN="hyperrio.site"
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
 colored_text "32" "\e[32m Creating configuration file for port 80: $CONFIG_FILE"
 cat > "$CONFIG_FILE" << 'EOF'
@@ -122,3 +123,15 @@ colored_text "32" "Enabling nginx service to automatically start after reboot...
 sudo systemctl enable nginx
 
 colored_text "32" "Load balancer installation and configuration for ports 80 and 8080 completed successfully."
+
+# Install ufw if not already installed
+sudo apt-get install -y ufw
+
+# Allow SSH (port 22) to ensure remote access is not blocked
+colored_text "32" "Allowing SSH on ports 80, 443"
+sudo ufw allow 80/tcp
+sudo ufw allow 443/tcp
+
+# Enable ufw if it's not enabled already (this may prompt for confirmation)
+sudo ufw --force enable
+
