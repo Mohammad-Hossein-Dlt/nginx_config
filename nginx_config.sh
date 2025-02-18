@@ -56,7 +56,8 @@ upstream load_balancer {
 
 server {
     listen 80;
-    server_name 195.177.255.230;
+#    server_name 195.177.255.230;
+    server_name hyperrio.site;
 
     location / {
         proxy_pass http://load_balancer;
