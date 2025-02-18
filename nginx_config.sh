@@ -14,27 +14,17 @@ fi
 
 # If nginx is installed, restore its default configuration
 if [ -x "$(command -v nginx)" ]; then
-    colored_text "32" "Nginx is installed. Restoring default configuration..."
-    # Remove additional configuration files in conf.d
-    rm -f /etc/nginx/conf.d/*.conf
+    colored_text "32" "Nginx is installed.Purging existing installation and configuration files..."
 
-    # Remove the default site configuration to avoid the welcome page
-    if [ -f /etc/nginx/sites-enabled/default ]; then
-        rm -f /etc/nginx/sites-enabled/default
-    fi
-
-    # Remove any default configuration file in conf.d (e.g., default.conf)
-    if [ -f /etc/nginx/conf.d/default.conf ]; then
-        rm -f /etc/nginx/conf.d/default.conf
-    fi
-
-    # (Optional) Restore the original nginx.conf from backup if it exists
-    if [ -f /etc/nginx/nginx.conf.backup ]; then
-        cp /etc/nginx/nginx.conf.backup /etc/nginx/nginx.conf
-    fi
-
+    colored_text "32" "Stop nginx service..."
+    sudo systemctl stop nginx 2>/dev/null
+    colored_text "32" "Purging..."
+    sudo apt-get purge -y nginx
+    colored_text "32" "Purging..."
+    sudo apt-get autoremove -y
+    colored_text "32" "Removing nginx directory..."
+    sudo rm -rf /etc/nginx
     # Reload nginx to apply the changes
-    systemctl reload nginx
 fi
 
 # Update package list
@@ -135,3 +125,4 @@ sudo ufw allow 443/tcp
 # Enable ufw if it's not enabled already (this may prompt for confirmation)
 sudo ufw --force enable
 
+colored_text "32" "All is done."
