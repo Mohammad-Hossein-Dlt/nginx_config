@@ -112,7 +112,7 @@ sudo systemctl reload nginx
 colored_text "32" "Enabling nginx service to automatically start after reboot..."
 sudo systemctl enable nginx
 
-colored_text "32" "Load balancer installation and configuration for ports 80 and 8080 completed successfully."
+colored_text "32" "Load balancer installation and configuration completed successfully."
 
 # Install ufw if not already installed
 sudo apt-get install -y ufw
