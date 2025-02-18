@@ -24,7 +24,7 @@ if [ -x "$(command -v nginx)" ]; then
     sudo apt-get autoremove -y
     colored_text "32" "Removing nginx directory..."
     sudo rm -rf /etc/nginx
-    
+
 fi
 
 # Update package list
@@ -115,6 +115,7 @@ sudo systemctl enable nginx
 colored_text "32" "Load balancer installation and configuration completed successfully."
 
 # Install ufw if not already installed
+colored_text "32" "Installing firewall..."
 sudo apt-get install -y ufw
 
 # Allow SSH (port 22) to ensure remote access is not blocked
