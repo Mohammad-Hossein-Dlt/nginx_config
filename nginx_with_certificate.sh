@@ -35,8 +35,20 @@ colored_text "32" "Updating package list..."
 apt-get update -y
 
 # Install nginx
-colored_text "32" "Installing nginx..."
+colored_text "32" "Installing nginx and fzf..."
 apt-get install nginx -y
+apt-get install fzf
+
+
+########################################
+# Get Main Inputs From User
+########################################
+
+certification_options=("SSl" "No SSl")
+setup_options=("Default" "Websocket")
+
+certification=$(printf "%s\n" "${certification_options[@]}" | fzf)
+setup=$(printf "%s\n" "${setup_options[@]}" | fzf)
 
 ########################################
 # Domain and SSL Certificate Settings
@@ -121,6 +133,8 @@ echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
 colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
 
+if [ "$certification" = "SSL" ] && [ "$setup" = "Default" ]; then
+
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
@@ -145,7 +159,7 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
-    location {
+    location / {
         proxy_pass http://load_balancer;
 
         proxy_set_header Host \$host;
@@ -157,6 +171,92 @@ server {
 }
 
 EOF
+elif [ "$certification" = "SSL" ] && [ "$setup" = "Websocket" ]; then
+cat > "$CONFIG_FILE" <<EOF
+# Define an upstream block for the backend server(s)
+upstream load_balancer {
+    ip_hash;
+    server 195.177.255.230:8000;
+}
+
+# HTTP block: Redirect all HTTP traffic to HTTPS
+server {
+    listen 80;
+    server_name ${DOMAIN};
+    return 301 https://\$host\$request_uri;
+}
+
+# HTTPS block: SSL configuration and reverse proxy settings
+server {
+    listen 443 ssl;
+    server_name ${DOMAIN};
+
+    ssl_certificate ${CERT_PATH};
+    ssl_certificate_key ${KEY_PATH};
+
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+
+    location / {
+        proxy_pass http://load_balancer;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_set_header Host \$host;
+
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+elif [ "$certification" = "No SSL" ] && [ "$setup" = "Default" ]; then
+cat > "$CONFIG_FILE" <<EOF
+upstream load_balancer {
+    server 195.177.255.230:8000;
+}
+
+server {
+    listen 80;
+    server_name 130.185.75.195;
+
+    location / {
+        proxy_pass http://load_balancer;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+elif [ "$certification" = "No SSL" ] && [ "$setup" = "Websocket" ]; then
+cat > "$CONFIG_FILE" <<EOF
+upstream load_balancer {
+    server 195.177.255.230:8000;
+}
+
+server {
+    listen 80;
+    server_name 130.185.75.195;
+
+    location / {
+        proxy_pass http://load_balancer;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        proxy_set_header Host $host;
+
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+EOF
+fi
 
 # Remove default site configuration files if they exist
 if [ -f /etc/nginx/sites-enabled/default ]; then
