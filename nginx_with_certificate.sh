@@ -146,7 +146,7 @@ CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
 colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
 
 if [ "$certification" = "SSL" ] && [ "$setup" = "Default" ]; then
-
+colored_text "31" "jehfierhfg49p8ghp9o34tjgiolerwtjvnipretuhgb9p35thgrtojgi9op3rithg9354tg"
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
