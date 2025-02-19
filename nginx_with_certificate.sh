@@ -7,13 +7,16 @@ colored_text(){
 }
 
 choose_option() {
-  # دریافت گزینه‌ها به عنوان آرایه
   local options=("$@")
   local selected=0
   local key
 
   while true; do
     clear
+    # نمایش پیام راهنما
+    echo "از کلیدهای جهت بالا/پایین برای انتخاب استفاده کنید و Enter را بزنید."
+    echo ""
+
     # چاپ منو با هایلایت گزینه انتخاب شده
     for i in "${!options[@]}"; do
       if [ "$i" -eq "$selected" ]; then
@@ -27,29 +30,27 @@ choose_option() {
     read -sn1 key
 
     if [[ $key == $'\x1b' ]]; then
-      # اگر کاراکتر Escape باشد، دو کاراکتر بعدی را هم می‌خوانیم (برای تشخیص کلیدهای جهت)
+      # خواندن دو کاراکتر بعدی جهت تشخیص کلیدهای جهت
       read -sn2 -t 0.1 key
       if [[ $key == "[A" ]]; then
-        # کلید جهت بالا
         ((selected--))
         if [ $selected -lt 0 ]; then
           selected=$((${#options[@]} - 1))
         fi
       elif [[ $key == "[B" ]]; then
-        # کلید جهت پایین
         ((selected++))
         if [ $selected -ge ${#options[@]} ]; then
           selected=0
         fi
       fi
     elif [[ $key == "" ]]; then
-      # با فشردن Enter، انتخاب کاربر ثبت می‌شود
+      # با فشردن Enter انتخاب ثبت می‌شود
       break
     fi
   done
 
   clear
-  # برگرداندن مقدار انتخاب شده (می‌توانید به جای مقدار، اندیس آن را هم برگردانید)
+  # برگرداندن مقدار انتخاب شده
   echo "${options[$selected]}"
 }
 
