@@ -6,52 +6,36 @@ colored_text(){
   echo -e "\e[${color}m$text\e[0m"
 }
 
-choose_option() {
-  local options=("$@")
-  local selected=0
-  local key
+menu() {
+    local options=("$@")  # دریافت آرایه گزینه‌ها
+    local selected=0
 
-  while true; do
-    clear
-    # نمایش پیام راهنما
-    echo "از کلیدهای جهت بالا/پایین برای انتخاب استفاده کنید و Enter را بزنید."
-    echo ""
+    while true; do
+        clear
+#        echo "از کلیدهای ↑ و ↓ برای حرکت، و Enter برای انتخاب استفاده کنید"
+        colored_text "Select With ↑ and ↓"
 
-    # چاپ منو با هایلایت گزینه انتخاب شده
-    for i in "${!options[@]}"; do
-      if [ "$i" -eq "$selected" ]; then
-        echo -e "> \e[32m${options[$i]}\e[0m"
-      else
-        echo "  ${options[$i]}"
-      fi
+        for i in "${!options[@]}"; do
+            if [[ $i -eq $selected ]]; then
+                colored_text "${options[i]}"
+            else
+                echo "  ${options[i]}"
+            fi
+        done
+
+        read -rsn1 key
+
+        case "$key" in
+            $'\x1b') read -rsn2 key
+                case "$key" in
+                    "[A") ((selected--)); [[ $selected -lt 0 ]] && selected=$((${#options[@]} - 1)) ;;
+                    "[B") ((selected++)); [[ $selected -ge ${#options[@]} ]] && selected=0 ;;
+                esac
+                ;;
+            "") break ;;
+        esac
     done
-
-    # خواندن یک کاراکتر بدون نیاز به زدن Enter
-    read -sn1 key
-
-    if [[ $key == $'\x1b' ]]; then
-      # خواندن دو کاراکتر بعدی جهت تشخیص کلیدهای جهت
-      read -sn2 -t 0.1 key
-      if [[ $key == "[A" ]]; then
-        ((selected--))
-        if [ $selected -lt 0 ]; then
-          selected=$((${#options[@]} - 1))
-        fi
-      elif [[ $key == "[B" ]]; then
-        ((selected++))
-        if [ $selected -ge ${#options[@]} ]; then
-          selected=0
-        fi
-      fi
-    elif [[ $key == "" ]]; then
-      # با فشردن Enter انتخاب ثبت می‌شود
-      break
-    fi
-  done
-
-  clear
-  # برگرداندن مقدار انتخاب شده
-  echo "${options[$selected]}"
+    echo "${options[$selected]}"
 }
 
 # Check if the script is run as root
