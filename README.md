@@ -6,12 +6,8 @@ bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_con
 ```
 
 
-### Install with certification
+### Install v2
 ```Bash
-bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/nginx_with_certificate.sh)
+bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
 ```
 
-### Install websocket
-```Bash
-bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/websocket.sh)
-```
