@@ -67,7 +67,7 @@ colored_text "32" "Updating package list..."
 apt-get update -y
 
 # Install nginx
-colored_text "32" "Installing nginx and fzf..."
+colored_text "32" "Installing nginx..."
 apt-get install nginx -y
 
 ########################################
