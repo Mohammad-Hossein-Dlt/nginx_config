@@ -115,7 +115,7 @@ echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
 echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 
 ########################################
-# Nginx Configuration for Reverse Proxy with SSL
+# Nginx Configuration for Load Balancer, Reverse Proxy and Websocket with SSL
 ########################################
 
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
@@ -124,6 +124,7 @@ colored_text "32" "Creating configuration file for reverse proxy: $CONFIG_FILE"
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
+    ip_hash;
     server 195.177.255.230:8000;
 }
 
@@ -147,6 +148,10 @@ server {
 
     location {
         proxy_pass http://load_balancer;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
 
         proxy_set_header Host \$host;
 
