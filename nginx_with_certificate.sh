@@ -26,6 +26,11 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+
+########################################
+# Delete previous installations if any exist.
+########################################
+
 # If nginx is installed, remove its current installation and configuration files
 if [ -x "$(command -v nginx)" ]; then
     colored_text "32" "Nginx is installed. Purging existing installation and configuration files..."
@@ -40,9 +45,22 @@ if [ -x "$(command -v nginx)" ]; then
     rm -rf /etc/nginx
 fi
 
+# If firewall is installed, remove its current installation and configuration files
+if [ -x "$(command -v ufw)" ]; then
+    colored_text "32" "Firewall is installed. Purging existing installation and configuration files..."
+    ufw disable
+    apt-get purge -y ufw
+    apt-get autoremove -y ufw
+    rm -rf /etc/ufw
+fi
+
 colored_text "32" "Removing previous ssl certificate..."
 rm -rf /etc/ssl/certs/public_cert.crt
 rm -rf /etc/ssl/private/private_key.key
+
+########################################
+# Update the package list and Install the required items
+########################################
 
 # Update the package list
 colored_text "32" "Updating package list..."
@@ -142,7 +160,7 @@ echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 # Nginx Configuration for Load Balancer and Reverse Proxy with SSL
 ########################################
 
-CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
+CONFIG_FILE="/etc/nginx/conf.d/server.conf"
 colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
