@@ -56,7 +56,7 @@ apt-get install nginx -y
 # Get Main Inputs From User
 ########################################
 
-certification=$(select_menu "SSl" "No SSl")
+certification=$(select_menu "SSL" "No SSL")
 setup=$(select_menu "Default" "Websocket")
 
 colored_text "36" "$certification"
