@@ -6,6 +6,53 @@ colored_text(){
   echo -e "\e[${color}m$text\e[0m"
 }
 
+choose_option() {
+  # دریافت گزینه‌ها به عنوان آرایه
+  local options=("$@")
+  local selected=0
+  local key
+
+  while true; do
+    clear
+    # چاپ منو با هایلایت گزینه انتخاب شده
+    for i in "${!options[@]}"; do
+      if [ "$i" -eq "$selected" ]; then
+        echo -e "> \e[32m${options[$i]}\e[0m"
+      else
+        echo "  ${options[$i]}"
+      fi
+    done
+
+    # خواندن یک کاراکتر بدون نیاز به زدن Enter
+    read -sn1 key
+
+    if [[ $key == $'\x1b' ]]; then
+      # اگر کاراکتر Escape باشد، دو کاراکتر بعدی را هم می‌خوانیم (برای تشخیص کلیدهای جهت)
+      read -sn2 -t 0.1 key
+      if [[ $key == "[A" ]]; then
+        # کلید جهت بالا
+        ((selected--))
+        if [ $selected -lt 0 ]; then
+          selected=$((${#options[@]} - 1))
+        fi
+      elif [[ $key == "[B" ]]; then
+        # کلید جهت پایین
+        ((selected++))
+        if [ $selected -ge ${#options[@]} ]; then
+          selected=0
+        fi
+      fi
+    elif [[ $key == "" ]]; then
+      # با فشردن Enter، انتخاب کاربر ثبت می‌شود
+      break
+    fi
+  done
+
+  clear
+  # برگرداندن مقدار انتخاب شده (می‌توانید به جای مقدار، اندیس آن را هم برگردانید)
+  echo "${options[$selected]}"
+}
+
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
     colored_text "31" "Please run as root (sudo)."
@@ -37,18 +84,14 @@ apt-get update -y
 # Install nginx
 colored_text "32" "Installing nginx and fzf..."
 apt-get install nginx -y
-apt-get install fzf
 
 
 ########################################
 # Get Main Inputs From User
 ########################################
 
-certification_options=("SSl" "No SSl")
-setup_options=("Default" "Websocket")
-
-certification=$(printf "%s\n" "${certification_options[@]}" | fzf)
-setup=$(printf "%s\n" "${setup_options[@]}" | fzf)
+certification=$(choose_option "SSl" "No SSl")
+setup=$(choose_option "Default" "Websocket")
 
 ########################################
 # Domain and SSL Certificate Settings
@@ -248,11 +291,11 @@ server {
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection "upgrade";
 
-        proxy_set_header Host $host;
+        proxy_set_header Host \$host;
 
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
     }
 }
 EOF
