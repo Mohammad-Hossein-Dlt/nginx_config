@@ -75,8 +75,8 @@ apt-get install nginx -y
 # Get Main Inputs From User
 ########################################
 
-certification=$(choose_option "SSl" "No SSl")
-setup=$(choose_option "Default" "Websocket")
+certification=$(menu "SSl" "No SSl")
+setup=$(menu "Default" "Websocket")
 
 ########################################
 # Domain and SSL Certificate Settings
