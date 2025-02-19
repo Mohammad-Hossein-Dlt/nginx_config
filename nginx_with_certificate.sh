@@ -115,11 +115,11 @@ echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
 echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 
 ########################################
-# Nginx Configuration for Reverse Proxy with SSL
+# Nginx Configuration for Load Balancer and Reverse Proxy with SSL
 ########################################
 
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
-colored_text "32" "Creating configuration file for reverse proxy: $CONFIG_FILE"
+colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
 
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)

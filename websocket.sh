@@ -119,7 +119,7 @@ echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 ########################################
 
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
-colored_text "32" "Creating configuration file for reverse proxy: $CONFIG_FILE"
+colored_text "32" "Creating configuration file for load balancer, reverse proxy and websocket: $CONFIG_FILE"
 
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
