@@ -7,8 +7,7 @@ colored_text(){
 }
 
 function select_menu {
-    PS3="لطفاً گزینه‌ای را انتخاب کنید: "
-    options=("$@")  # آپشن‌ها از ورودی دریافت می‌شوند
+    options=("$@")
 
     select opt in "${options[@]}"; do
         case $opt in
@@ -60,8 +59,8 @@ apt-get install nginx -y
 certification=$(select_menu "SSl" "No SSl")
 setup=$(select_menu "Default" "Websocket")
 
-colored_text "36" certification
-colored_text "36" setup
+colored_text "36" "$certification"
+colored_text "36" "$setup"
 
 ########################################
 # Domain and SSL Certificate Settings
