@@ -6,43 +6,17 @@ colored_text(){
   echo -e "\e[${color}m$text\e[0m"
 }
 
-choose_option() {
-  # آرگومان‌های ورودی را در آرایه opts ذخیره می‌کنیم
-  local opts=("$@")
-  local num_opts=${#opts[@]}
+function select_menu {
+    options=("$@")
 
-  # ارتفاع منو را بر اساس تعداد گزینه‌ها تنظیم می‌کنیم (می‌توانید تغییر دهید)
-  local menu_height=$(( num_opts > 10 ? 10 : num_opts ))
-  local height=15
-  local width=50
-
-  # آرایه‌ای برای گزینه‌های dialog: تگ (اندیس) و توضیح (متن گزینه)
-  local dialog_options=()
-  local idx=0
-  for opt in "${opts[@]}"; do
-    dialog_options+=("$idx" "$opt")
-    (( idx++ ))
-  done
-
-  # اجرای dialog برای نمایش منو
-  local choice
-  choice=$(dialog --clear \
-          --title "انتخاب گزینه" \
-          --menu "از کلیدهای جهت برای انتخاب استفاده کنید و Enter را بزنید:" \
-          $height $width $menu_height \
-          "${dialog_options[@]}" \
-          3>&1 1>&2 2>&3 3>&-)
-
-  # بررسی لغو (cancel) شدن یا بستن dialog
-  if [ -z "$choice" ]; then
-    clear
-    echo "هیچ گزینه‌ای انتخاب نشد."
-    return 1
-  fi
-
-  # پاکسازی صفحه و برگرداندن مقدار انتخاب شده
-  clear
-  echo "${opts[$choice]}"
+    select opt in "${options[@]}"; do
+        case $opt in
+            *)
+                echo "$opt"
+                break
+                ;;
+        esac
+    done
 }
 
 # Check if the script is run as root
@@ -78,13 +52,12 @@ colored_text "32" "Installing nginx and fzf..."
 apt-get install nginx -y
 apt-get install dialog
 
-
 ########################################
 # Get Main Inputs From User
 ########################################
 
-certification=$(choose_option "SSl" "No SSl")
-setup=$(choose_option "Default" "Websocket")
+certification=$(select_menu "SSl" "No SSl")
+setup=$(select_menu "Default" "Websocket")
 
 ########################################
 # Domain and SSL Certificate Settings
