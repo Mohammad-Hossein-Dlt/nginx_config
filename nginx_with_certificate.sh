@@ -6,16 +6,42 @@ colored_text(){
   echo -e "\e[${color}m$text\e[0m"
 }
 
-function select_menu {
+function arrow_key_menu {
     options=("$@")
+    selected_index=0
 
-    select opt in "${options[@]}"; do
-        case $opt in
-            *)
-                echo "$opt"
-                break
-                ;;
-        esac
+    function print_menu {
+        clear
+        for i in "${!options[@]}"; do
+            if [ $i -eq $selected_index ]; then
+                echo -e "\033[1;32m→ ${options[$i]}\033[0m"
+            else
+                echo "   ${options[$i]}"
+            fi
+        done
+    }
+
+    while true; do
+        print_menu
+        read -rsn1 key
+        if [[ $key == $'\x1b' ]]; then
+            read -rsn2 key
+            case $key in
+                '[A')  # کلید بالا
+                    if [ $selected_index -gt 0 ]; then
+                        ((selected_index--))
+                    fi
+                    ;;
+                '[B')  # کلید پایین
+                    if [ $selected_index -lt $((${#options[@]} - 1)) ]; then
+                        ((selected_index++))
+                    fi
+                    ;;
+            esac
+        elif [[ $key == $'\x0a' ]]; then  # Enter key
+            echo "${options[$selected_index]}"
+            break
+        fi
     done
 }
 
@@ -56,8 +82,8 @@ apt-get install dialog
 # Get Main Inputs From User
 ########################################
 
-certification=$(select_menu "SSl" "No SSl")
-setup=$(select_menu "Default" "Websocket")
+certification=$(arrow_key_menu "SSl" "No SSl")
+setup=$(arrow_key_menu "Default" "Websocket")
 
 ########################################
 # Domain and SSL Certificate Settings
