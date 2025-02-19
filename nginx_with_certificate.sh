@@ -83,8 +83,8 @@ apt-get install dialog
 # Get Main Inputs From User
 ########################################
 
-certification=$(menu "SSl" "No SSl")
-setup=$(menu "Default" "Websocket")
+certification=$(choose_option "SSl" "No SSl")
+setup=$(choose_option "Default" "Websocket")
 
 ########################################
 # Domain and SSL Certificate Settings
