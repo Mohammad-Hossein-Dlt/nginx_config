@@ -145,7 +145,7 @@ echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 CONFIG_FILE="/etc/nginx/conf.d/load_balancer.conf"
 colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
 
-if [ "$certification" = "SSL" ] && [ "$setup" = "Default" ]; then
+if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 colored_text "31" "jehfierhfg49p8ghp9o34tjgiolerwtjvnipretuhgb9p35thgrtojgi9op3rithg9354tg"
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
@@ -183,7 +183,7 @@ server {
 }
 
 EOF
-elif [ "$certification" = "SSL" ] && [ "$setup" = "Websocket" ]; then
+elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
@@ -224,7 +224,7 @@ server {
     }
 }
 EOF
-elif [ "$certification" = "No SSL" ] && [ "$setup" = "Default" ]; then
+elif [[ "$certification" = "No SSL" && "$setup" = "Default" ]]; then
 cat > "$CONFIG_FILE" <<EOF
 upstream load_balancer {
     server 195.177.255.230:8000;
@@ -243,7 +243,7 @@ server {
     }
 }
 EOF
-elif [ "$certification" = "No SSL" ] && [ "$setup" = "Websocket" ]; then
+elif [[ "$certification" = "No SSL" && "$setup" = "Websocket" ]]; then
 cat > "$CONFIG_FILE" <<EOF
 upstream load_balancer {
     server 195.177.255.230:8000;
