@@ -6,36 +6,43 @@ colored_text(){
   echo -e "\e[${color}m$text\e[0m"
 }
 
-menu() {
-    local options=("$@")  # دریافت آرایه گزینه‌ها
-    local selected=0
+choose_option() {
+  # آرگومان‌های ورودی را در آرایه opts ذخیره می‌کنیم
+  local opts=("$@")
+  local num_opts=${#opts[@]}
 
-    while true; do
-        clear
-#        echo "از کلیدهای ↑ و ↓ برای حرکت، و Enter برای انتخاب استفاده کنید"
-        colored_text "Select With ↑ and ↓"
+  # ارتفاع منو را بر اساس تعداد گزینه‌ها تنظیم می‌کنیم (می‌توانید تغییر دهید)
+  local menu_height=$(( num_opts > 10 ? 10 : num_opts ))
+  local height=15
+  local width=50
 
-        for i in "${!options[@]}"; do
-            if [[ $i -eq $selected ]]; then
-                colored_text "${options[i]}"
-            else
-                echo "  ${options[i]}"
-            fi
-        done
+  # آرایه‌ای برای گزینه‌های dialog: تگ (اندیس) و توضیح (متن گزینه)
+  local dialog_options=()
+  local idx=0
+  for opt in "${opts[@]}"; do
+    dialog_options+=("$idx" "$opt")
+    (( idx++ ))
+  done
 
-        read -rsn1 key
+  # اجرای dialog برای نمایش منو
+  local choice
+  choice=$(dialog --clear \
+          --title "انتخاب گزینه" \
+          --menu "از کلیدهای جهت برای انتخاب استفاده کنید و Enter را بزنید:" \
+          $height $width $menu_height \
+          "${dialog_options[@]}" \
+          3>&1 1>&2 2>&3 3>&-)
 
-        case "$key" in
-            $'\x1b') read -rsn2 key
-                case "$key" in
-                    "[A") ((selected--)); [[ $selected -lt 0 ]] && selected=$((${#options[@]} - 1)) ;;
-                    "[B") ((selected++)); [[ $selected -ge ${#options[@]} ]] && selected=0 ;;
-                esac
-                ;;
-            "") break ;;
-        esac
-    done
-    echo "${options[$selected]}"
+  # بررسی لغو (cancel) شدن یا بستن dialog
+  if [ -z "$choice" ]; then
+    clear
+    echo "هیچ گزینه‌ای انتخاب نشد."
+    return 1
+  fi
+
+  # پاکسازی صفحه و برگرداندن مقدار انتخاب شده
+  clear
+  echo "${opts[$choice]}"
 }
 
 # Check if the script is run as root
@@ -69,6 +76,7 @@ apt-get update -y
 # Install nginx
 colored_text "32" "Installing nginx and fzf..."
 apt-get install nginx -y
+apt-get install dialog
 
 
 ########################################
