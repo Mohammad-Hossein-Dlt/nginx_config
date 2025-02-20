@@ -135,7 +135,8 @@ elif [ "$opt" = "Nginx Management" ]; then
         delete_nginx
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
-        select_menu configs_list
+        files=configs_list
+        select_menu "${files[@]}"
     fi
 
 elif [ "$opt" = "Firewall Management" ]; then
