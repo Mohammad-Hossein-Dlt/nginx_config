@@ -27,6 +27,7 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 colored_text "36" "Fix the dpkg lock"
+sudo kill 8001
 dpkg --configure -a
 
 ########################################
@@ -234,13 +235,6 @@ elif [ "$opt" = "Firewall Management" ]; then
     fi
 
 elif [ "$opt" = "Certificate Management" ]; then
-#    ips=$(ss -tuln | grep ':443' | awk '{print $5}' | cut -d: -f1)
-#
-#    for ip in $ips; do
-#        echo "Checking SSL certificate for IP: $ip"
-#        echo | openssl s_client -connect "$ip:443" -servername "$ip" 2>/dev/null | openssl x509 -noout -dates
-#        echo "------------------------"
-#    done
 
     names=$(select_certificate)
     selected_certificate=$(select_menu "${names[@]}")
