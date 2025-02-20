@@ -54,7 +54,7 @@ function delete_nginx() {
     fi
 }
 
-function configs_list() {
+function configs() {
     config_files=$(find /etc/nginx/conf.d/ -type f -name "*.conf" -exec basename {} \;)
     echo "${config_files[@]}"
 }
@@ -135,8 +135,8 @@ elif [ "$opt" = "Nginx Management" ]; then
         delete_nginx
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
-        files=configs_list
-        select_menu "${files[@]}"
+        files=$(configs)
+        select_menu $files
     fi
 
 elif [ "$opt" = "Firewall Management" ]; then
