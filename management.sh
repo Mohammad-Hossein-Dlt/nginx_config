@@ -178,13 +178,78 @@ elif [ "$opt" = "Firewall Management" ]; then
     fi
 
 elif [ "$opt" = "Certificate Management" ]; then
-    ips=$(ss -tuln | grep ':443' | awk '{print $5}' | cut -d: -f1)
+#    ips=$(ss -tuln | grep ':443' | awk '{print $5}' | cut -d: -f1)
+#
+#    for ip in $ips; do
+#        echo "Checking SSL certificate for IP: $ip"
+#        echo | openssl s_client -connect "$ip:443" -servername "$ip" 2>/dev/null | openssl x509 -noout -dates
+#        echo "------------------------"
+#    done
 
-    for ip in $ips; do
-        echo "Checking SSL certificate for IP: $ip"
-        echo | openssl s_client -connect "$ip:443" -servername "$ip" 2>/dev/null | openssl x509 -noout -dates
-        echo "------------------------"
+    directories=( "/etc/ssl/certs" "/etc/pki/tls/certs" "/etc/letsencrypt/live" )
+    certificate_files=()
+
+    # Find certificate files with common extensions (.crt, .pem, .cer)
+    for dir in "${directories[@]}"; do
+        if [ -d "$dir" ]; then
+            while IFS= read -r file; do
+                certificate_files+=("$file")
+            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.pem" -o -iname "*.cer" \))
+        fi
     done
+
+    # Check if no certificates were found
+    if [ ${#certificate_files[@]} -eq 0 ]; then
+        echo "No certificates found."
+        exit 1
+    fi
+
+    # Build menu options array with certificate details
+    menu_options=()
+    for cert in "${certificate_files[@]}"; do
+        cert_dir=$(dirname "$cert")
+        cert_file=$(basename "$cert")
+        key_file="Not found"
+
+        # Determine associated key file
+        if [[ "$cert_dir" == *"letsencrypt"* ]] && [[ "$cert_file" == "fullchain.pem" ]]; then
+            candidate="$cert_dir/privkey.pem"
+            if [ -f "$candidate" ]; then
+                key_file=$(basename "$candidate")
+            fi
+        else
+            candidate="${cert%.*}.key"
+            if [ -f "$candidate" ]; then
+                key_file=$(basename "$candidate")
+            fi
+        fi
+
+        # Extract certificate validity dates using openssl
+        dates=$(openssl x509 -in "$cert" -noout -dates 2>/dev/null)
+        notBefore=$(echo "$dates" | grep 'notBefore=' | cut -d'=' -f2)
+        notAfter=$(echo "$dates" | grep 'notAfter=' | cut -d'=' -f2)
+
+        # Fallback if dates cannot be extracted
+        if [ -z "$notBefore" ]; then
+            notBefore="N/A"
+        fi
+        if [ -z "$notAfter" ]; then
+            notAfter="N/A"
+        fi
+
+        # Build the menu option string with all certificate information
+        menu_options+=("Cert: $cert_file | Key: $key_file | Path: $cert_dir | Valid from: $notBefore | Valid to: $notAfter")
+    done
+
+    # Display the selection menu with certificate details
+    echo "Please select a certificate from the list:"
+    selected_option=$(select_menu "${menu_options[@]}")
+
+    # The selected option already displays all certificate info
+    echo ""
+    echo "You selected:"
+    echo "$selected_option"
+
 fi
 
 
