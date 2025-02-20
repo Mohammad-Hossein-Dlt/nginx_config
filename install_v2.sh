@@ -26,6 +26,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+colored_text "36" "Fix the dpkg lock"
 dpkg --configure -a
 
 ########################################
