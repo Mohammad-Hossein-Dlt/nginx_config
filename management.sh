@@ -137,7 +137,7 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
     elif [ "$nginx_opt" = "Manage Configs" ];then
-        echo "$configs_list"
+        configs_list
     fi
 
 elif [ "$opt" = "Firewall Management" ]; then
