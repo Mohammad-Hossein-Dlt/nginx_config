@@ -26,6 +26,7 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+dpkg --configure -a
 
 ########################################
 # Delete previous installations if any exist.
