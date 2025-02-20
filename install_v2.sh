@@ -77,6 +77,9 @@ apt-get install nginx -y
 certification=$(select_menu "SSL" "No SSL")
 setup=$(select_menu "Default" "Websocket")
 
+certification=${certification: -No SSL}
+setup=${certification: -Default}
+
 colored_text "36" "$certification"
 colored_text "36" "$setup"
 
