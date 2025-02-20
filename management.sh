@@ -138,22 +138,13 @@ function select_certificate() {
         cert_file=$(basename "$cert")
 
         # Extract domain from the certificate subject (CN)
-#        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | sed -n 's/.*CN\s*=\s*\([^,\/]*\).*/\1/p')
-#        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | sed -n 's/.*CN\s*=\s*\([^,\/]*\).*/\1/p')
-
         domain=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd", " -)
 
-#        if [[ "$(echo "$domain" | tr '[:upper:]' '[:lower:]')" == "cloudflare origin certificate" ]]; then
-#            alt_domain=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | head -n 1 | cut -d: -f2)
-#            if [ -n "$alt_domain" ]; then
-#                domain="$alt_domain"
-#            fi
-#        fi
         if [ -z "$domain" ]; then
             domain="N/A"
         fi
 
-        menu_options+=("Cert: $cert_file | Domain: $domain")
+        menu_options+=("Cert: $cert_file | Domains: $domain")
     done
 #    for cert in "${certificate_files[@]}"; do
 #        cert_file=$(basename "$cert")
@@ -251,10 +242,10 @@ elif [ "$opt" = "Certificate Management" ]; then
 #        echo "------------------------"
 #    done
 
-    certificates_name=$(select_certificate)
-    selected_certificate=$(select_menu "${certificates_name[@]}")
+    names=$(select_certificate)
+    selected_certificate=$(select_menu "${names[@]}")
 
-    colored_text "36" "${selected_certificate[@]}"
+    colored_text "36" "$selected_certificate"
 
 fi
 
