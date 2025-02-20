@@ -138,7 +138,7 @@ function select_certificate() {
         cert_file=$(basename "$cert")
 
         # Extract domain from the certificate subject (CN)
-        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | grep -o 'CN=[^ ,/]*' | cut -d'=' -f2)
+        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | sed -n 's/.*CN\s*=\s*\([^,\/]*\).*/\1/p')
         if [ -z "$domain" ]; then
             domain="N/A"
         fi
