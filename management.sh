@@ -164,9 +164,6 @@ function select_certificate() {
 #        # Build the menu option string with certificate file name and validity dates
 #        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
 #    done
-
-    selected_option=$(select_menu "${menu_options[@]}")
-
     echo "${menu_options[@]}"
 }
 
@@ -244,7 +241,10 @@ elif [ "$opt" = "Certificate Management" ]; then
 #        echo "------------------------"
 #    done
 
+    certificates_name=$(select_certificate)
+    selected_certificate=$(select_menu "${certificates_name[@]}")
 
+    colored_text "36" "$selected_certificate"
 
 fi
 
