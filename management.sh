@@ -61,8 +61,12 @@ function configs() {
 
 function delete_config() {
     file_name=$1
-    rm -rf /etc/nginx/conf.d/"$file_name"
-    colored_text "32" "Config ${file_name} deleted."
+    if [[ -n "$file_name" ]]; then
+        rm -rf /etc/nginx/conf.d/"$file_name"
+        colored_text "32" "Config ${file_name} deleted."
+    else
+        colored_text "31" "Can not delete directory conf.d in path /etc/nginx/conf.d"
+    fi
 }
 
 
