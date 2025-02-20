@@ -112,6 +112,64 @@ function opening_ports() {
 # Certificate Management
 ########################################
 
+function select_certificate() {
+    # Directories to search for certificates
+    directories=( "/etc/ssl/certs" "/etc/pki/tls/certs" "/etc/letsencrypt/live" )
+    certificate_files=()
+
+    # Find certificate files with common extensions (.crt, .pem, .cer)
+    for dir in "${directories[@]}"; do
+        if [ -d "$dir" ]; then
+            while IFS= read -r file; do
+                certificate_files+=("$file")
+            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.pem" -o -iname "*.cer" \))
+        fi
+    done
+
+    # Check if no certificates were found
+    if [ ${#certificate_files[@]} -eq 0 ]; then
+        echo "No certificates found."
+        exit 1
+    fi
+
+    # Build menu options array with certificate details (excluding key file and path)
+    menu_options=()
+    for cert in "${certificate_files[@]}"; do
+        cert_file=$(basename "$cert")
+
+        # Extract domain from the certificate subject (CN)
+        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | grep -o 'CN=[^ ,/]*' | cut -d'=' -f2)
+        if [ -z "$domain" ]; then
+            domain="N/A"
+        fi
+
+        menu_options+=("Cert: $cert_file | Domain: $domain")
+    done
+#    for cert in "${certificate_files[@]}"; do
+#        cert_file=$(basename "$cert")
+#
+#        # Extract certificate validity dates using openssl
+#        dates=$(openssl x509 -in "$cert" -noout -dates 2>/dev/null)
+#        notBefore=$(echo "$dates" | grep 'notBefore=' | cut -d'=' -f2)
+#        notAfter=$(echo "$dates" | grep 'notAfter=' | cut -d'=' -f2)
+#
+#        # Fallback if dates cannot be extracted
+#        if [ -z "$notBefore" ]; then
+#            notBefore="N/A"
+#        fi
+#        if [ -z "$notAfter" ]; then
+#            notAfter="N/A"
+#        fi
+#
+#        # Build the menu option string with certificate file name and validity dates
+#        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
+#    done
+
+    selected_option=$(select_menu "${menu_options[@]}")
+
+    echo "${menu_options[@]}"
+}
+
 function delete_certificate() {
     colored_text "32" "Removing previous ssl certificate..."
     rm -rf /etc/ssl/certs/public_cert.crt
@@ -186,55 +244,7 @@ elif [ "$opt" = "Certificate Management" ]; then
 #        echo "------------------------"
 #    done
 
-    # Directories to search for certificates
-    directories=( "/etc/ssl/certs" "/etc/pki/tls/certs" "/etc/letsencrypt/live" )
-    certificate_files=()
 
-    # Find certificate files with common extensions (.crt, .pem, .cer)
-    for dir in "${directories[@]}"; do
-        if [ -d "$dir" ]; then
-            while IFS= read -r file; do
-                certificate_files+=("$file")
-            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.pem" -o -iname "*.cer" \))
-        fi
-    done
-
-    # Check if no certificates were found
-    if [ ${#certificate_files[@]} -eq 0 ]; then
-        echo "No certificates found."
-        exit 1
-    fi
-
-    # Build menu options array with certificate details (excluding key file and path)
-    menu_options=()
-    for cert in "${certificate_files[@]}"; do
-        cert_file=$(basename "$cert")
-
-        # Extract certificate validity dates using openssl
-        dates=$(openssl x509 -in "$cert" -noout -dates 2>/dev/null)
-        notBefore=$(echo "$dates" | grep 'notBefore=' | cut -d'=' -f2)
-        notAfter=$(echo "$dates" | grep 'notAfter=' | cut -d'=' -f2)
-
-        # Fallback if dates cannot be extracted
-        if [ -z "$notBefore" ]; then
-            notBefore="N/A"
-        fi
-        if [ -z "$notAfter" ]; then
-            notAfter="N/A"
-        fi
-
-        # Build the menu option string with certificate file name and validity dates
-        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
-    done
-
-    # Display the selection menu with certificate details
-    echo "Please select a certificate from the list:"
-    selected_option=$(select_menu "${menu_options[@]}")
-
-    # Display selected option
-    echo ""
-    echo "You selected:"
-    echo "$selected_option"
 
 fi
 
