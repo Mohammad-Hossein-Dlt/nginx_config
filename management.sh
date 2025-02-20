@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm ~/.bash_history
+
 colored_text(){
   local color=$1
   local text=$2
@@ -57,6 +59,7 @@ function delete_nginx() {
 function configs_list() {
     config_files=$(find /etc/nginx/conf.d/ -type f -name "*.conf" -exec basename {} \;)
     colored_text "36" "$config_files"
+    echo select_menu config_files
 }
 
 ########################################
