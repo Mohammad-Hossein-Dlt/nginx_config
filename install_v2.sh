@@ -73,6 +73,24 @@ colored_text "32" "Installing nginx..."
 apt-get install nginx -y
 
 ########################################
+# Get certificate and private key from user using nano
+########################################
+
+# Create a temporary file for certificate input
+TMP_CERT=$(mktemp)
+colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
+nano "$TMP_CERT"
+CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
+rm -f "$TMP_CERT"
+
+# Create a temporary file for private key input
+TMP_KEY=$(mktemp)
+colored_text "36" "Please enter your private key content in nano. Save and exit when done."
+nano "$TMP_KEY"
+PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
+rm -f "$TMP_KEY"
+
+########################################
 # Get Main Inputs From User
 ########################################
 
@@ -90,84 +108,6 @@ colored_text "36" "$setup"
 ########################################
 
 DOMAIN="hyperrio.site"
-
-# Directly assign the content of your certificate, private key, and chain file (if applicable)
-CERTIFICATE_CONTENT="-----BEGIN CERTIFICATE-----
-MIIEpjCCA46gAwIBAgIUeIRos63R4pCCM3bBI+0LVu9M2bEwDQYJKoZIhvcNAQEL
-BQAwgYsxCzAJBgNVBAYTAlVTMRkwFwYDVQQKExBDbG91ZEZsYXJlLCBJbmMuMTQw
-MgYDVQQLEytDbG91ZEZsYXJlIE9yaWdpbiBTU0wgQ2VydGlmaWNhdGUgQXV0aG9y
-aXR5MRYwFAYDVQQHEw1TYW4gRnJhbmNpc2NvMRMwEQYDVQQIEwpDYWxpZm9ybmlh
-MB4XDTI1MDIxOTA4MzAwMFoXDTI1MDIyNjA4MzAwMFowYjEZMBcGA1UEChMQQ2xv
-dWRGbGFyZSwgSW5jLjEdMBsGA1UECxMUQ2xvdWRGbGFyZSBPcmlnaW4gQ0ExJjAk
-BgNVBAMTHUNsb3VkRmxhcmUgT3JpZ2luIENlcnRpZmljYXRlMIIBIjANBgkqhkiG
-9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu4O5g/QK0jWNSGuyCskhPXJHPHBFZJ3Eyous
-4sr48GaDrGOxFx8GQmKW5LeNLOMu6IbK1sxvNFxCL/+fD068bJ4ZDrAo3TyPn1RK
-l6zNJwfHmYihoIvIMu/cp8U9BPHddibYYPfKu1UuKIYDbTp5PWpVjyzOg+J12oS/
-0uj8QTM5RmGRafBaHaExDB7eKp44xYnGvyQrrFRHb+kWhEL7sEH8hq/bGikGP9EN
-acyO1Y0jWlcXRH0m6henA+nmer0gE2D4c9TmwVY/3suXhEX6taPkVn8u8tEBPcEL
-GiRmYF6XwcjWLC6AlrkYGBYSeB+UA2P6HW0Cc7EKhTZnnAh/FwIDAQABo4IBKDCC
-ASQwDgYDVR0PAQH/BAQDAgWgMB0GA1UdJQQWMBQGCCsGAQUFBwMCBggrBgEFBQcD
-ATAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBTPqzSQZjYLncjqwwdwHBC6yysXwjAf
-BgNVHSMEGDAWgBQk6FNXXXw0QIep65TbuuEWePwppDBABggrBgEFBQcBAQQ0MDIw
-MAYIKwYBBQUHMAGGJGh0dHA6Ly9vY3NwLmNsb3VkZmxhcmUuY29tL29yaWdpbl9j
-YTApBgNVHREEIjAggg8qLmh5cGVycmlvLnNpdGWCDWh5cGVycmlvLnNpdGUwOAYD
-VR0fBDEwLzAtoCugKYYnaHR0cDovL2NybC5jbG91ZGZsYXJlLmNvbS9vcmlnaW5f
-Y2EuY3JsMA0GCSqGSIb3DQEBCwUAA4IBAQCBZpSxex28s9PVaC3DCrf42Qg5aJyH
-Ht0fncN2Dde9XVPI1RhCLvTEmq9JNhkD9hAKVaoWrju7wOKNC/Mtbf2F4OlKS1Z3
-BwzIwnEe8gSgk00Ch+A9rdH0Dc6rylEGWSXp8trQl1njeh7PIHTGQInDyhrRP/C/
-8eKD6mxsUOQvnm2JIKKhDMns9AetaxE1KAcYoVrUbqPX2ZfwRe62IilMyNgq54Ku
-bC3EQ2UbLnHX3DAkvPWJiC4RTnEyutsfg8UrvWoXitdj6tZkNIBdnukjH2sAD7t9
-L6zVM91HxGhajOby4EP4p7dag5djCZknZZ8zw/DIUdL9yB32o292A2gQ
------END CERTIFICATE-----"
-
-PRIVATE_KEY_CONTENT="-----BEGIN PRIVATE KEY-----
-MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQC7g7mD9ArSNY1I
-a7IKySE9ckc8cEVkncTKi6ziyvjwZoOsY7EXHwZCYpbkt40s4y7ohsrWzG80XEIv
-/58PTrxsnhkOsCjdPI+fVEqXrM0nB8eZiKGgi8gy79ynxT0E8d12Jthg98q7VS4o
-hgNtOnk9alWPLM6D4nXahL/S6PxBMzlGYZFp8FodoTEMHt4qnjjFica/JCusVEdv
-6RaEQvuwQfyGr9saKQY/0Q1pzI7VjSNaVxdEfSbqF6cD6eZ6vSATYPhz1ObBVj/e
-y5eERfq1o+RWfy7y0QE9wQsaJGZgXpfByNYsLoCWuRgYFhJ4H5QDY/odbQJzsQqF
-NmecCH8XAgMBAAECggEAAhNU+osfkr1GNHbOTRfcbVPjFyrEkEOKyeJX5iUjy9oz
-boIMxybwKJkmXTiG47TnPQQMIYQe98mZor+SlCNlkVI13TEn+QlSXnIbAHWVY7w0
-6McklHFXpIpKuyfcvNd5TkIWnQqN5oFTD6tdq4s9JYF6zVxMNBUanT7HT/jr0EQe
-OMrGyRUYOhYdnnIdz6ENO8dBaD/TXjidbzF3dxi2mDsSJb8fR5pgEHCrFBN/moRz
-HdujM1up7zfQC+WcBjDo+vbb4cQvnbFBhYWatI1lZkaW9lRVUDNXZa65Dq9rXZhP
-OSD4L9DB59ZahLFQSCLUJND47hp0X7SrnzsHFRqvMQKBgQDo5bqQBPyVOopKfpIW
-/zqAVHgnFxtTlKzrMRuU0Cb4npCE0Si8hv5goTTvmWn0ocNON3o9mqttlsvJw/fS
-b4H9MHff1f1yOlifA927TYqebWHrswZKWSaT6MDdiFTx5ZM6ROpI4lOAddNH9+a2
-cv4VqFklFx4TDTBqXimzgI+L7wKBgQDOHYeav2jlbpRJharld+DE7I40nhInnxsq
-V1ReJLHlO5h9R2VNL2pJt3p6S7MbpMVfuIMew7MzMPESyFxC1uHuWOjMKukbWtoM
-2mQBJLKgFgHen1hE5am42JfhIG3Sj2C1s5KiwCuP58azvEzxNluf78miLdbrQAUP
-/S1Xz3e3WQKBgB7GXISzY/0EI0n8t6k6SKy0fLwNnZrJxp+9eXuMldm8ejRSvyNK
-Y0q5gpk2mH2u8nPfeNOzIHv2tS8QKisweOjQAscdK8RwWU2J4T7i3DJbGdlfarFg
-XmylEPc1EKR2RaIpgRvobEhJSYX1CBOL1m9eM4lnKJ4z2/XyQ2ho0I8ZAoGAYt+L
-g1I6sYSgIby7RCSDcDPB67/AGb2bPG50DE0yATLbbY1oLOSH6iDX4f6aRrJ98/MB
-AysBtZbOriHrEC0gaEPCON6EwBiO7Qd+XYYLIfwsnWx23WYGSqOsB9SUmiMpU0B3
-IRdqTjfy+5lil3tp7IkMgn3W0Tb+trLOo4bkeNECgYEAgMaL4FFcO9l88J7UH0TX
-et/t539L6Y53mOvyJLW5QW4Z+U2DBwsItBLkvmiX+MjOb2+FfbmL7FaywNuGuBrR
-X5JxikKQs5ZogEH1GHs4Ctmu8ZhXt6myb2VrpkKQQa1wppw+HC7cAWLdBVeY+fdG
-x5JuyV14hD/WA+acV5pB4M4=
------END PRIVATE KEY-----"
-
-colored_text "36" "Please paste your certificate content. Press Enter on an empty line when finished:"
-CERTIFICATE_CONTENT=""
-while IFS= read -r line; do
-    # Break if an empty line is encountered
-    if [ -z "$line" ]; then
-        break
-    fi
-    CERTIFICATE_CONTENT="${CERTIFICATE_CONTENT}${line}\n"
-done
-
-colored_text "36" "Please paste your private key content. Press Enter on an empty line when finished:"
-PRIVATE_KEY_CONTENT=""
-while IFS= read -r line; do
-    # Break if an empty line is encountered
-    if [ -z "$line" ]; then
-        break
-    fi
-    PRIVATE_KEY_CONTENT="${PRIVATE_KEY_CONTENT}${line}\n"
-done
 
 # Paths where the certificate files will be saved
 CERT_PATH="/etc/ssl/certs/public_cert.crt"
