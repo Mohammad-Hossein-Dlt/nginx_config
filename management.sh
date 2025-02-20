@@ -59,6 +59,11 @@ function configs() {
     echo "${config_files[@]}"
 }
 
+function delete_config() {
+    file_name=$1
+    rm -rf /etc/nginx/conf.d/"$file_name"
+}
+
 ########################################
 # Firewall Management
 ########################################
@@ -136,7 +141,11 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
         files=$(configs)
-        select_menu $files
+        selected_file=$(select_menu $files)
+        config_opt=$(select_menu "Delete Config")
+        if [ "$config_opt" = "Delete Config" ]; then
+            delete_config "$selected_file"
+        fi
     fi
 
 elif [ "$opt" = "Firewall Management" ]; then
