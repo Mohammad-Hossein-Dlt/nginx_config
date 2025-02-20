@@ -186,6 +186,7 @@ elif [ "$opt" = "Certificate Management" ]; then
 #        echo "------------------------"
 #    done
 
+    # Directories to search for certificates
     directories=( "/etc/ssl/certs" "/etc/pki/tls/certs" "/etc/letsencrypt/live" )
     certificate_files=()
 
@@ -204,25 +205,10 @@ elif [ "$opt" = "Certificate Management" ]; then
         exit 1
     fi
 
-    # Build menu options array with certificate details
+    # Build menu options array with certificate details (excluding key file and path)
     menu_options=()
     for cert in "${certificate_files[@]}"; do
-        cert_dir=$(dirname "$cert")
         cert_file=$(basename "$cert")
-        key_file="Not found"
-
-        # Determine associated key file
-        if [[ "$cert_dir" == *"letsencrypt"* ]] && [[ "$cert_file" == "fullchain.pem" ]]; then
-            candidate="$cert_dir/privkey.pem"
-            if [ -f "$candidate" ]; then
-                key_file=$(basename "$candidate")
-            fi
-        else
-            candidate="${cert%.*}.key"
-            if [ -f "$candidate" ]; then
-                key_file=$(basename "$candidate")
-            fi
-        fi
 
         # Extract certificate validity dates using openssl
         dates=$(openssl x509 -in "$cert" -noout -dates 2>/dev/null)
@@ -237,15 +223,15 @@ elif [ "$opt" = "Certificate Management" ]; then
             notAfter="N/A"
         fi
 
-        # Build the menu option string with all certificate information
-        menu_options+=("Cert: $cert_file | Key: $key_file | Path: $cert_dir | Valid from: $notBefore | Valid to: $notAfter")
+        # Build the menu option string with certificate file name and validity dates
+        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
     done
 
     # Display the selection menu with certificate details
     echo "Please select a certificate from the list:"
     selected_option=$(select_menu "${menu_options[@]}")
 
-    # The selected option already displays all certificate info
+    # Display selected option
     echo ""
     echo "You selected:"
     echo "$selected_option"
