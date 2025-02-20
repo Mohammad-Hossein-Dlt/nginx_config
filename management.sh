@@ -150,7 +150,7 @@ elif [ "$opt" = "Nginx Management" ]; then
         install_nginx
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
-    elif [ "$nginx_opt" = "Add Nginx" ];then
+    elif [ "$nginx_opt" = "Add Config" ];then
         bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
