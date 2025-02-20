@@ -244,7 +244,7 @@ elif [ "$opt" = "Certificate Management" ]; then
     certificates_name=$(select_certificate)
     selected_certificate=$(select_menu "${certificates_name[@]}")
 
-    colored_text "36" "$selected_certificate"
+    colored_text "36" "${selected_certificate[@]}"
 
 fi
 
