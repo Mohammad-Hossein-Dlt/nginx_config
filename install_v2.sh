@@ -71,6 +71,7 @@ apt-get update -y
 # Install nginx
 colored_text "32" "Installing nginx..."
 apt-get install nginx -y
+apt-get install -y ufw
 
 ########################################
 # Get certificate and private key from user using nano
@@ -284,9 +285,6 @@ colored_text "36" "Reverse proxy and Load balancer installation and configuratio
 ########################################
 # Firewall (ufw) Setup
 ########################################
-
-colored_text "32" "Installing firewall..."
-apt-get install -y ufw
 
 colored_text "32" "Allowing SSH on port 22 and web traffic on ports 80, 443..."
 ufw allow 9011/tcp
