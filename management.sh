@@ -178,11 +178,11 @@ elif [ "$opt" = "Firewall Management" ]; then
     fi
 
 elif [ "$opt" = "Certificate Management" ]; then
-    domains=$(grep -oP '(?<=server_name\s)(\S+)' /etc/nginx/conf.d/*)
+    ips=$(ss -tuln | grep ':443' | awk '{print $5}' | cut -d: -f1)
 
-    for domain in $domains; do
-        echo "Checking SSL certificate for $domain"
-        echo | openssl s_client -connect "$domain:443" -servername "$domain" 2>/dev/null | openssl x509 -noout -dates
+    for ip in $ips; do
+        echo "Checking SSL certificate for IP: $ip"
+        echo | openssl s_client -connect "$ip:443" -servername "$ip" 2>/dev/null | openssl x509 -noout -dates
         echo "------------------------"
     done
 fi
