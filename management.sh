@@ -1,7 +1,5 @@
 #!/bin/bash
 
-rm ~/.bash_history
-
 colored_text(){
   local color=$1
   local text=$2
@@ -58,8 +56,7 @@ function delete_nginx() {
 
 function configs_list() {
     config_files=$(find /etc/nginx/conf.d/ -type f -name "*.conf" -exec basename {} \;)
-    colored_text "36" "$config_files"
-    select_menu "${config_files[@]}"
+    echo "${config_files[@]}"
 }
 
 ########################################
@@ -137,7 +134,8 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
     elif [ "$nginx_opt" = "Manage Configs" ];then
-        configs_list
+        colored_text "36" "test"
+        select_menu configs_list
     fi
 
 elif [ "$opt" = "Firewall Management" ]; then
