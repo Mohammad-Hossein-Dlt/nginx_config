@@ -178,7 +178,7 @@ elif [ "$opt" = "Firewall Management" ]; then
     fi
 
 elif [ "$opt" = "Certificate Management" ]; then
-    domains=$(grep -oP '(?<=server_name\s)(\S+)' /etc/nginx/sites-available/*)
+    domains=$(grep -oP '(?<=server_name\s)(\S+)' /etc/nginx/conf.d/*)
 
     for domain in $domains; do
         echo "Checking SSL certificate for $domain"
