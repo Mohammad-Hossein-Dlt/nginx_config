@@ -149,6 +149,26 @@ X5JxikKQs5ZogEH1GHs4Ctmu8ZhXt6myb2VrpkKQQa1wppw+HC7cAWLdBVeY+fdG
 x5JuyV14hD/WA+acV5pB4M4=
 -----END PRIVATE KEY-----"
 
+colored_text "36" "Please paste your certificate content. Press Enter on an empty line when finished:"
+CERTIFICATE_CONTENT=""
+while IFS= read -r line; do
+    # Break if an empty line is encountered
+    if [ -z "$line" ]; then
+        break
+    fi
+    CERTIFICATE_CONTENT="${CERTIFICATE_CONTENT}${line}\n"
+done
+
+colored_text "36" "Please paste your private key content. Press Enter on an empty line when finished:"
+PRIVATE_KEY_CONTENT=""
+while IFS= read -r line; do
+    # Break if an empty line is encountered
+    if [ -z "$line" ]; then
+        break
+    fi
+    PRIVATE_KEY_CONTENT="${PRIVATE_KEY_CONTENT}${line}\n"
+done
+
 # Paths where the certificate files will be saved
 CERT_PATH="/etc/ssl/certs/public_cert.crt"
 KEY_PATH="/etc/ssl/private/private_key.key"
