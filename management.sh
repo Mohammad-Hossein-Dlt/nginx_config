@@ -178,7 +178,13 @@ elif [ "$opt" = "Firewall Management" ]; then
     fi
 
 elif [ "$opt" = "Certificate Management" ]; then
-    pass
+    domains=$(grep -oP '(?<=server_name\s)(\S+)' /etc/nginx/sites-available/*)
+
+    for domain in $domains; do
+        echo "Checking SSL certificate for $domain"
+        echo | openssl s_client -connect "$domain:443" -servername "$domain" 2>/dev/null | openssl x509 -noout -dates
+        echo "------------------------"
+    done
 fi
 
 
