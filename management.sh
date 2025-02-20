@@ -30,7 +30,7 @@ colored_text "36" "Fix the dpkg lock"
 dpkg --configure -a
 
 ########################################
-# Delete previous installations if any exist.
+# Nginx Management
 ########################################
 
 function install_nginx() {
@@ -54,6 +54,19 @@ function delete_nginx() {
     fi
 }
 
+function configs_list() {
+    config_files=$(find /etc/nginx/conf.d/ -type f -name "*.conf")
+    colored_text "36" "$config_files"
+}
+
+########################################
+# Firewall Management
+########################################
+
+function firewall_status() {
+    sudo ufw status
+}
+
 function install_firewall() {
     colored_text "32" "Installing firewall..."
     apt-get install -y ufw
@@ -70,12 +83,17 @@ function delete_firewall() {
 
 function opening_ports() {
     read -p "Enter ports to open (separated by space): " -a ports
-    for port in "$ports"; do
+    for port in "${ports[@]}"; do
+        colored_text "32" "Opening port: $port"
         sudo ufw allow "$port"/tcp
-
     done
+    colored_text "32" " Check firewall status"
+    sudo ufw status
 }
 
+########################################
+# Certificate Management
+########################################
 
 function delete_certificate() {
     colored_text "32" "Removing previous ssl certificate..."
@@ -84,7 +102,7 @@ function delete_certificate() {
 }
 
 ########################################
-# Update the package list and Install the requirements items
+# Install requirements
 ########################################
 
 function install_requirements() {
@@ -97,6 +115,10 @@ function install_requirements() {
     apt-get install -y ufw
 }
 
+########################################
+# Menu
+########################################
+
 colored_text "32" "Management menu"
 opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management")
 
@@ -105,18 +127,22 @@ if [ "$opt" = "Install Requirements" ]; then
     install_requirements
 
 elif [ "$opt" = "Nginx Management" ]; then
-    nginx_opt=$(select_menu "Install Nginx" "Delete Nginx")
+    nginx_opt=$(select_menu "Install Nginx" "Delete Nginx" "Manage Configs")
 
     if [ "$nginx_opt" = "Install Nginx" ]; then
         install_nginx
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
+    elif [ "$nginx_opt" = "Manage Configs" ];then
+        configs_list
     fi
 
 elif [ "$opt" = "Firewall Management" ]; then
-    firewall_opt=$(select_menu "Install Firewall" "Delete Firewall" "Open port(s)")
+    firewall_opt=$(select_menu "Firewall Status" "Install Firewall" "Delete Firewall" "Open port(s)")
 
-    if [ "$firewall_opt" = "Install Firewall" ]; then
+    if [ "$firewall_opt" = "Firewall Status" ]; then
+        firewall_status
+    elif [ "$firewall_opt" = "Install Firewall" ]; then
         install_firewall
     elif [ "$firewall_opt" = "Delete Firewall" ];then
         delete_firewall
