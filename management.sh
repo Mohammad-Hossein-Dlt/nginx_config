@@ -62,6 +62,14 @@ function configs() {
 function delete_config() {
     file_name=$1
     rm -rf /etc/nginx/conf.d/"$file_name"
+    colored_text "32" "Config ${file_name} deleted."
+}
+
+
+function edit_config() {
+    file_name=$1
+    nano /etc/nginx/conf.d/"$file_name"
+    colored_text "32" "Config ${file_name} edited."
 }
 
 ########################################
@@ -141,10 +149,12 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
         files=$(configs)
-        selected_file=$(select_menu $files)
-        config_opt=$(select_menu "Delete Config")
+        selected_file=$(select_menu "${files[@]}")
+        config_opt=$(select_menu "Delete Config" "Edit Config")
         if [ "$config_opt" = "Delete Config" ]; then
             delete_config "$selected_file"
+        elif [ "$config_opt" = "Edit Config" ]; then
+            edit_config "$selected_file"
         fi
     fi
 
@@ -164,3 +174,5 @@ elif [ "$opt" = "Firewall Management" ]; then
 elif [ "$opt" = "Certificate Management" ]; then
     pass
 fi
+
+systemctl reload nginx
