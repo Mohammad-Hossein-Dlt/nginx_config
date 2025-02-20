@@ -144,12 +144,14 @@ if [ "$opt" = "Install Requirements" ]; then
     install_requirements
 
 elif [ "$opt" = "Nginx Management" ]; then
-    nginx_opt=$(select_menu "Install Nginx" "Delete Nginx" "Manage Configs")
+    nginx_opt=$(select_menu "Install Nginx" "Delete Nginx" "Add Config" "Manage Configs")
 
     if [ "$nginx_opt" = "Install Nginx" ]; then
         install_nginx
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
+    elif [ "$nginx_opt" = "Add Nginx" ];then
+        bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
         files=$(configs)
@@ -179,4 +181,8 @@ elif [ "$opt" = "Certificate Management" ]; then
     pass
 fi
 
-systemctl reload nginx
+
+
+if [ -x "$(command -v nginx)" ]; then
+    systemctl reload nginx
+fi
