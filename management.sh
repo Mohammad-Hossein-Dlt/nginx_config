@@ -139,7 +139,15 @@ function select_certificate() {
 
         # Extract domain from the certificate subject (CN)
 #        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | sed -n 's/.*CN\s*=\s*\([^,\/]*\).*/\1/p')
-        domain=$(openssl x509 -in certificate.crt -noout -text | grep -oP 'DNS:\K[^,]*')
+        domain=$(openssl x509 -in "$cert" -noout -subject 2>/dev/null | sed -n 's/.*CN\s*=\s*\([^,\/]*\).*/\1/p')
+
+        # If the CN is "CloudFlare Origin Certificate", try to extract the domain from subjectAltName instead
+        if [[ "$(echo "$domain" | tr '[:upper:]' '[:lower:]')" == "cloudflare origin certificate" ]]; then
+            alt_domain=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | head -n 1 | cut -d: -f2)
+            if [ -n "$alt_domain" ]; then
+                domain="$alt_domain"
+            fi
+        fi
         if [ -z "$domain" ]; then
             domain="N/A"
         fi
