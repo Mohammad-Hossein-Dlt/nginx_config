@@ -166,7 +166,7 @@ function select_certificate() {
 #        # Build the menu option string with certificate file name and validity dates
 #        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
 #    done
-    menu_options
+    echo menu_options
 }
 
 function delete_certificate() {
