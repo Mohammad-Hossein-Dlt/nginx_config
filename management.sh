@@ -239,6 +239,10 @@ elif [ "$opt" = "Certificate Management" ]; then
     names=$(select_certificate)
     selected_certificate=$(select_menu "${names[@]}")
 
+    for n in "${names[@]}"; do
+        colored_text "36" "$n"
+    done
+
     colored_text "36" "$selected_certificate"
 
 fi
