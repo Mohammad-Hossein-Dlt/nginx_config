@@ -1,10 +1,5 @@
 #!/bin/bash
 
-hash -r
-rm -f management.shc
-unset BASH_REMATCH
-kill -9
-
 colored_text(){
   local color=$1
   local text=$2
@@ -266,7 +261,7 @@ elif [ "$opt" = "Certificate Management" ]; then
 
     cert_path=$(find_key_by_value names "$selected")
 
-    colored_text "36" "+++++++++++++++++"
+    colored_text "36" "@@@@@@@@@@@@@@@@@@"
 
 fi
 
@@ -275,3 +270,9 @@ fi
 if [ -x "$(command -v nginx)" ]; then
     systemctl reload nginx
 fi
+
+
+hash -r
+rm -f management.shc
+unset BASH_REMATCH
+kill -9
