@@ -4,11 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e7c005c9-2378-46f6-9a0c-bd4871358a8a" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/install_v2.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install_v2.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/management.sh" beforeDir="false" afterPath="$PROJECT_DIR$/management.sh" afterDir="false" />
-    </list>
+    <list default="true" id="e7c005c9-2378-46f6-9a0c-bd4871358a8a" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
