@@ -148,13 +148,13 @@ function opening_ports() {
 # Certificate Management
 ########################################
 
-mkdir -p "$BASE_PATH"
 CERT_BASE_PATH="/etc/ssl/files"
+mkdir -p "$CERT_BASE_PATH"
 
 function certificates() {
     # Directories to search for certificates
 #    directories=( "/etc/ssl/certs" "/etc/ssl/private" "/etc/pki/tls/certs" "/etc/pki/tls/private" "/etc/letsencrypt/live" )
-    directories=( CERT_BASE_PATH )
+    directories=( "$CERT_BASE_PATH" )
     certificate_files=()
 
     # Find certificate files with common extensions (.crt, .pem, .cer)
@@ -391,7 +391,7 @@ elif [ "$opt" = "Certificate Management" ]; then
         colored_text "94" "Do you really want to delete all certificates? yes or y to confirm no or n to cancel."
         read confirm
         if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
-            delete_certificate "$cert_path"
+            delete_all_certificate
         else
             colored_text "93" "Delete all certificates canceled."
         fi
