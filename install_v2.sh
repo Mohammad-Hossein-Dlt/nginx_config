@@ -27,24 +27,6 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 ########################################
-# Get certificate and private key from user using nano
-########################################
-
-# Create a temporary file for certificate input
-TMP_CERT=$(mktemp)
-colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
-nano "$TMP_CERT"
-CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
-rm -f "$TMP_CERT"
-
-# Create a temporary file for private key input
-TMP_KEY=$(mktemp)
-colored_text "36" "Please enter your private key content in nano. Save and exit when done."
-nano "$TMP_KEY"
-PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
-rm -f "$TMP_KEY"
-
-########################################
 # Get Main Inputs From User
 ########################################
 
@@ -58,28 +40,43 @@ colored_text "36" "$certification"
 colored_text "36" "$setup"
 
 ########################################
+# Get certificate and private key from user using nano
+########################################
+
+BASE_PATH="/etc/ssl/files"
+mkdir -p "$BASE_PATH"
+
+# Create a temporary file for certificate input
+function get_cert() {
+    TMP_CERT=$(mktemp)
+    colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
+    nano "$TMP_CERT"
+    CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
+    rm -f "$TMP_CERT"
+
+    local CERT_PATH="$BASE_PATH/server.crt"
+    echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
+    echo "$CERT_PATH"
+}
+
+# Create a temporary file for private key input
+function get_key() {
+    TMP_KEY=$(mktemp)
+    colored_text "36" "Please enter your private key content in nano. Save and exit when done."
+    nano "$TMP_KEY"
+    PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
+    rm -f "$TMP_KEY"
+
+    local KEY_PATH="$BASE_PATH/server.key"
+    echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
+    echo "$KEY_PATH"
+}
+
+########################################
 # Domain and SSL Certificate Settings
 ########################################
 
 DOMAIN="hyperrio.site"
-
-# Paths where the certificate files will be saved
-#CERT_PATH="/etc/ssl/certs/public_cert.crt"
-#KEY_PATH="/etc/ssl/private/private_key.key"
-BASE_PATH="/etc/ssl/files"
-
-mkdir -p "$BASE_PATH"
-
-CERT_PATH="$BASE_PATH/server.crt"
-KEY_PATH="$BASE_PATH/server.key"
-
-# Create necessary directories if they do not exist
-mkdir -p /etc/ssl/certs
-mkdir -p /etc/ssl/private
-
-# Save the certificate, private key, and chain file contents to their respective paths
-echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
-echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
 
 ########################################
 # Nginx Configuration for Load Balancer and Reverse Proxy with SSL
@@ -89,6 +86,10 @@ CONFIG_FILE="/etc/nginx/conf.d/server.conf"
 colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
+
+CERT_PATH=$(get_cert)
+KEY_PATH=$(get_key)
+
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
@@ -126,6 +127,10 @@ server {
 
 EOF
 elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
+
+CERT_PATH=$(get_cert)
+KEY_PATH=$(get_key)
+
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
