@@ -145,7 +145,7 @@ function select_certificate() {
             domain="N/A"
         fi
 
-        menu_options+=("Cert: $cert_file | Domains: $domain")
+        menu_options+=("Cert: $cert_file | Domains: $domain" )
     done
 
     for opt in "${menu_options[@]}"; do
@@ -170,7 +170,7 @@ function select_certificate() {
 #        # Build the menu option string with certificate file name and validity dates
 #        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
 #    done
-#    echo "${menu_options[@]}"
+    echo "${menu_options[@]}"
 
 }
 
@@ -241,8 +241,9 @@ elif [ "$opt" = "Firewall Management" ]; then
 
 elif [ "$opt" = "Certificate Management" ]; then
 
-    mapfile -t names < <(select_certificate)
+#    mapfile -t names < <(select_certificate)
 
+    names=$(select_certificate)
     selected=$(select_menu "${names[@]}")
 
     colored_text "36" "$selected"
