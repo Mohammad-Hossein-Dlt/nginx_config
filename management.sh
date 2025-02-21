@@ -258,7 +258,7 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
     elif [ "$nginx_opt" = "Add Config" ];then
-        bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
+        bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
         files=$(configs)
@@ -309,7 +309,7 @@ elif [ "$opt" = "Reinstall everything" ]; then
     install_firewall
     delete_all_certificate
     install_requirements
-    bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
+    bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
 
 fi
 
