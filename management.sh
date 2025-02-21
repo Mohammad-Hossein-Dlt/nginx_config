@@ -148,7 +148,6 @@ function select_certificate() {
         menu_options+=("Cert: $cert_file | Domains: $domain")
     done
 
-    colored_text "31" "Menu options:"
     for opt in "${menu_options[@]}"; do
         echo "$opt"
     done
@@ -244,9 +243,9 @@ elif [ "$opt" = "Certificate Management" ]; then
 
     mapfile -t names < <(select_certificate)
 
-    selected_certificate=$(select_menu "${names[@]}")
+    selected=$(select_menu "${names[@]}")
 
-    colored_text "36" "$selected_certificate"
+    colored_text "36" "$selected"
 
 fi
 
