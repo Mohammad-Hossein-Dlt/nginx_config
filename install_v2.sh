@@ -40,6 +40,8 @@ colored_text "36" "$setup"
 # Get certificate and private key from user using nano
 ########################################
 
+DOMAIN="hyperrio.site"
+
 BASE_PATH="/etc/ssl/files"
 mkdir -p "$BASE_PATH"
 
@@ -70,13 +72,7 @@ function get_key() {
 }
 
 ########################################
-# Domain and SSL Certificate Settings
-########################################
-
-DOMAIN="hyperrio.site"
-
-########################################
-# Nginx Configuration for Load Balancer and Reverse Proxy with SSL
+# Nginx Configuration for Load Balancer and Reverse Proxy
 ########################################
 
 CONFIG_FILE="/etc/nginx/conf.d/server.conf"
@@ -84,7 +80,15 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
-CERT_PATH=$(get_cert)
+TMP_CERT=$(mktemp)
+colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
+nano "$TMP_CERT"
+CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
+rm -f "$TMP_CERT"
+
+CERT_PATH="$BASE_PATH/server.crt"
+echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
+echo "$CERT_PATH"
 KEY_PATH=$(get_key)
 
 cat > "$CONFIG_FILE" <<EOF
