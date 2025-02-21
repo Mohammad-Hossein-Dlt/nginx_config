@@ -134,7 +134,7 @@ function select_certificate() {
     fi
 
     # Build menu options array with certificate details (excluding key file and path)
-    menu_options=()
+    declare -A items
     for cert in "${certificate_files[@]}"; do
         cert_file=$(basename "$cert")
 
@@ -145,10 +145,10 @@ function select_certificate() {
             domain="N/A"
         fi
 
-        menu_options+=("Cert: $cert_file | Domains: $domain" )
+        items["$cert"]=("Path: $cert_file | Domains: $domain" )
     done
 
-    for opt in "${menu_options[@]}"; do
+    for opt in "${items[@]}"; do
         echo "$opt"
     done
 #    for cert in "${certificate_files[@]}"; do
