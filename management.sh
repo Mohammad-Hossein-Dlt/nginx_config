@@ -34,6 +34,9 @@ find_key_by_value() {
     return 1
 }
 
+########################################
+# Initializing
+########################################
 
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
@@ -44,6 +47,12 @@ fi
 colored_text "36" "Fix the dpkg lock"
 sudo kill 8001
 dpkg --configure -a
+
+colored_text "32" "Clear cache"
+hash -r
+rm -f management.shc
+unset BASH_REMATCH
+kill -9
 
 ########################################
 # Nginx Management
@@ -206,9 +215,15 @@ function delete_certificate() {
 
     local base_name="${cert_file%.*}"
 
-    colored_text "32" "Removing ssl certificate '$base_name' ..."
+    colored_text "32" "Removing ssl certificate '$base_name'"
     rm -rf "/etc/ssl/files/${base_name}.crt"
     rm -rf "/etc/ssl/files/${base_name}.key"
+}
+
+function delete_all_certificate() {
+    colored_text "32" "Removing ssl all certificate..."
+    rm -rf "/etc/ssl/files/*.crt"
+    rm -rf "/etc/ssl/files/*.key"
 }
 
 ########################################
@@ -218,7 +233,6 @@ function delete_certificate() {
 function install_requirements() {
     colored_text "32" "Updating package list..."
     apt-get update -y
-
     colored_text "32" "Installing nginx..."
     apt-get install nginx -y
     colored_text "32" "Installing firewall..."
@@ -244,6 +258,12 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
     elif [ "$nginx_opt" = "Add Config" ];then
+        delete_nginx
+        install_nginx
+        delete_firewall
+        install_firewall
+        delete_all_certificate
+        install_requirements
         bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
@@ -289,13 +309,11 @@ elif [ "$opt" = "Certificate Management" ]; then
 
 fi
 
-
-
 if [ -x "$(command -v nginx)" ]; then
     systemctl reload nginx
 fi
 
-
+colored_text "32" "Clear cache"
 hash -r
 rm -f management.shc
 unset BASH_REMATCH

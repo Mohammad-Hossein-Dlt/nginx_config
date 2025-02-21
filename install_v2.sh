@@ -26,53 +26,6 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
-colored_text "36" "Fix the dpkg lock"
-dpkg --configure -a
-
-########################################
-# Delete previous installations if any exist.
-########################################
-
-# If nginx is installed, remove its current installation and configuration files
-if [ -x "$(command -v nginx)" ]; then
-    colored_text "32" "Nginx is installed. Purging existing installation and configuration files..."
-
-    colored_text "32" "Stopping nginx service..."
-    systemctl stop nginx 2>/dev/null
-    colored_text "32" "Purging nginx..."
-    apt-get purge -y nginx
-    colored_text "32" "Auto removing packages..."
-    apt-get autoremove -y
-    colored_text "32" "Removing nginx directory..."
-    rm -rf /etc/nginx
-fi
-
-# If firewall is installed, remove its current installation and configuration files
-if [ -x "$(command -v ufw)" ]; then
-    colored_text "32" "Firewall is installed. Purging existing installation and configuration files..."
-    ufw disable
-    apt-get purge -y ufw
-    apt-get autoremove -y ufw
-    rm -rf /etc/ufw
-fi
-
-colored_text "32" "Removing previous ssl certificate..."
-rm -rf /etc/ssl/certs/public_cert.crt
-rm -rf /etc/ssl/private/private_key.key
-
-########################################
-# Update the package list and Install the required items
-########################################
-
-# Update the package list
-colored_text "32" "Updating package list..."
-apt-get update -y
-
-# Install nginx
-colored_text "32" "Installing nginx..."
-apt-get install nginx -y
-apt-get install -y ufw
-
 ########################################
 # Get certificate and private key from user using nano
 ########################################
@@ -293,7 +246,6 @@ colored_text "36" "Reverse proxy and Load balancer installation and configuratio
 ########################################
 
 colored_text "32" "Allowing SSH on port 22 and web traffic on ports 80, 443..."
-ufw allow 9011/tcp
 ufw allow 22/tcp
 ufw allow 80/tcp
 ufw allow 443/tcp
