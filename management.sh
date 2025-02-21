@@ -148,9 +148,9 @@ function select_certificate() {
         menu_options+=("Cert: $cert_file | Domains: $domain" )
     done
 
-    for opt in "${menu_options[@]}"; do
-        echo "$opt"
-    done
+#    for opt in "${menu_options[@]}"; do
+#        echo "$opt"
+#    done
 #    for cert in "${certificate_files[@]}"; do
 #        cert_file=$(basename "$cert")
 #
