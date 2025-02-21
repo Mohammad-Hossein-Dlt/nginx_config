@@ -145,7 +145,7 @@ function select_certificate() {
             domain="N/A"
         fi
 
-        items["$cert"]=("Path: $cert_file | Domains: $domain" )
+        items["$cert"]="Path: $cert_file | Domains: $domain"
     done
 
     for opt in "${items[@]}"; do
