@@ -164,7 +164,7 @@ function select_certificate() {
     done
 
     for key in "${!items[@]}"; do
-        echo "$key: ${items[$key]}"
+        eval "$1[$key]=\"${items[$key]}\""
     done
 #    for cert in "${certificate_files[@]}"; do
 #        cert_file=$(basename "$cert")
@@ -255,9 +255,10 @@ elif [ "$opt" = "Firewall Management" ]; then
 
 elif [ "$opt" = "Certificate Management" ]; then
 
-    mapfile -t names < <(select_certificate)
+    declare -A names
+    select_certificate names
 
-    selected=$(select_menu "${names[@]}")
+    selected=$(select_menu "${!names[@]}")
 
     cert_path=$(find_key_by_value names "$selected")
 
