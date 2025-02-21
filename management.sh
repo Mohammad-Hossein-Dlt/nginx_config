@@ -154,38 +154,42 @@ function select_certificate() {
         cert_file=$(basename "$cert")
 
         # Extract domain from the certificate subject (CN)
-        domain=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
+        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
 
-        if [ -z "$domain" ]; then
-            domain="N/A"
+        if [ -z "$domains" ]; then
+            domains="N/A"
         fi
 
-        items["$cert"]="Path: $cert_file | Domains: $domain"
+        items["$cert"]="Path: $cert_file | Domains: $domains"
     done
 
     for key in "${!items[@]}"; do
         eval "$1[$key]=\"${items[$key]}\""
     done
-#    for cert in "${certificate_files[@]}"; do
-#        cert_file=$(basename "$cert")
-#
-#        # Extract certificate validity dates using openssl
-#        dates=$(openssl x509 -in "$cert" -noout -dates 2>/dev/null)
-#        notBefore=$(echo "$dates" | grep 'notBefore=' | cut -d'=' -f2)
-#        notAfter=$(echo "$dates" | grep 'notAfter=' | cut -d'=' -f2)
-#
-#        # Fallback if dates cannot be extracted
-#        if [ -z "$notBefore" ]; then
-#            notBefore="N/A"
-#        fi
-#        if [ -z "$notAfter" ]; then
-#            notAfter="N/A"
-#        fi
-#
-#        # Build the menu option string with certificate file name and validity dates
-#        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
-#    done
+}
 
+function certificate_info() {
+    local cert_path=$1
+
+    cert_file=$(basename "$cert_path")
+    domains=$(openssl x509 -in "cert_path" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
+
+    # Extract certificate validity dates using openssl
+    dates=$(openssl x509 -in "$cert_path" -noout -dates 2>/dev/null)
+    notBefore=$(echo "$dates" | grep 'notBefore=' | cut -d'=' -f2)
+    notAfter=$(echo "$dates" | grep 'notAfter=' | cut -d'=' -f2)
+
+    # Fallback if dates cannot be extracted
+    if [ -z "$notBefore" ]; then
+        notBefore="N/A"
+    fi
+    if [ -z "$notAfter" ]; then
+        notAfter="N/A"
+    fi
+
+    # Build the menu option string with certificate file name and validity dates
+    info="Cert: $cert_file \n Domains: $domains \n Valid from: $notBefore \n Valid to: $notAfter"
+    colored_text "36" "$info"
 }
 
 function delete_certificate() {
@@ -263,7 +267,8 @@ elif [ "$opt" = "Certificate Management" ]; then
     cert_path=$(find_key_by_value names "$selected")
 
     colored_text "36" "$cert_path"
-    colored_text "36" "##############"
+
+    certificate_opt=$(select_menu "Certificate Info" "Delete Certificate")
 
 fi
 
