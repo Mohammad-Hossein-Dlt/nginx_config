@@ -284,7 +284,7 @@ elif [ "$opt" = "Certificate Management" ]; then
     if [ "$certificate_opt" = "Certificate Info" ]; then
         certificate_info "$cert_path"
     elif [ "$certificate_opt" = "Delete Certificate" ]; then
-        delete_certificate cert_path
+        delete_certificate "$cert_path"
     fi
 
 fi
