@@ -3,7 +3,7 @@
 colored_text(){
   local color=$1
   local text=$2
-  echo -e "\e[${color}m$text\e[0m"
+  echo -e "\e[${color}m$text\e[0m" >&2
 }
 
 function select_menu {
