@@ -265,7 +265,7 @@ elif [ "$opt" = "Certificate Management" ]; then
 
     cert_path=$(find_key_by_value names "$selected")
 
-    colored_text "36" "///////"
+    colored_text "36" ".............."
 
 fi
 
