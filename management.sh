@@ -114,6 +114,9 @@ function opening_ports() {
 ########################################
 
 function select_certificate() {
+
+    local -n ref=$1
+
     # Directories to search for certificates
     directories=( "/etc/ssl/certs" "/etc/pki/tls/certs" "/etc/letsencrypt/live" )
     certificate_files=()
@@ -152,7 +155,6 @@ function select_certificate() {
     for opt in "${menu_options[@]}"; do
         colored_text "36" "$opt"
     done
-    echo
 #    for cert in "${certificate_files[@]}"; do
 #        cert_file=$(basename "$cert")
 #
@@ -172,7 +174,8 @@ function select_certificate() {
 #        # Build the menu option string with certificate file name and validity dates
 #        menu_options+=("Cert: $cert_file | Valid from: $notBefore | Valid to: $notAfter")
 #    done
-    echo "${menu_options[@]}"
+#    echo "${menu_options[@]}"
+    ref=menu_options
 }
 
 function delete_certificate() {
@@ -242,7 +245,9 @@ elif [ "$opt" = "Firewall Management" ]; then
 
 elif [ "$opt" = "Certificate Management" ]; then
 
-    names=$(select_certificate)
+    declare -a names
+
+    select_certificate names
     selected_certificate=$(select_menu "${names[@]}")
 
     colored_text "36" "$selected_certificate"
