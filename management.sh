@@ -265,7 +265,7 @@ function uninstall_everything() {
 ########################################
 
 colored_text "32" "Management menu"
-opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management" "Reinstall everything" "Uninstall everything")
+opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management" "Reinstall everything" "Uninstall and delete everything")
 
 if [ "$opt" = "Install Requirements" ]; then
     
@@ -277,7 +277,13 @@ elif [ "$opt" = "Nginx Management" ]; then
     if [ "$nginx_opt" = "Install Nginx" ]; then
         install_nginx
     elif [ "$nginx_opt" = "Delete Nginx" ];then
-        uninstall_nginx
+        colored_text -n "94" "Do you really want to uninstall nginx? yes or y to confirm no or n to cancel."
+        read confirm
+        if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
+            uninstall_nginx
+        else
+            colored_text "93" "Uninstall nginx canceled."
+        fi
     elif [ "$nginx_opt" = "Add Config" ];then
         if [ ! -x "$(command -v nginx)" ]; then
             colored_text "31" "Nginx not installed."
@@ -292,7 +298,13 @@ elif [ "$opt" = "Nginx Management" ]; then
         selected_file=$(select_menu "${files[@]}")
         config_opt=$(select_menu "Delete Config" "Edit Config")
         if [ "$config_opt" = "Delete Config" ]; then
-            delete_config "$selected_file"
+            colored_text -n "94" "Do you really want to delete config $selected_file? yes or y to confirm no or n to cancel."
+            read confirm
+            if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
+                delete_config "$selected_file"
+            else
+                colored_text "93" "Delete config $selected_file canceled."
+            fi
         elif [ "$config_opt" = "Edit Config" ]; then
             edit_config "$selected_file"
         fi
@@ -306,7 +318,13 @@ elif [ "$opt" = "Firewall Management" ]; then
     elif [ "$firewall_opt" = "Install Firewall" ]; then
         install_firewall
     elif [ "$firewall_opt" = "Delete Firewall" ];then
-        uninstall_firewall
+        colored_text -n "94" "Do you really want to uninstall firewall (ufw)? yes or y to confirm no or n to cancel."
+        read confirm
+        if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
+            uninstall_firewall
+        else
+            colored_text "93" "Uninstall firewall (ufw) canceled."
+        fi
     elif [ "$firewall_opt" = "Open port(s)" ];then
         opening_ports
     fi
@@ -325,22 +343,39 @@ elif [ "$opt" = "Certificate Management" ]; then
     if [ "$certificate_opt" = "Certificate Info" ]; then
         certificate_info "$cert_path"
     elif [ "$certificate_opt" = "Delete Certificate" ]; then
-        delete_certificate "$cert_path"
+        colored_text -n "94" "Do you really want to delete certificate $cert_path? yes or y to confirm no or n to cancel."
+        read confirm
+        if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
+            delete_certificate "$cert_path"
+        else
+            colored_text "93" "Delete certificate $cert_path canceled."
+        fi
     fi
 
 elif [ "$opt" = "Reinstall everything" ]; then
 
-    uninstall_nginx
-    install_nginx
-    uninstall_firewall
-    install_firewall
-    delete_all_certificate
-    install_requirements
-    bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
+    colored_text -n "94" "Do you really want to reinstall everything? yes or y to confirm no or n to cancel."
+    read confirm
+    if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
+        uninstall_nginx
+        install_nginx
+        uninstall_firewall
+        install_firewall
+        delete_all_certificate
+        install_requirements
+        bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
+    else
+        colored_text "93" "Reinstall everything canceled."
+    fi
 
-elif [ "$opt" = "Uninstall everything" ]; then
-
-    uninstall_everything
+elif [ "$opt" = "Uninstall and delete everything" ]; then
+    colored_text -n "94" "Do you really want to uninstall and delete everything? yes or y to confirm no or n to cancel."
+    read confirm
+    if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
+        uninstall_everything
+    else
+        colored_text "93" "Uninstall and delete everything canceled."
+    fi
 
 fi
 
