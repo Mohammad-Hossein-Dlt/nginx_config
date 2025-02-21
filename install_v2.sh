@@ -111,8 +111,14 @@ colored_text "36" "$setup"
 DOMAIN="hyperrio.site"
 
 # Paths where the certificate files will be saved
-CERT_PATH="/etc/ssl/certs/public_cert.crt"
-KEY_PATH="/etc/ssl/private/private_key.key"
+#CERT_PATH="/etc/ssl/certs/public_cert.crt"
+#KEY_PATH="/etc/ssl/private/private_key.key"
+BASE_PATH="/etc/ssl/files"
+
+mkdir -p "$BASE_PATH"
+
+CERT_PATH="$BASE_PATH/public_cert.crt"
+KEY_PATH="$BASE_PATH/private_key.key"
 
 # Create necessary directories if they do not exist
 mkdir -p /etc/ssl/certs

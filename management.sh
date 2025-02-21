@@ -130,7 +130,8 @@ function opening_ports() {
 
 function certificates() {
     # Directories to search for certificates
-    directories=( "/etc/ssl/certs" "/etc/ssl/private" "/etc/pki/tls/certs" "/etc/pki/tls/private" "/etc/letsencrypt/live" )
+#    directories=( "/etc/ssl/certs" "/etc/ssl/private" "/etc/pki/tls/certs" "/etc/pki/tls/private" "/etc/letsencrypt/live" )
+    directories=( "/etc/ssl/files" )
     certificate_files=()
 
     # Find certificate files with common extensions (.crt, .pem, .cer)
@@ -138,7 +139,7 @@ function certificates() {
         if [ -d "$dir" ]; then
             while IFS= read -r file; do
                 certificate_files+=("$file")
-            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.pem" -o -iname "*.cer" \))
+            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.key" -o -iname "*.pem" -o -iname "*.cer" \))
         fi
     done
 
