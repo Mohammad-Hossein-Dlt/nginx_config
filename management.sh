@@ -233,8 +233,8 @@ function delete_certificate() {
 
 function delete_all_certificate() {
     colored_text "32" "Removing all ssl certificates..."
-    rm -rf "/etc/ssl/files/*.crt"
-    rm -rf "/etc/ssl/files/*.key"
+    rm -rf /etc/ssl/files/*.crt
+    rm -rf /etc/ssl/files/*.key
 }
 
 ########################################
