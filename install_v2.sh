@@ -117,8 +117,8 @@ BASE_PATH="/etc/ssl/files"
 
 mkdir -p "$BASE_PATH"
 
-CERT_PATH="$BASE_PATH/public_cert.crt"
-KEY_PATH="$BASE_PATH/private_key.key"
+CERT_PATH="$BASE_PATH/server.crt"
+KEY_PATH="$BASE_PATH/server.key"
 
 # Create necessary directories if they do not exist
 mkdir -p /etc/ssl/certs
