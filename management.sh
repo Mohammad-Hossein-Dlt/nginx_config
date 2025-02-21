@@ -139,7 +139,7 @@ function certificates() {
         if [ -d "$dir" ]; then
             while IFS= read -r file; do
                 certificate_files+=("$file")
-            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.key" -o -iname "*.pem" -o -iname "*.cer" \))
+            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.pem" -o -iname "*.cer" \))
         fi
     done
 
@@ -154,6 +154,9 @@ function certificates() {
     for cert in "${certificate_files[@]}"; do
         cert_file=$(basename "$cert")
 
+        local base_name
+        base_name="${cert_file%.*}"
+
         # Extract domain from the certificate subject (CN)
         domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
 
@@ -161,7 +164,12 @@ function certificates() {
             domains="N/A"
         fi
 
-        items["$cert"]="Path: $cert_file | Domains: $domains"
+        key_path="/etc/ssl/files/${base_name}222.key"
+        key_file="$base_name.key"
+        if [ ! -e "$key_path" ] && [ ! -f "$key_path" ]; then
+            key_file="N/A"
+        fi
+        items["$cert"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
     done
 
     for key in "${!items[@]}"; do
