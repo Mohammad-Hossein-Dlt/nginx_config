@@ -128,9 +128,9 @@ function opening_ports() {
 # Certificate Management
 ########################################
 
-function select_certificate() {
+function certificates() {
     # Directories to search for certificates
-    directories=( "/etc/ssl/certs" "/etc/pki/tls/certs" "/etc/letsencrypt/live" )
+    directories=( "/etc/ssl/certs" "/etc/ssl/private" "/etc/pki/tls/certs" "/etc/pki/tls/private" "/etc/letsencrypt/live" )
     certificate_files=()
 
     # Find certificate files with common extensions (.crt, .pem, .cer)
@@ -260,7 +260,7 @@ elif [ "$opt" = "Firewall Management" ]; then
 elif [ "$opt" = "Certificate Management" ]; then
 
     declare -A names
-    select_certificate names
+    certificates names
 
     selected=$(select_menu "${names[@]}")
 
