@@ -244,7 +244,7 @@ function install_requirements() {
 ########################################
 
 colored_text "32" "Management menu"
-opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management")
+opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management" "Reinstall everything")
 
 if [ "$opt" = "Install Requirements" ]; then
     
@@ -258,12 +258,6 @@ elif [ "$opt" = "Nginx Management" ]; then
     elif [ "$nginx_opt" = "Delete Nginx" ];then
         delete_nginx
     elif [ "$nginx_opt" = "Add Config" ];then
-        delete_nginx
-        install_nginx
-        delete_firewall
-        install_firewall
-        delete_all_certificate
-        install_requirements
         bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
     elif [ "$nginx_opt" = "Manage Configs" ];then
         colored_text "36" "test"
@@ -306,6 +300,16 @@ elif [ "$opt" = "Certificate Management" ]; then
     elif [ "$certificate_opt" = "Delete Certificate" ]; then
         delete_certificate "$cert_path"
     fi
+
+elif [ "$opt" = "Reinstall everything" ]; then
+
+    delete_nginx
+    install_nginx
+    delete_firewall
+    install_firewall
+    delete_all_certificate
+    install_requirements
+    bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install_v2.sh)
 
 fi
 
