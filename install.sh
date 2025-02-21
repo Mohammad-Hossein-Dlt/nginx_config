@@ -48,8 +48,7 @@ mkdir -p "$BASE_PATH"
 function get_cert() {
     TMP_CERT=$(mktemp)
     colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
-    nano "$TMP_CERT" < /dev/tty
-    nano "$TMP_CERT"
+    nano "$TMP_CERT" < /dev/tty > /dev/tty
     CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
     rm -f "$TMP_CERT"
 
@@ -61,8 +60,7 @@ function get_cert() {
 function get_key() {
     TMP_KEY=$(mktemp)
     colored_text "36" "Please enter your private key content in nano. Save and exit when done."
-    nano "$TMP_CERT" < /dev/tty
-    nano "$TMP_KEY"
+    nano "$TMP_CERT" < /dev/tty > /dev/tty
     PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
     rm -f "$TMP_KEY"
 
