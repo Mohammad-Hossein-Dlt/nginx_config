@@ -251,6 +251,7 @@ colored_text "36" "Reverse proxy and Load balancer installation and configuratio
 ########################################
 
 colored_text "32" "Allowing SSH on port 22 and web traffic on ports 80, 443..."
+ufw allow 9011/tcp
 ufw allow 22/tcp
 ufw allow 80/tcp
 ufw allow 443/tcp

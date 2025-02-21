@@ -317,6 +317,11 @@ if [ -x "$(command -v nginx)" ]; then
     systemctl reload nginx
 fi
 
+if [ -x "$(command -v ufw)" ]; then
+    ufw allow 22/tcp
+    ufw allow 22/tcp
+fi
+
 colored_text "32" "Clear cache"
 hash -r
 rm -f management.shc
