@@ -33,9 +33,6 @@ fi
 certification=$(select_menu "SSL" "No SSL")
 setup=$(select_menu "Default" "Websocket")
 
-certification=${certification: -No SSL}
-setup=${setup: -Default}
-
 colored_text "36" "$certification"
 colored_text "36" "$setup"
 
