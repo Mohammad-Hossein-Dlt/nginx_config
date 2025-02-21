@@ -163,8 +163,8 @@ function select_certificate() {
         items["$cert"]="Path: $cert_file | Domains: $domain"
     done
 
-    for opt in "${items[@]}"; do
-        echo "$opt"
+    for key in "${!items[@]}"; do
+        echo "$key: ${items[$key]}"
     done
 #    for cert in "${certificate_files[@]}"; do
 #        cert_file=$(basename "$cert")
