@@ -53,7 +53,7 @@ function get_cert() {
     CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
     rm -f "$TMP_CERT"
 
-    local CERT_PATH="$BASE_PATH/server.crt"
+    CERT_PATH="$BASE_PATH/server.crt"
     echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
     echo "$CERT_PATH"
 }
@@ -66,7 +66,7 @@ function get_key() {
     PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
     rm -f "$TMP_KEY"
 
-    local KEY_PATH="$BASE_PATH/server.key"
+    KEY_PATH="$BASE_PATH/server.key"
     echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
     echo "$KEY_PATH"
 }
@@ -80,15 +80,7 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
-TMP_CERT=$(mktemp)
-colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
-nano "$TMP_CERT"
-CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
-rm -f "$TMP_CERT"
-
-CERT_PATH="$BASE_PATH/server.crt"
-echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
-echo "$CERT_PATH"
+CERT_PATH=$(get_cert)
 KEY_PATH=$(get_key)
 
 cat > "$CONFIG_FILE" <<EOF
