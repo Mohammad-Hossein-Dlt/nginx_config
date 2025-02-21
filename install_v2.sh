@@ -45,10 +45,10 @@ DOMAIN="hyperrio.site"
 BASE_PATH="/etc/ssl/files"
 mkdir -p "$BASE_PATH"
 
-# Create a temporary file for certificate input
 function get_cert() {
     TMP_CERT=$(mktemp)
     colored_text "36" "Please enter your certificate content in nano. Save and exit when done."
+    nano "$TMP_CERT" < /dev/tty
     nano "$TMP_CERT"
     CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
     rm -f "$TMP_CERT"
@@ -58,10 +58,10 @@ function get_cert() {
     echo "$CERT_PATH"
 }
 
-# Create a temporary file for private key input
 function get_key() {
     TMP_KEY=$(mktemp)
     colored_text "36" "Please enter your private key content in nano. Save and exit when done."
+    nano "$TMP_CERT" < /dev/tty
     nano "$TMP_KEY"
     PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
     rm -f "$TMP_KEY"
