@@ -81,8 +81,8 @@ if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 CERT_PATH=$(get_cert)
 KEY_PATH=$(get_key)
 
-colored_text "32" CERT_PATH
-colored_text "32" KEY_PATH
+colored_text "32" "$CERT_PATH"
+colored_text "32" "$KEY_PATH"
 
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
@@ -125,8 +125,8 @@ elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 CERT_PATH=$(get_cert)
 KEY_PATH=$(get_key)
 
-colored_text "32" CERT_PATH
-colored_text "32" KEY_PATH
+colored_text "32" "$CERT_PATH"
+colored_text "32" "$KEY_PATH"
 
 cat > "$CONFIG_FILE" <<EOF
 # Define an upstream block for the backend server(s)
