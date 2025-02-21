@@ -65,7 +65,7 @@ function install_nginx() {
     apt-get install nginx -y
 }
 
-function delete_nginx() {
+function uninstall_nginx() {
     if [ -x "$(command -v nginx)" ]; then
         colored_text "32" "Nginx is installed. Purging existing installation and configuration files..."
         colored_text "32" "Stopping nginx service..."
@@ -113,7 +113,7 @@ function install_firewall() {
     colored_text "32" "Installing firewall..."
     apt-get install -y ufw
 }
-function delete_firewall() {
+function uninstall_firewall() {
     if [ -x "$(command -v ufw)" ]; then
         colored_text "32" "Firewall is installed. Purging existing installation and configuration files..."
         colored_text "32" "Stopping ufw service..."
@@ -248,8 +248,8 @@ function install_requirements() {
 ########################################
 
 function uninstall_everything() {
-    delete_nginx
-    delete_firewall
+    uninstall_nginx
+    uninstall_firewall
     delete_all_certificate
 }
 
@@ -258,7 +258,7 @@ function uninstall_everything() {
 ########################################
 
 colored_text "32" "Management menu"
-opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management" "Reinstall everything")
+opt=$(select_menu "Install Requirements" "Nginx Management" "Firewall Management" "Certificate Management" "Reinstall everything" "Uninstall everything")
 
 if [ "$opt" = "Install Requirements" ]; then
     
@@ -270,7 +270,7 @@ elif [ "$opt" = "Nginx Management" ]; then
     if [ "$nginx_opt" = "Install Nginx" ]; then
         install_nginx
     elif [ "$nginx_opt" = "Delete Nginx" ];then
-        delete_nginx
+        uninstall_nginx
     elif [ "$nginx_opt" = "Add Config" ];then
         bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
     elif [ "$nginx_opt" = "Manage Configs" ];then
@@ -293,7 +293,7 @@ elif [ "$opt" = "Firewall Management" ]; then
     elif [ "$firewall_opt" = "Install Firewall" ]; then
         install_firewall
     elif [ "$firewall_opt" = "Delete Firewall" ];then
-        delete_firewall
+        uninstall_firewall
     elif [ "$firewall_opt" = "Open port(s)" ];then
         opening_ports
     fi
@@ -317,13 +317,17 @@ elif [ "$opt" = "Certificate Management" ]; then
 
 elif [ "$opt" = "Reinstall everything" ]; then
 
-    delete_nginx
+    uninstall_nginx
     install_nginx
-    delete_firewall
+    uninstall_firewall
     install_firewall
     delete_all_certificate
     install_requirements
     bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
+
+elif [ "$opt" = "Uninstall everything" ]; then
+
+    uninstall_everything
 
 fi
 
