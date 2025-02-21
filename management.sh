@@ -271,7 +271,7 @@ elif [ "$opt" = "Certificate Management" ]; then
     certificate_opt=$(select_menu "Certificate Info" "Delete Certificate")
 
     if [ "$certificate_opt" = "Certificate Info" ]; then
-        certificate_info cert_path
+        certificate_info "$cert_path"
     fi
 
 fi
