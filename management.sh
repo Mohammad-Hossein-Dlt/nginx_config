@@ -110,6 +110,8 @@ function firewall_status() {
 }
 
 function install_firewall() {
+    colored_text "32" "Updating package list..."
+    apt-get update -y
     colored_text "32" "Installing firewall..."
     apt-get install -y ufw
 }
