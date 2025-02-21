@@ -1,5 +1,9 @@
 #!/bin/bash
 
+hash -r
+rm -f management.shc
+unset BASH_REMATCH
+
 colored_text(){
   local color=$1
   local text=$2
@@ -17,6 +21,21 @@ function select_menu {
                 ;;
         esac
     done
+}
+
+find_key_by_value() {
+    local -n assoc_array=$1
+    local search_value=$2
+
+    for key in "${!assoc_array[@]}"; do
+        if [ "${assoc_array[$key]}" == "$search_value" ]; then
+            echo "$key"
+            return 0  # موفقیت
+        fi
+    done
+
+    echo ""
+    return 1
 }
 
 
@@ -244,7 +263,9 @@ elif [ "$opt" = "Certificate Management" ]; then
 
     selected=$(select_menu "${names[@]}")
 
-    colored_text "36" "$selected"
+    cert_path=$(find_key_by_value names "$selected")
+
+    colored_text "36" "$cert_path"
 
 fi
 
