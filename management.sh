@@ -114,6 +114,11 @@ function install_firewall() {
     apt-get update -y
     colored_text "32" "Installing firewall..."
     apt-get install -y ufw
+
+    if [ -x "$(command -v ufw)" ]; then
+        ufw allow 9011/tcp
+        ufw allow 22/tcp
+    fi
 }
 function uninstall_firewall() {
     if [ -x "$(command -v ufw)" ]; then
@@ -341,11 +346,6 @@ fi
 
 if [ -x "$(command -v nginx)" ]; then
     systemctl reload nginx
-fi
-
-if [ -x "$(command -v ufw)" ]; then
-    ufw allow 9011/tcp
-    ufw allow 22/tcp
 fi
 
 colored_text "32" "Clear cache"
