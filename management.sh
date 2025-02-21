@@ -164,7 +164,7 @@ function certificates() {
             domains="N/A"
         fi
 
-        key_path="/etc/ssl/files/${base_name}222.key"
+        key_path="/etc/ssl/files/${base_name}.key"
         key_file="$base_name.key"
         if [ ! -e "$key_path" ] && [ ! -f "$key_path" ]; then
             key_file="N/A"
