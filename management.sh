@@ -147,6 +147,12 @@ function select_certificate() {
 
         menu_options+=("Cert: $cert_file | Domains: $domain")
     done
+
+    colored_text "31" "Menu options:"
+    for opt in "${menu_options[@]}"; do
+        colored_text "36" "$opt"
+    done
+    echo
 #    for cert in "${certificate_files[@]}"; do
 #        cert_file=$(basename "$cert")
 #
