@@ -258,16 +258,11 @@ elif [ "$opt" = "Certificate Management" ]; then
     declare -A names
     select_certificate names
 
-    selected=$(select_menu "${!names[@]}")
+    selected=$(select_menu "${names[@]}")
 
     cert_path=$(find_key_by_value names "$selected")
 
-    for key in "${!names[@]}"; do
-        colored_text "31" "$key"
-        colored_text "36" "${names[$key]}"
-    done
-
-    colored_text "36" "$names"
+    colored_text "36" "$cert_path"
     colored_text "36" "##############"
 
 fi
