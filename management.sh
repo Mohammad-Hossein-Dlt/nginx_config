@@ -207,8 +207,8 @@ function delete_certificate() {
     local base_name="${cert_file%.*}"
 
     colored_text "32" "Removing ssl certificate '$base_name' ..."
-    rm -rf /etc/ssl/certs/"$base_name".crt
-    rm -rf /etc/ssl/private/"$base_name".key
+    rm -rf "/etc/ssl/certs/$base_name.crt"
+    rm -rf "/etc/ssl/private/$base_name.key"
 }
 
 ########################################
