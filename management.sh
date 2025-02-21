@@ -116,9 +116,13 @@ function install_firewall() {
 function delete_firewall() {
     if [ -x "$(command -v ufw)" ]; then
         colored_text "32" "Firewall is installed. Purging existing installation and configuration files..."
+        colored_text "32" "Stopping ufw service..."
         ufw disable
+        colored_text "32" "Purging firewall ufw..."
         apt-get purge -y ufw
+        colored_text "32" "Auto removing packages..."
         apt-get autoremove -y ufw
+        colored_text "32" "Removing ufw directory..."
         rm -rf /etc/ufw
     fi
 }
@@ -221,7 +225,7 @@ function delete_certificate() {
 }
 
 function delete_all_certificate() {
-    colored_text "32" "Removing ssl all certificate..."
+    colored_text "32" "Removing all ssl certificates..."
     rm -rf "/etc/ssl/files/*.crt"
     rm -rf "/etc/ssl/files/*.key"
 }
@@ -237,6 +241,16 @@ function install_requirements() {
     apt-get install nginx -y
     colored_text "32" "Installing firewall..."
     apt-get install -y ufw
+}
+
+########################################
+# Uninstall requirements
+########################################
+
+function uninstall_everything() {
+    delete_nginx
+    delete_firewall
+    delete_all_certificate
 }
 
 ########################################
