@@ -197,7 +197,7 @@ function certificate_info() {
     fi
 
     # Build the menu option string with certificate file name and validity dates
-    info="Cert: $cert_file \n Domains: $domains \n Valid from: $notBefore \n Valid to: $notAfter"
+    info="Cert: $cert_file\nDomains: $domains\nValid from: $notBefore\nValid to: $notAfter"
     colored_text "36" "$info"
 }
 
