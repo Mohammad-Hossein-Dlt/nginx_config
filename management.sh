@@ -338,7 +338,7 @@ if [ -x "$(command -v nginx)" ]; then
 fi
 
 if [ -x "$(command -v ufw)" ]; then
-    ufw allow 22/tcp
+    ufw allow 9011/tcp
     ufw allow 22/tcp
 fi
 
