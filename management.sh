@@ -154,8 +154,7 @@ function certificates() {
     for cert in "${certificate_files[@]}"; do
         cert_file=$(basename "$cert")
 
-        local base_name
-        base_name="${cert_file%.*}"
+        local base_name="${cert_file%.*}"
 
         # Extract domain from the certificate subject (CN)
         domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
@@ -202,9 +201,14 @@ function certificate_info() {
 }
 
 function delete_certificate() {
-    colored_text "32" "Removing previous ssl certificate..."
-    rm -rf /etc/ssl/certs/public_cert.crt
-    rm -rf /etc/ssl/private/private_key.key
+    local file_path=$1
+    cert_file=$(basename "$file_path")
+
+    local base_name="${cert_file%.*}"
+
+    colored_text "32" "Removing ssl certificate '$base_name' ..."
+    rm -rf /etc/ssl/certs/"$base_name".crt
+    rm -rf /etc/ssl/private/"$base_name".key
 }
 
 ########################################
@@ -275,12 +279,12 @@ elif [ "$opt" = "Certificate Management" ]; then
 
     cert_path=$(find_key_by_value names "$selected")
 
-    colored_text "36" "$cert_path"
-
     certificate_opt=$(select_menu "Certificate Info" "Delete Certificate")
 
     if [ "$certificate_opt" = "Certificate Info" ]; then
         certificate_info "$cert_path"
+    elif [ "$certificate_opt" = "Delete Certificate" ]; then
+        delete_certificate cert_path
     fi
 
 fi
