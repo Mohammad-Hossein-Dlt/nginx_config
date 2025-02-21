@@ -261,6 +261,12 @@ elif [ "$opt" = "Certificate Management" ]; then
 
     cert_path=$(find_key_by_value names "$selected")
 
+    for key in "${!names[@]}"; do
+        colored_text "31" "$key"
+        colored_text "36" "${names[$key]}"
+    done
+
+    colored_text "36" "$names"
     colored_text "36" "##############"
 
 fi
