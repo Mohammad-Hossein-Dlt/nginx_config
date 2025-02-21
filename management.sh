@@ -172,7 +172,7 @@ function certificate_info() {
     local cert_path=$1
 
     cert_file=$(basename "$cert_path")
-    domains=$(openssl x509 -in "cert_path" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
+    domains=$(openssl x509 -in "$cert_path" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
 
     # Extract certificate validity dates using openssl
     dates=$(openssl x509 -in "$cert_path" -noout -dates 2>/dev/null)
