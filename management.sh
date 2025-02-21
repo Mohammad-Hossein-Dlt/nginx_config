@@ -277,7 +277,7 @@ elif [ "$opt" = "Nginx Management" ]; then
     if [ "$nginx_opt" = "Install Nginx" ]; then
         install_nginx
     elif [ "$nginx_opt" = "Delete Nginx" ];then
-        colored_text -n "94" "Do you really want to uninstall nginx? yes or y to confirm no or n to cancel."
+        colored_text "94" "Do you really want to uninstall nginx? yes or y to confirm no or n to cancel."
         read confirm
         if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
             uninstall_nginx
@@ -298,7 +298,7 @@ elif [ "$opt" = "Nginx Management" ]; then
         selected_file=$(select_menu "${files[@]}")
         config_opt=$(select_menu "Delete Config" "Edit Config")
         if [ "$config_opt" = "Delete Config" ]; then
-            colored_text -n "94" "Do you really want to delete config $selected_file? yes or y to confirm no or n to cancel."
+            colored_text "94" "Do you really want to delete config $selected_file? yes or y to confirm no or n to cancel."
             read confirm
             if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
                 delete_config "$selected_file"
@@ -318,7 +318,7 @@ elif [ "$opt" = "Firewall Management" ]; then
     elif [ "$firewall_opt" = "Install Firewall" ]; then
         install_firewall
     elif [ "$firewall_opt" = "Delete Firewall" ];then
-        colored_text -n "94" "Do you really want to uninstall firewall (ufw)? yes or y to confirm no or n to cancel."
+        colored_text "94" "Do you really want to uninstall firewall (ufw)? yes or y to confirm no or n to cancel."
         read confirm
         if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
             uninstall_firewall
@@ -343,7 +343,7 @@ elif [ "$opt" = "Certificate Management" ]; then
     if [ "$certificate_opt" = "Certificate Info" ]; then
         certificate_info "$cert_path"
     elif [ "$certificate_opt" = "Delete Certificate" ]; then
-        colored_text -n "94" "Do you really want to delete certificate $cert_path? yes or y to confirm no or n to cancel."
+        colored_text "94" "Do you really want to delete certificate $cert_path? yes or y to confirm no or n to cancel."
         read confirm
         if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
             delete_certificate "$cert_path"
@@ -354,7 +354,7 @@ elif [ "$opt" = "Certificate Management" ]; then
 
 elif [ "$opt" = "Reinstall everything" ]; then
 
-    colored_text -n "94" "Do you really want to reinstall everything? yes or y to confirm no or n to cancel."
+    colored_text "94" "Do you really want to reinstall everything? yes or y to confirm no or n to cancel."
     read confirm
     if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
         uninstall_nginx
@@ -369,7 +369,7 @@ elif [ "$opt" = "Reinstall everything" ]; then
     fi
 
 elif [ "$opt" = "Uninstall and delete everything" ]; then
-    colored_text -n "94" "Do you really want to uninstall and delete everything? yes or y to confirm no or n to cancel."
+    colored_text "94" "Do you really want to uninstall and delete everything? yes or y to confirm no or n to cancel."
     read confirm
     if [[ "${confirm,,}" = "yes" || "${confirm,,}" = "y" ]];then
         uninstall_everything
