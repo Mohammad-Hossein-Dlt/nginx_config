@@ -3,6 +3,7 @@
 hash -r
 rm -f management.shc
 unset BASH_REMATCH
+kill -9
 
 colored_text(){
   local color=$1
