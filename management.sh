@@ -95,7 +95,7 @@ function configs() {
     done
 
     for config in "${configs[@]}"; do
-        eval "\"${items[$key]}"\"
+        eval "\"$config\""
     done
     echo "${configs[@]}"
 }
