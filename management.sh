@@ -339,6 +339,9 @@ elif [ "$opt" = "Nginx Management" ]; then
         fi
     elif [ "$opt" = "Manage Configs" ];then
         files=$(configs)
+        for key in "${files[@]}"; do
+            echo "$key"
+        done
         selected_file=$(select_menu "${files[@]}")
         opt=$(select_menu "Delete Config" "Edit Config")
         if [ "$opt" = "Delete Config" ]; then
