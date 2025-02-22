@@ -135,13 +135,13 @@ function select_cert() {
 # Nginx Configuration for Load Balancer and Reverse Proxy
 ########################################
 
-CONFIG_BASE_PATH="/etc/nginx/conf.d"
+CONFIGS_BASE_PATH="/etc/nginx/conf.d"
 
 colored_text "36" "Please enter a unique name for config file. previous configs show below:"
-find "$CONFIG_BASE_PATH" -type f -name "*.conf"
+find "$CONFIGS_BASE_PATH" -type f -name "*.conf"
 read name
 
-CONFIG_FILE_PATH="$CONFIG_BASE_PATH/${name}.conf"
+CONFIG_FILE_PATH="$CONFIGS_BASE_PATH/${name}.conf"
 colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE_PATH"
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then

@@ -58,6 +58,8 @@ kill -9
 # Nginx Management
 ########################################
 
+CONFIGS_BASE_PATH="/etc/nginx/conf.d"
+
 function install_nginx() {
     colored_text "32" "Updating package list..."
     apt-get update -y
@@ -80,8 +82,18 @@ function uninstall_nginx() {
 }
 
 function configs() {
-    config_files=$(find /etc/nginx/conf.d -type f -name "*.conf" -exec basename {} \;)
-    echo "${config_files[@]}"
+    configs_path=()
+
+    while IFS= read -r file; do
+        configs_path+=("$file")
+    done < <(find "$CONFIGS_BASE_PATH" -type f \( -iname "*.conf" \))
+
+    configs=()
+    for config_file in "${configs_path[@]}"; do
+        file=$(basename "$config_file")
+        configs+=(file)
+    done
+    echo "${configs[@]}"
 }
 
 function delete_config() {
