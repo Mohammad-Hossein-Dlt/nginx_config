@@ -341,6 +341,7 @@ elif [ "$opt" = "Nginx Management" ]; then
         files=$(configs)
         for key in "${files[@]}"; do
             colored_text "33" "$key"
+            colored_text "33" "------------------"
         done
         selected_file=$(select_menu "${files[@]}")
         opt=$(select_menu "Delete Config" "Edit Config")
