@@ -82,22 +82,17 @@ function uninstall_nginx() {
 }
 
 function configs() {
+    local -n ref=$1
     configs_path=()
 
     while IFS= read -r file; do
         configs_path+=("$file")
     done < <(find "$CONFIGS_BASE_PATH" -type f \( -iname "*.conf" \))
 
-    configs=()
-    for config_file in "${configs_path[@]}"; do
-        file=$(basename "$config_file")
-        configs+=("$file")
+    for config_path in "${configs_path[@]}"; do
+        file=$(basename "$config_path")
+        ref+=("$file")
     done
-
-    for config in "${configs[@]}"; do
-        eval "\"$config\""
-    done
-    echo "${configs[@]}"
 }
 
 function delete_config() {
