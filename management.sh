@@ -93,12 +93,14 @@ function configs() {
         file=$(basename "$config_path")
         ref+=("$file")
     done
+
+    export ref
 }
 
 function delete_config() {
     file_name=$1
     if [[ -n "$file_name" ]]; then
-        rm -rf /etc/nginx/conf.d/"$file_name"
+        rm -rf "${CONFIGS_BASE_PATH:?}/$file_name"
         colored_text "32" "Config ${file_name} deleted."
     else
         colored_text "31" "Can not delete directory conf.d in path /etc/nginx/conf.d"
@@ -109,7 +111,7 @@ function delete_config() {
 
 function edit_config() {
     file_name=$1
-    nano /etc/nginx/conf.d/"$file_name"
+    nano "$CONFIGS_BASE_PATH/$file_name"
     colored_text "32" "Config ${file_name} edited."
 }
 
@@ -164,7 +166,7 @@ CERT_BASE_PATH="/etc/ssl/files"
 mkdir -p "$CERT_BASE_PATH"
 
 function certificates() {
-    local -n ref=$1
+    local -n arr_ref=$1
     # Directories to search for certificates
 #    directories=( "/etc/ssl/certs" "/etc/ssl/private" "/etc/pki/tls/certs" "/etc/pki/tls/private" "/etc/letsencrypt/live" )
     directories=( "$CERT_BASE_PATH" )
@@ -204,8 +206,9 @@ function certificates() {
             domains="N/A"
         fi
 
-        ref["$cert"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
+        arr_ref["$cert"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
     done
+    export arr_ref
 }
 
 function certificate_info() {
