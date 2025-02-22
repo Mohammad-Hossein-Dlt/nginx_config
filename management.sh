@@ -95,8 +95,9 @@ function configs() {
     done
 
     for config in "${configs[@]}"; do
-        eval "$config"
+        eval "\"${items[$key]}"\"
     done
+    echo "${configs[@]}"
 }
 
 function delete_config() {
