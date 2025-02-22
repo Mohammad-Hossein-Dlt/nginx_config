@@ -91,9 +91,12 @@ function configs() {
     configs=()
     for config_file in "${configs_path[@]}"; do
         file=$(basename "$config_file")
-        configs+=(file)
+        configs+=("$file")
     done
-    echo "${configs[@]}"
+
+    for config in "${configs[@]}"; do
+        eval "$config"
+    done
 }
 
 function delete_config() {
@@ -104,6 +107,7 @@ function delete_config() {
     else
         colored_text "31" "Can not delete directory conf.d in path /etc/nginx/conf.d"
     fi
+
 }
 
 
@@ -350,7 +354,8 @@ elif [ "$opt" = "Nginx Management" ]; then
             bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
         fi
     elif [ "$opt" = "Manage Configs" ];then
-        files=$(configs)
+        declare -a files
+        configs files
         for key in "${files[@]}"; do
             colored_text "33" "$key"
             colored_text "33" "------------------"
