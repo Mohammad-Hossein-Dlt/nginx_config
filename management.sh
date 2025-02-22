@@ -80,7 +80,7 @@ function uninstall_nginx() {
 }
 
 function configs() {
-    config_files=$(find /etc/nginx/conf.d/ -type f -name "*.conf" -exec basename {} \;)
+    config_files=$(find /etc/nginx/conf.d -type f -name "*.conf" -exec basename {} \;)
     echo "${config_files[@]}"
 }
 
@@ -338,7 +338,6 @@ elif [ "$opt" = "Nginx Management" ]; then
             bash <(curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/install.sh)
         fi
     elif [ "$opt" = "Manage Configs" ];then
-        colored_text "36" "test"
         files=$(configs)
         selected_file=$(select_menu "${files[@]}")
         opt=$(select_menu "Delete Config" "Edit Config")
@@ -448,6 +447,7 @@ fi
 
 if [ -x "$(command -v nginx)" ]; then
     systemctl reload nginx
+    nginx -t
 fi
 
 colored_text "32" "Clear cache"
