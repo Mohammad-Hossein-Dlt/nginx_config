@@ -164,6 +164,7 @@ CERT_BASE_PATH="/etc/ssl/files"
 mkdir -p "$CERT_BASE_PATH"
 
 function certificates() {
+    local -n ref=$1
     # Directories to search for certificates
 #    directories=( "/etc/ssl/certs" "/etc/ssl/private" "/etc/pki/tls/certs" "/etc/pki/tls/private" "/etc/letsencrypt/live" )
     directories=( "$CERT_BASE_PATH" )
@@ -184,8 +185,7 @@ function certificates() {
         exit 1
     fi
 
-    # Build menu options array with certificate details (excluding key file and path)
-    declare -A items
+    # Build menu options array with certificate details
     for cert in "${certificate_files[@]}"; do
         cert_file=$(basename "$cert")
 
@@ -204,11 +204,7 @@ function certificates() {
             domains="N/A"
         fi
 
-        items["$cert"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
-    done
-
-    for key in "${!items[@]}"; do
-        eval "$1[$key]=\"${items[$key]}\""
+        ref["$cert"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
     done
 }
 
