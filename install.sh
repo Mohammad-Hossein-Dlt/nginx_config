@@ -19,12 +19,40 @@ function select_menu {
     done
 }
 
+find_key_by_value() {
+    local -n assoc_array=$1
+    local search_value=$2
+
+    for key in "${!assoc_array[@]}"; do
+        if [ "${assoc_array[$key]}" == "$search_value" ]; then
+            echo "$key"
+            return 0  # موفقیت
+        fi
+    done
+
+    echo ""
+    return 1
+}
+
+########################################
+# Initializing
+########################################
 
 # Check if the script is run as root
 if [ "$EUID" -ne 0 ]; then
     colored_text "31" "Please run as root (sudo)."
     exit 1
 fi
+
+colored_text "36" "Fix the dpkg lock"
+sudo kill 8001
+dpkg --configure -a
+
+colored_text "32" "Clear cache"
+hash -r
+rm -f management.shc
+unset BASH_REMATCH
+kill -9
 
 ########################################
 # Get Main Inputs From User
@@ -40,33 +68,67 @@ colored_text "36" "$setup"
 # Get certificate and private key from user using nano
 ########################################
 
+CERT_BASE_PATH="/etc/ssl/files"
+mkdir -p "$CERT_BASE_PATH"
+
 DOMAIN="hyperrio.site"
 
-BASE_PATH="/etc/ssl/files"
-mkdir -p "$BASE_PATH"
+function certificates() {
 
-function get_cert() {
-    TMP_CERT=$(mktemp)
-    colored_text "36" "Please enter your certificate content in nano. Save and exit when done." >&2
-    nano "$TMP_CERT" < /dev/tty > /dev/tty
-    CERTIFICATE_CONTENT=$(cat "$TMP_CERT")
-    rm -f "$TMP_CERT"
+    # Directories to search for certificates
+    directories=( "$CERT_BASE_PATH" )
+    certificate_files=()
 
-    CERT_PATH="$BASE_PATH/server.crt"
-    echo "$CERTIFICATE_CONTENT" > "$CERT_PATH"
-    echo "$CERT_PATH"
+    # Find certificate files with common extensions (.crt, .pem, .cer)
+    for dir in "${directories[@]}"; do
+        if [ -d "$dir" ]; then
+            while IFS= read -r file; do
+                certificate_files+=("$file")
+            done < <(find "$dir" -type f \( -iname "*.crt" -o -iname "*.pem" -o -iname "*.cer" \))
+        fi
+    done
+
+    # Check if no certificates were found
+    if [ ${#certificate_files[@]} -eq 0 ]; then
+        echo "No certificates found."
+        exit 1
+    fi
+
+    # Build menu options array with certificate details (excluding key file and path)
+    declare -A items
+    for cert in "${certificate_files[@]}"; do
+        cert_file=$(basename "$cert")
+
+        base_name="${cert_file%.*}"
+
+        key_path="$CERT_BASE_PATH/${base_name}.key"
+        key_file="$base_name.key"
+        if [ ! -e "$key_path" ] && [ ! -f "$key_path" ]; then
+            key_file="N/A"
+        fi
+
+        # Extract domain from the certificate subject (CN)
+        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
+
+        if [ -z "$domains" ]; then
+            domains="N/A"
+        fi
+
+        items["$base_name"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
+    done
+
+    for key in "${!items[@]}"; do
+        eval "$1[$key]=\"${items[$key]}\""
+    done
 }
 
-function get_key() {
-    TMP_KEY=$(mktemp)
-    colored_text "36" "Please enter your private key content in nano. Save and exit when done." >&2
-    nano "$TMP_KEY" < /dev/tty > /dev/tty
-    PRIVATE_KEY_CONTENT=$(cat "$TMP_KEY")
-    rm -f "$TMP_KEY"
+function select_cert() {
+    declare -A names
+    certificates names
+    selected=$(select_menu "${names[@]}")
+    cert_path=$(find_key_by_value names "$selected")
 
-    KEY_PATH="$BASE_PATH/server.key"
-    echo "$PRIVATE_KEY_CONTENT" > "$KEY_PATH"
-    echo "$KEY_PATH"
+    echo "$cert_path"
 }
 
 ########################################
@@ -78,8 +140,9 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
-CERT_PATH=$(get_cert)
-KEY_PATH=$(get_key)
+selected_crt=$(select_cert)
+CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
+KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
 colored_text "32" "$CERT_PATH"
 colored_text "32" "$KEY_PATH"
@@ -122,8 +185,9 @@ server {
 EOF
 elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 
-CERT_PATH=$(get_cert)
-KEY_PATH=$(get_key)
+selected_crt=$(select_cert)
+CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
+KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
 colored_text "32" "$CERT_PATH"
 colored_text "32" "$KEY_PATH"
