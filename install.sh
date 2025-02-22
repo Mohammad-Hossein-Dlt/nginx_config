@@ -135,8 +135,14 @@ function select_cert() {
 # Nginx Configuration for Load Balancer and Reverse Proxy
 ########################################
 
-CONFIG_FILE="/etc/nginx/conf.d/server.conf"
-colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE"
+CONFIG_BASE_PATH="/etc/nginx/conf.d"
+
+colored_text "36" "Please enter a unique name for config file. previous configs show below:"
+find "$CONFIG_BASE_PATH" -type f -name "*.conf"
+read name
+
+CONFIG_FILE_PATH="$CONFIG_BASE_PATH/${name}.conf"
+colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE_PATH"
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
@@ -147,7 +153,7 @@ KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 colored_text "32" "$CERT_PATH"
 colored_text "32" "$KEY_PATH"
 
-cat > "$CONFIG_FILE" <<EOF
+cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
     server 195.177.255.230:8000;
@@ -192,7 +198,7 @@ KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 colored_text "32" "$CERT_PATH"
 colored_text "32" "$KEY_PATH"
 
-cat > "$CONFIG_FILE" <<EOF
+cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
 upstream load_balancer {
     ip_hash;
@@ -233,7 +239,7 @@ server {
 }
 EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Default" ]]; then
-cat > "$CONFIG_FILE" <<EOF
+cat > "$CONFIG_FILE_PATH" <<EOF
 upstream load_balancer {
     server 195.177.255.230:8000;
 }
@@ -252,7 +258,7 @@ server {
 }
 EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Websocket" ]]; then
-cat > "$CONFIG_FILE" <<EOF
+cat > "$CONFIG_FILE_PATH" <<EOF
 upstream load_balancer {
     server 195.177.255.230:8000;
 }
