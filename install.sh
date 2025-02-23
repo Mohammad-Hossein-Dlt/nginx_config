@@ -202,8 +202,6 @@ selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
-colored_text "93" "$selected_domain"
-
 cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
 ${upstream_conf}
@@ -250,8 +248,6 @@ selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
-colored_text "93" "$selected_domain"
-
 cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
 ${upstream_conf}
@@ -293,8 +289,6 @@ elif [[ "$certification" = "No SSL" && "$setup" = "Default" ]]; then
 
 server_ip=$(get_ip)
 
-colored_text "93" "$server_ip"
-
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
@@ -314,8 +308,6 @@ EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Websocket" ]]; then
 
 server_ip=$(get_ip)
-
-colored_text "93" "$server_ip"
 
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
