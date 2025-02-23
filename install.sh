@@ -107,7 +107,7 @@ function certificates() {
         fi
 
         # Extract domain from the certificate subject (CN)
-        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd " / " -)
+        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd " // " -)
 
         if [ -z "$domains" ]; then
             domains="N/A"
