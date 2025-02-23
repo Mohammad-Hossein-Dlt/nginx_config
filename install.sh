@@ -193,7 +193,6 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
 selected_crt=$(select_cert)
-colored_text "94" $?
 declare -a domains
 extract_dns "$CERT_BASE_PATH/${selected_crt}.crt" domains
 selected_domain=$(select_menu "${domains[@]}")
@@ -240,6 +239,7 @@ elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 
 selected_crt=$(select_cert)
 declare -a domains
+colored_text "94" $?
 extract_dns "$CERT_BASE_PATH/${selected_crt}.crt" domains
 selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
