@@ -239,6 +239,9 @@ elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 
 selected_crt=$(select_cert)
 colored_text "94" $?
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 declare -a domains
 extract_dns "$CERT_BASE_PATH/${selected_crt}.crt" domains
 selected_domain=$(select_menu "${domains[@]}")
