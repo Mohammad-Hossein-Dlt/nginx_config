@@ -55,7 +55,7 @@ unset BASH_REMATCH
 kill -9
 
 ########################################
-# Get Main Inputs From User
+# Get certification & setup Inputs From User
 ########################################
 
 certification=$(select_menu "SSL" "No SSL")
@@ -74,7 +74,7 @@ mkdir -p "$CERT_BASE_PATH"
 DOMAIN="hyperrio.site"
 
 function certificates() {
-
+    local -n arr_ref=$1
     # Directories to search for certificates
     directories=( "$CERT_BASE_PATH" )
     certificate_files=()
@@ -94,8 +94,7 @@ function certificates() {
         exit 1
     fi
 
-    # Build menu options array with certificate details (excluding key file and path)
-    declare -A items
+    # Build menu options array with certificate details
     for cert in "${certificate_files[@]}"; do
         cert_file=$(basename "$cert")
 
@@ -108,18 +107,16 @@ function certificates() {
         fi
 
         # Extract domain from the certificate subject (CN)
-        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
+        domains=$(openssl x509 -in "$cert" -noout -text subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
 
         if [ -z "$domains" ]; then
             domains="N/A"
         fi
 
-        items["$base_name"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
+        arr_ref["$base_name"]="Cert: $cert_file | Key: $key_file | Domains: $domains"
     done
 
-    for key in "${!items[@]}"; do
-        eval "$1[$key]=\"${items[$key]}\""
-    done
+    export arr_ref
 }
 
 function select_cert() {
@@ -131,22 +128,50 @@ function select_cert() {
     echo "$cert_path"
 }
 
+extract_dns() {
+    local crt_file="$1"
+    if [[ ! -f "$crt_file" ]]; then
+        echo "File not found!"
+        return 1
+    fi
+
+    openssl x509 -in "$crt_file" -noout -text | \ grep -oP "DNS:[^,\s]+" | \ sed 's/DNS://g'
+
+}
+
+
 ########################################
 # Nginx Configuration for Load Balancer and Reverse Proxy
 ########################################
 
 CONFIGS_BASE_PATH="/etc/nginx/conf.d"
 
+function get_domain() {
+    colored_text "32" "Please enter your domain:"
+    read -r domain
+    echo "$domain"
+}
+
+function get_ip() {
+    colored_text "32" "Please enter the ip of this server:"
+    read -r domain
+    echo "$domain"
+}
+
 colored_text "36" "Please enter a unique name for config file. previous configs show below:"
 find "$CONFIGS_BASE_PATH" -type f -name "*.conf"
 read -r name
+
+if [[ -f "$CONFIGS_BASE_PATH/${name}.conf" ]]; then
+    colored_text "93" "The name you entered already exist."
+    exist 1
+fi
 
 colored_text "36" "Please enter the list of upstream IP addresses (space separated):"
 read -r upstream_ips
 IFS=' ' read -r -a upstream_array <<< "$upstream_ips"
 
-# Build the upstream block based on the setup type (Websocket or Default)
-upstream_conf="upstream load_balancer {"
+upstream_conf="upstream ${name} {"
 if [[ "$setup" == "Websocket" ]]; then
     upstream_conf+="
     ip_hash;"
@@ -164,11 +189,12 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
 selected_crt=$(select_cert)
+domains=$(extract_dns "$CERT_BASE_PATH/${selected_crt}.crt")
+selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
-colored_text "32" "$CERT_PATH"
-colored_text "32" "$KEY_PATH"
+colored_text "93" "$selected_domain"
 
 cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
@@ -193,7 +219,7 @@ server {
     ssl_ciphers HIGH:!aNULL:!MD5;
 
     location / {
-        proxy_pass http://load_balancer;
+        proxy_pass http://${name};
 
         proxy_set_header Host \$host;
 
@@ -207,11 +233,12 @@ EOF
 elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 
 selected_crt=$(select_cert)
+domains=$(extract_dns "$CERT_BASE_PATH/${selected_crt}.crt")
+selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
-colored_text "32" "$CERT_PATH"
-colored_text "32" "$KEY_PATH"
+colored_text "93" "$selected_domain"
 
 cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
@@ -236,7 +263,7 @@ server {
     ssl_ciphers HIGH:!aNULL:!MD5;
 
     location / {
-        proxy_pass http://load_balancer;
+        proxy_pass http://${name};
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
@@ -259,7 +286,7 @@ server {
     server_name 193.242.208.97;
 
     location / {
-        proxy_pass http://load_balancer;
+        proxy_pass http://${name};
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
@@ -276,7 +303,7 @@ server {
     server_name 193.242.208.97;
 
     location / {
-        proxy_pass http://load_balancer;
+        proxy_pass http://${name};
 
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
