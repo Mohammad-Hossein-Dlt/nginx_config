@@ -71,7 +71,7 @@ colored_text "36" "$setup"
 CERT_BASE_PATH="/etc/ssl/files"
 mkdir -p "$CERT_BASE_PATH"
 
-DOMAIN="hyperrio.site"
+#DOMAIN="hyperrio.site"
 
 function certificates() {
     local -n arr_ref=$1
@@ -203,14 +203,14 @@ ${upstream_conf}
 # HTTP block: Redirect all HTTP traffic to HTTPS
 server {
     listen 80;
-    server_name ${DOMAIN};
+    server_name ${selected_domain};
     return 301 https://\$host\$request_uri;
 }
 
 # HTTPS block: SSL configuration and reverse proxy settings
 server {
     listen 443 ssl;
-    server_name ${DOMAIN};
+    server_name ${selected_domain};
 
     ssl_certificate ${CERT_PATH};
     ssl_certificate_key ${KEY_PATH};
@@ -247,14 +247,14 @@ ${upstream_conf}
 # HTTP block: Redirect all HTTP traffic to HTTPS
 server {
     listen 80;
-    server_name ${DOMAIN};
+    server_name ${selected_domain};
     return 301 https://\$host\$request_uri;
 }
 
 # HTTPS block: SSL configuration and reverse proxy settings
 server {
     listen 443 ssl;
-    server_name ${DOMAIN};
+    server_name ${selected_domain};
 
     ssl_certificate ${CERT_PATH};
     ssl_certificate_key ${KEY_PATH};
