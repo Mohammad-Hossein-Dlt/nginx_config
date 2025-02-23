@@ -463,7 +463,13 @@ elif [ "$opt" = "Uninstall and delete everything" ]; then
 fi
 
 if [ -x "$(command -v nginx)" ]; then
+    colored_text "32" "Testing nginx configuration..."
     nginx -t
+    if [ $? -ne 0 ]; then
+        colored_text "31" "Error in nginx configuration. Please check the config files."
+        exit 1
+    fi
+    colored_text "32" "Reloading nginx..."
     systemctl reload nginx
 fi
 

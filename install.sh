@@ -122,6 +122,9 @@ function certificates() {
 function select_cert() {
     declare -A names
     certificates names
+    if [ $? -ne 0 ]; then
+        exit 1
+    fi
     selected=$(select_menu "${names[@]}")
     cert_path=$(find_key_by_value names "$selected")
 
@@ -190,6 +193,10 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
 selected_crt=$(select_cert)
+
+if [ $? -ne 0 ]; then
+    exit 1
+fi
 declare -a domains
 extract_dns "$CERT_BASE_PATH/${selected_crt}.crt" domains
 selected_domain=$(select_menu "${domains[@]}")
