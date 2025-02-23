@@ -185,7 +185,7 @@ upstream_conf+="
 }"
 
 CONFIG_FILE_PATH="$CONFIGS_BASE_PATH/${name}.conf"
-colored_text "32" "Creating configuration file for load balancer and reverse proxy: $CONFIG_FILE_PATH"
+colored_text "32" "Creating configuration file for load balancer and reverse proxy:"
 
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 

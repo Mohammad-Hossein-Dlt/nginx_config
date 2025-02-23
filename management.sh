@@ -463,8 +463,8 @@ elif [ "$opt" = "Uninstall and delete everything" ]; then
 fi
 
 if [ -x "$(command -v nginx)" ]; then
-    systemctl reload nginx
     nginx -t
+    systemctl reload nginx
 fi
 
 colored_text "32" "Clear cache"
