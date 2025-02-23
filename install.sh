@@ -193,7 +193,7 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
 selected_crt=$(select_cert)
-
+colored_text "94" $?
 if [ $? -ne 0 ]; then
     exit 1
 fi
