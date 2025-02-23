@@ -83,8 +83,8 @@ function uninstall_nginx() {
 
 function configs() {
     local -n ref=$1
-    configs_path=()
 
+    configs_path=()
     while IFS= read -r file; do
         configs_path+=("$file")
     done < <(find "$CONFIGS_BASE_PATH" -type f \( -iname "*.conf" \))
