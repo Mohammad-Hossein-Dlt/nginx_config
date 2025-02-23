@@ -130,14 +130,17 @@ function select_cert() {
 
 extract_dns() {
     local crt_file="$1"
-    local -a ref=$2
+    local -a ref="$2"
     if [[ ! -f "$crt_file" ]]; then
         colored_text "93" "File not found!"
         return 1
     fi
 
-    mapfile -t ref < <(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g')
-    export ref
+    declare -n dns_list="$ref"
+    dns_list=()
+
+    readarray -t dns_list < <(openssl x509 -in "$cert_file" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g')
+    export dns_list
 }
 
 
