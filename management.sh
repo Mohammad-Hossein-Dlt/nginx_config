@@ -89,6 +89,11 @@ function configs() {
         configs_path+=("$file")
     done < <(find "$CONFIGS_BASE_PATH" -type f \( -iname "*.conf" \))
 
+    if [ ${#configs_path[@]} -eq 0 ]; then
+        colored_text "93" "No configs found."
+        exit 1
+    fi
+
     for config_path in "${configs_path[@]}"; do
         file=$(basename "$config_path")
         ref+=("$file")
@@ -183,7 +188,7 @@ function certificates() {
 
     # Check if no certificates were found
     if [ ${#certificate_files[@]} -eq 0 ]; then
-        echo "No certificates found."
+        colored_text "93" "No certificates found."
         exit 1
     fi
 

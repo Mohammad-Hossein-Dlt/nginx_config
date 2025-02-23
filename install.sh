@@ -90,7 +90,7 @@ function certificates() {
 
     # Check if no certificates were found
     if [ ${#certificate_files[@]} -eq 0 ]; then
-        echo "No certificates found."
+        colored_text "93" "No certificates found."
         exit 1
     fi
 
