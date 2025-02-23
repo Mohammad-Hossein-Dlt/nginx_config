@@ -238,8 +238,8 @@ EOF
 elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 
 selected_crt=$(select_cert)
-colored_text "94" $?
 if [ $? -ne 0 ]; then
+    colored_text "94" $?
     exit 1
 fi
 declare -a domains
