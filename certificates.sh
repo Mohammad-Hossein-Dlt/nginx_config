@@ -57,4 +57,6 @@ X5JxikKQs5ZogEH1GHs4Ctmu8ZhXt6myb2VrpkKQQa1wppw+HC7cAWLdBVeY+fdG
 x5JuyV14hD/WA+acV5pB4M4=
 -----END PRIVATE KEY-----"
 
-ip=193.242.208.97:8000
+server_ip=193.242.208.97
+
+remote_ip1=193.242.208.97:8000

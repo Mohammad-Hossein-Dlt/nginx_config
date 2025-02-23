@@ -284,6 +284,8 @@ elif [[ "$certification" = "No SSL" && "$setup" = "Default" ]]; then
 
 server_ip=$(get_ip)
 
+colored_text "93" server_ip
+
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
@@ -303,6 +305,8 @@ EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Websocket" ]]; then
 
 server_ip=$(get_ip)
+
+colored_text "93" server_ip
 
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
