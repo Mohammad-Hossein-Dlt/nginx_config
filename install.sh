@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 colored_text(){
   local color=$1
   local text=$2
@@ -91,7 +93,7 @@ function certificates() {
     # Check if no certificates were found
     if [ ${#certificate_files[@]} -eq 0 ]; then
         colored_text "93" "No certificates found."
-        return 1
+        exit 1
     fi
 
     # Build menu options array with certificate details
