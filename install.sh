@@ -281,12 +281,15 @@ server {
 }
 EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Default" ]]; then
+
+server_ip=$(get_ip)
+
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
 server {
     listen 80;
-    server_name 193.242.208.97;
+    server_name ${server_ip};
 
     location / {
         proxy_pass http://${name};
@@ -298,12 +301,15 @@ server {
 }
 EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Websocket" ]]; then
+
+server_ip=$(get_ip)
+
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
 server {
     listen 80;
-    server_name 193.242.208.97;
+    server_name ${server_ip};
 
     location / {
         proxy_pass http://${name};
