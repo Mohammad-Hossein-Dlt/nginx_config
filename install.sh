@@ -75,7 +75,7 @@ mkdir -p "$CERT_BASE_PATH"
 
 function certificates() {
     local -n arr_ref=$1
-    # Directories to search for certificates
+
     directories=( "$CERT_BASE_PATH" )
     certificate_files=()
 
