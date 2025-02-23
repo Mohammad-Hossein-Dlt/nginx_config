@@ -130,8 +130,8 @@ function select_cert() {
 
 extract_dns() {
     local cert_file="$1"
-    local result_array_name="$2"
-    declare -n dns_list="$result_array_name"
+    local ref="$2"
+    declare -n dns_list="$ref"
     dns_list=()
 
     while IFS= read -r line; do
