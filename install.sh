@@ -91,7 +91,7 @@ function certificates() {
     # Check if no certificates were found
     if [ ${#certificate_files[@]} -eq 0 ]; then
         colored_text "93" "No certificates found."
-        exit 1
+        return 1
     fi
 
     # Build menu options array with certificate details
@@ -123,7 +123,7 @@ function select_cert() {
     declare -A names
     certificates names
     if [ $? -ne 0 ]; then
-        exit 1
+        return 1
     fi
     selected=$(select_menu "${names[@]}")
     cert_path=$(find_key_by_value names "$selected")
