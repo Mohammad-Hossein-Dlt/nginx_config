@@ -107,7 +107,7 @@ function certificates() {
         fi
 
         # Extract domain from the certificate subject (CN)
-        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd ", " -)
+        domains=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g' | paste -sd " / " -)
 
         if [ -z "$domains" ]; then
             domains="N/A"
@@ -132,7 +132,7 @@ extract_dns() {
     local crt_file="$1"
     local -a ref=$2
     if [[ ! -f "$crt_file" ]]; then
-        echo "File not found!"
+        colored_text "93" "File not found!"
         return 1
     fi
 
@@ -165,7 +165,7 @@ read -r name
 
 if [[ -f "$CONFIGS_BASE_PATH/${name}.conf" ]]; then
     colored_text "93" "The name you entered already exist."
-    exist 1
+    exit 1
 fi
 
 colored_text "36" "Please enter the list of upstream IP addresses (space separated):"
