@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -e
-set -o errtrace
-
 colored_text(){
   local color=$1
   local text=$2
