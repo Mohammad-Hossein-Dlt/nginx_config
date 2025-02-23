@@ -130,13 +130,15 @@ function select_cert() {
 
 extract_dns() {
     local crt_file="$1"
+    local -n ref=$2
     if [[ ! -f "$crt_file" ]]; then
         echo "File not found!"
         return 1
     fi
 
-    openssl x509 -in "$crt_file" -noout -text | grep -oP "DNS:[^,\s]+" | sed 's/DNS://g'
-
+#    openssl x509 -in "$crt_file" -noout -text | grep -oP "DNS:[^,\s]+" | sed 's/DNS://g'
+    ref=$(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g')
+    export ref
 }
 
 
@@ -189,7 +191,8 @@ colored_text "32" "Creating configuration file for load balancer and reverse pro
 if [[ "$certification" = "SSL" && "$setup" = "Default" ]]; then
 
 selected_crt=$(select_cert)
-domains=$(extract_dns "$CERT_BASE_PATH/${selected_crt}.crt")
+declare -a domains
+extract_dns "$CERT_BASE_PATH/${selected_crt}.crt" domains
 selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
@@ -233,7 +236,8 @@ EOF
 elif [[ "$certification" = "SSL" && "$setup" = "Websocket" ]]; then
 
 selected_crt=$(select_cert)
-domains=$(extract_dns "$CERT_BASE_PATH/${selected_crt}.crt")
+declare -a domains
+extract_dns "$CERT_BASE_PATH/${selected_crt}.crt" domains
 selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
