@@ -136,7 +136,7 @@ extract_dns() {
         return 1
     fi
 
-    mapfile -t ref < <(openssl x509 -in "$crt_file" -noout -text | grep -oP "DNS:\K[^ ,]+")
+    mapfile -t ref < <(openssl x509 -in "$cert" -noout -ext subjectAltName 2>/dev/null | grep -o 'DNS:[^,]*' | sed 's/DNS://g')
     export ref
 }
 
