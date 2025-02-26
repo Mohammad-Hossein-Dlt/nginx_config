@@ -25,49 +25,57 @@ select_menu() {
   local esc
   esc=$(printf "\033")
 
-  # مخفی کردن نشانگر موس (cursor)
+  # مخفی کردن نشانگر موس
   tput civis
 
   while true; do
-    # چاپ گزینه‌ها
+    # پاک کردن صفحه جهت نمایش منوی به‌روز
+    clear
+
+    # چاپ گزینه‌ها به همراه هایلایت آیتم انتخاب‌شده
     for i in "${!options[@]}"; do
       if [ $i -eq $selected ]; then
-        # آیتم انتخاب‌شده با رنگ زرد (کد ANSI 33 برای رنگ زرد)
+        # رنگ زرد برای آیتم انتخاب‌شده (کد ANSI 33)
         printf "${esc}[33m> %s${esc}[0m\n" "${options[$i]}"
       else
         printf "  %s\n" "${options[$i]}"
       fi
     done
 
-    # خواندن ورودی کاربر (سه کاراکتر جهت شناسایی کلیدهای فلش)
-    read -sn3 key
-
-    # بررسی کلیدهای فشار داده شده
-    if [[ "$key" == "${esc}[A" ]]; then
-      # کلید جهت بالا
-      ((selected--))
-      if [ $selected -lt 0 ]; then
-        selected=$((${#options[@]} - 1))
-      fi
-    elif [[ "$key" == "${esc}[B" ]]; then
-      # کلید جهت پایین
-      ((selected++))
-      if [ $selected -ge ${#options[@]} ]; then
-        selected=0
-      fi
-    elif [[ -z "$key" ]]; then
-      # در صورت زدن کلید اینتر (اینتر ورودی تهی است)
-      break
+    # خواندن یک کاراکتر از ورودی
+    read -rsn1 key
+    if [[ "$key" == "$esc" ]]; then
+      # در صورت دریافت کاراکتر Escape، دو کاراکتر بعدی را هم می‌خوانیم
+      read -rsn2 key
+      key="$esc$key"
     fi
 
-    # جابجایی کرسر به بالا به اندازه تعداد گزینه‌ها برای چاپ مجدد منو
-    printf "%s\n" "${esc}[${#options[@]}A"
+    case "$key" in
+      "${esc}[A")
+        # کلید جهت بالا
+        ((selected--))
+        if [ $selected -lt 0 ]; then
+          selected=$((${#options[@]} - 1))
+        fi
+        ;;
+      "${esc}[B")
+        # کلید جهت پایین
+        ((selected++))
+        if [ $selected -ge ${#options[@]} ]; then
+          selected=0
+        fi
+        ;;
+      "")
+        # در صورت زدن کلید اینتر (که به صورت مقدار تهی خوانده می‌شود)
+        break
+        ;;
+    esac
   done
 
-  # بازگرداندن نشانگر موس
+  # بازگردانی نشانگر موس
   tput cnorm
 
-  # چاپ آیتم انتخاب شده (می‌توانید به جای echo، مقدار را به متغیر اختصاص دهید)
+  # برگرداندن آیتم انتخاب‌شده
   echo "${options[$selected]}"
 }
 
