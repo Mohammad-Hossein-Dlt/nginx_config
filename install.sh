@@ -19,64 +19,167 @@ colored_text(){
 #    done
 #}
 
-select_menu() {
-  local options=("$@")
-  local selected=0
-  local esc
-  esc=$(printf "\033")
+function select_menu() {
 
-  # مخفی کردن نشانگر موس و ذخیره مکان فعلی کرسر
-  tput civis
-  printf "${esc}[s"
 
-  while true; do
-    # بازگردانی مکان کرسر به نقطه ذخیره‌شده و پاکسازی از آن نقطه به بعد
-    printf "${esc}[u"
-    tput ed
+    # COLORS
+    GRAY="$(tput setaf 0; tput bold)"
+    RED="$(tput setaf 1; tput bold)"
+    GREEN="$(tput setaf 2; tput bold)"
+    YELLOW="$(tput setaf 3; tput bold; tput smul)"
+    BLUE="$(tput setaf 4; tput bold)"
+    MAGENTA="$(tput setaf 5; tput bold)"
+    CYAN="$(tput setaf 6; tput bold)"
+    WHITE="$(tput setaf 7; tput bold)"
+    EOS="$(tput sgr0)"
+    DIV="===================="
+    ARROW="$(tput setaf 3; tput bold)"
+    INDICATOR="-->"
 
-    # چاپ گزینه‌ها با هایلایت آیتم انتخاب‌شده به رنگ زرد
-    for i in "${!options[@]}"; do
-      if [ $i -eq $selected ]; then
-        printf "${esc}[33m> %s${esc}[0m\n" "${options[$i]}"
-      else
-        printf "  %s\n" "${options[$i]}"
-      fi
-    done
+    # ERROR CODES
+    declare -A MENU_ERRORS
+    MENU_ERRORS[INVALID_PROMPT]=100
+    MENU_ERRORS[INVALID_OPTIONS]=101
 
-    # خواندن ورودی کاربر؛ اگر ورودی Escape باشد، دو کاراکتر بعدی هم خوانده می‌شوند
-    read -rsn1 key
-    if [ "$key" = "$esc" ]; then
-      read -rsn2 key
-      key="$esc$key"
+    # ERROR MESSAGES
+    declare -A ERRORS
+    ERROR[INVALID_PROMPT]="\n${RED}MENU ERROR: No prompt provided${EOS}"
+    ERROR[INVALID_OPTIONS]="\n${RED}MENU ERROR: No options provided${EOS}"
+
+    # MENU
+    if [ -n "$ZSH_VERSION" ]; then
+        if [ -z "$1" ]; then
+            echo -e "${ERROR[INVALID_PROMPT]}"
+            return "${MENU_ERRORS[INVALID_PROMPT]}"
+        fi
+        if [ -z "$2" ]; then
+            echo -e "${ERROR[INVALID_OPTIONS]}"
+            return "${MENU_ERRORS[INVALID_OPTIONS]}"
+        fi
+        MENU_PROMPT=$1
+        SELECTED=1
+        OPTIONS=("${@:2}")
+        LENGTH=${#OPTIONS[@]}
+    else
+        if [ -z "$1" ]; then
+            echo -e "${ERROR[INVALID_PROMPT]}"
+            return "${MENU_ERRORS[INVALID_PROMPT]}"
+
+        fi
+        if [ -z "$2" ]; then
+            echo -e "${ERROR[INVALID_OPTIONS]}"
+            return "${MENU_ERRORS[INVALID_OPTIONS]}"
+        fi
+        PROMPT=("$1")
+        SELECTED=0
+        OPTIONS=("${@:2}")
+        LENGTH="$((${#OPTIONS[@]} - 4))"
     fi
 
-    case "$key" in
-      "${esc}[A")
-        # کلید جهت بالا
-        ((selected--))
-        if [ $selected -lt 0 ]; then
-          selected=$((${#options[@]} - 1))
+    # FUNCTIONS
+    PRINT_MENU() {
+        # Runs clear to prevent infinite scroll when choosing
+        clear
+        # Displays menu header
+        if [ -n "$ZSH_VERSION" ]; then
+            echo -e "$GREEN$MENU_PROMPT$EOS"
+        else
+            echo -e "$GREEN${PROMPT[0]}$EOS"
         fi
-        ;;
-      "${esc}[B")
-        # کلید جهت پایین
-        ((selected++))
-        if [ $selected -ge ${#options[@]} ]; then
-          selected=0
+        echo -e "$GREEN$DIV$EOS"
+        # Displays menu options
+        if [ -n "$ZSH_VERSION" ]; then
+            for (( i=1;i<=${#OPTIONS[@]};i++ ))
+            do
+            if [[ $SELECTED -eq $i ]]
+            # Renders current option in bold
+            then
+                OPT=${OPTIONS[$i-1]}
+                echo -e "\n  $ARROW$INDICATOR$EOS $YELLOW$OPT$EOS"
+            # Renders other options
+            else
+                OPT=${OPTIONS[$i-1]}
+                echo -e "\n$GRAY$OPT$EOS"
+            fi
+            done
+        else
+            for (( i=0;i<${#OPTIONS[@]};i++ ))
+            do
+            if [[ $SELECTED -eq $i ]]
+            # Renders current option in bold
+            then
+                OPT=${OPTIONS[$i]}
+                echo -e "\n  $ARROW$INDICATOR$EOS $YELLOW$OPT$EOS"
+            # Renders other options
+            else
+                OPT=${OPTIONS[$i]}
+                echo -e "\n$GRAY$OPT$EOS"
+            fi
+            done
         fi
-        ;;
-      "")
-        # زدن کلید اینتر (ورودی تهی) باعث خروج از حلقه می‌شود
-        break
-        ;;
-    esac
-  done
+        # Displays menu footer
+        echo -e "\n$GREEN$DIV$EOS"
+    }
 
-  # بازیابی نشانگر موس
-  tput cnorm
-  printf "\n"
-  echo "${options[$selected]}"
+    # Displays menu
+    PRINT_MENU
+
+    # Reads user input // Navigation
+    if [ -n "$ZSH_VERSION" ]; then
+        while read -rsk1 input
+        do
+            case $input in
+            "A")
+                if [[ $SELECTED -lt 2 ]]
+                then
+                    SELECTED=$((LENGTH))
+                else
+                    SELECTED=$((SELECTED - 1))
+                fi
+                PRINT_MENU
+            ;;
+            "B")
+                if [[ $SELECTED -gt $((LENGTH - 1)) ]]
+                then
+                    SELECTED=1
+                else
+                    SELECTED=$((SELECTED + 1))
+                fi
+                PRINT_MENU
+            ;;
+            # Returns selected option
+            ""|"\n") return $((SELECTED)) ;;
+            esac
+        done
+    else
+        while read -rsn1 input
+        do
+            case $input in
+            "A")
+                if [[ $SELECTED -lt 1 ]]
+                then
+                    SELECTED=$((LENGTH + 3))
+                else
+                    SELECTED=$((SELECTED - 1))
+                fi
+                PRINT_MENU
+            ;;
+            "B")
+                if [[ $SELECTED -gt $((LENGTH + 2)) ]]
+                then
+                    SELECTED=0
+                else
+                    SELECTED=$((SELECTED + 1))
+                fi
+                PRINT_MENU
+            ;;
+            # Returns selected option
+            "") return $((SELECTED)) ;;
+            esac
+        done
+    fi
 }
+
 
 find_key_by_value() {
     local -n assoc_array=$1
