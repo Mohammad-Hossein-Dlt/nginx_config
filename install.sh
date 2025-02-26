@@ -314,7 +314,7 @@ cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
 server {
-    listen HTTP_PORT;
+    listen ${HTTP_PORT};
     server_name ${server_ip};
 
     location / {
@@ -335,7 +335,7 @@ cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
 server {
-    listen HTTP_PORT;
+    listen ${HTTP_PORT};
     server_name ${server_ip};
 
     location / {
