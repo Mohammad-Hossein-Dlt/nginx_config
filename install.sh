@@ -162,6 +162,20 @@ function get_ip() {
     echo "$domain"
 }
 
+function get_http_port() {
+    colored_text "32" "Please enter http port (80 is default):"
+    read -r port
+    port=${port:-80}
+    echo "$port"
+}
+
+function get_https_port() {
+    colored_text "32" "Please enter https port (443 is default):"
+    read -r port
+    port=${port:-443}
+    echo "$port"
+}
+
 colored_text "36" "Please enter a unique name for config file. previous configs show below:"
 find "$CONFIGS_BASE_PATH" -type f -name "*.conf"
 read -r name
@@ -202,20 +216,23 @@ selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
+HTTP_PORT=$(get_http_port)
+HTTPS_PORT=$(get_https_port)
+
 cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
 ${upstream_conf}
 
 # HTTP block: Redirect all HTTP traffic to HTTPS
 server {
-    listen 80;
+    listen ${HTTP_PORT};
     server_name ${selected_domain};
     return 301 https://\$host\$request_uri;
 }
 
 # HTTPS block: SSL configuration and reverse proxy settings
 server {
-    listen 443 ssl;
+    listen ${HTTPS_PORT} ssl;
     server_name ${selected_domain};
 
     ssl_certificate ${CERT_PATH};
@@ -248,20 +265,23 @@ selected_domain=$(select_menu "${domains[@]}")
 CERT_PATH="$CERT_BASE_PATH/${selected_crt}.crt"
 KEY_PATH="$CERT_BASE_PATH/${selected_crt}.key"
 
+HTTP_PORT=$(get_http_port)
+HTTPS_PORT=$(get_https_port)
+
 cat > "$CONFIG_FILE_PATH" <<EOF
 # Define an upstream block for the backend server(s)
 ${upstream_conf}
 
 # HTTP block: Redirect all HTTP traffic to HTTPS
 server {
-    listen 80;
+    listen ${HTTP_PORT};
     server_name ${selected_domain};
     return 301 https://\$host\$request_uri;
 }
 
 # HTTPS block: SSL configuration and reverse proxy settings
 server {
-    listen 443 ssl;
+    listen ${HTTPS_PORT} ssl;
     server_name ${selected_domain};
 
     ssl_certificate ${CERT_PATH};
@@ -288,12 +308,13 @@ EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Default" ]]; then
 
 server_ip=$(get_ip)
+HTTP_PORT=$(get_http_port)
 
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
 server {
-    listen 80;
+    listen HTTP_PORT;
     server_name ${server_ip};
 
     location / {
@@ -308,12 +329,13 @@ EOF
 elif [[ "$certification" = "No SSL" && "$setup" = "Websocket" ]]; then
 
 server_ip=$(get_ip)
+HTTP_PORT=$(get_http_port)
 
 cat > "$CONFIG_FILE_PATH" <<EOF
 ${upstream_conf}
 
 server {
-    listen 80;
+    listen HTTP_PORT;
     server_name ${server_ip};
 
     location / {
