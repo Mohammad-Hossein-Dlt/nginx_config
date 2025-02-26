@@ -6,14 +6,59 @@ colored_text(){
   echo -e "\e[${color}m$text\e[0m" >&2
 }
 
-function select_menu {
-    options=("$@")
+#function select_menu {
+#    options=("$@")
+#
+#    select opt in "${options[@]}"; do
+#        case $opt in
+#            *)
+#                echo "$opt"
+#                break
+#                ;;
+#        esac
+#    done
+#}
 
-    select opt in "${options[@]}"; do
-        case $opt in
-            *)
-                echo "$opt"
-                break
+NORMAL=$(tput sgr0)
+YELLOW=$(tput setaf 3)
+
+
+select_menu() {
+    local options=("$@")
+    local selected=0
+    local key
+
+    draw_menu() {
+        clear
+        for i in "${!options[@]}"; do
+            if [[ $i -eq $selected ]]; then
+                echo -e "${YELLOW}➤ ${options[i]}${NORMAL}"
+            else
+                echo "  ${options[i]}"
+            fi
+        done
+    }
+
+    while true; do
+        draw_menu
+        read -r -s -n 3 key
+
+        case "$key" in
+            $'\e[A') # Up
+                ((selected--))
+                if [[ $selected -lt 0 ]]; then
+                    selected=$((${#options[@]} - 1))
+                fi
+                ;;
+            $'\e[B')  # Down
+                ((selected++))
+                if [[ $selected -ge ${#options[@]} ]]; then
+                    selected=0
+                fi
+                ;;
+            "")  # Enter
+                echo "${options[selected]}"
+                return
                 ;;
         esac
     done
