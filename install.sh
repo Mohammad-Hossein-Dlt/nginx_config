@@ -19,50 +19,7 @@ colored_text(){
 #    done
 #}
 
-NORMAL=$(tput sgr0)
-YELLOW=$(tput setaf 3)
 
-
-select_menu() {
-    local options=("$@")
-    local selected=0
-    local key
-
-    draw_menu() {
-        clear
-        for i in "${!options[@]}"; do
-            if [[ $i -eq $selected ]]; then
-                echo -e "${YELLOW}➤ ${options[i]}${NORMAL}"
-            else
-                echo "  ${options[i]}"
-            fi
-        done
-    }
-
-    while true; do
-        draw_menu
-        read -r -s -n 3 key
-
-        case "$key" in
-            $'\e[A') # Up
-                ((selected--))
-                if [[ $selected -lt 0 ]]; then
-                    selected=$((${#options[@]} - 1))
-                fi
-                ;;
-            $'\e[B')  # Down
-                ((selected++))
-                if [[ $selected -ge ${#options[@]} ]]; then
-                    selected=0
-                fi
-                ;;
-            "")  # Enter
-                echo "${options[selected]}"
-                return
-                ;;
-        esac
-    done
-}
 
 find_key_by_value() {
     local -n assoc_array=$1
@@ -78,6 +35,71 @@ find_key_by_value() {
     echo ""
     return 1
 }
+
+function select_menu() {
+
+    # توابع کمکی برای کنترل چاپ ترمینال و دریافت کلید
+    ESC=$(printf "\033")
+    cursor_blink_on()  { printf "%s\n" "${ESC}[?25h"; }
+    cursor_blink_off() { printf "%s\n" "${ESC}[?25l"; }
+    cursor_to()        { printf "%s\n" "${ESC}[$1;${2:-1}H"; }
+    print_option()     { printf "%s\n" "   $1 "; }
+    print_selected()   { printf "%s\n" "  ${ESC}[7m $1 ${ESC}[27m"; }
+    get_cursor_row()   {
+      IFS=';' read -r -sdR -p $'\E[6n' ROW COL; echo "${ROW#*[}";
+      export COL
+      }
+    key_input()        {
+        read -r -s -n3 key 2>/dev/null
+        if [[ $key == "${ESC}[A" ]]; then echo up; fi
+        if [[ $key == "${ESC}[B" ]]; then echo down; fi
+        if [[ -z $key ]]; then echo enter; fi
+    }
+
+    # چاپ چند خط خالی اولیه (جهت اسکرول کردن در صورت پایین بودن صفحه)
+    for opt; do printf "\n"; done
+
+    # تعیین موقعیت فعلی کرسر برای نوشتن مجدد گزینه‌ها
+    local last_row
+    last_row=$(get_cursor_row)
+    local start_row=$(( last_row - $# ))
+
+    # اطمینان از روشن شدن کرسر و بازگرداندن حالت echo در صورت قطع برنامه با ctrl+c
+    trap "cursor_blink_on; stty echo; printf '\n'; exit" SIGINT
+    cursor_blink_off
+
+    local selected=0
+    while true; do
+        # چاپ گزینه‌ها با بازنویسی خطوط آخر
+        local idx=0
+        for opt; do
+            cursor_to $(( start_row + idx ))
+            if [ $idx -eq $selected ]; then
+                print_selected "$opt"
+            else
+                print_option "$opt"
+            fi
+            ((idx++))
+        done
+
+        # کنترل کلید‌های ورودی کاربر
+        case $(key_input) in
+            enter) break ;;
+            up)    ((selected--))
+                   if [ $selected -lt 0 ]; then selected=$(( $# - 1 )); fi ;;
+            down)  ((selected++))
+                   if [ $selected -ge $# ]; then selected=0; fi ;;
+        esac
+    done
+
+    # بازگرداندن موقعیت کرسر به حالت عادی
+    cursor_to "$last_row"
+    printf "\n"
+    cursor_blink_on
+
+    return $selected
+}
+
 
 ########################################
 # Initializing
