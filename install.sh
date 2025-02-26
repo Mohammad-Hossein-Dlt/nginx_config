@@ -19,7 +19,57 @@ colored_text(){
 #    done
 #}
 
+select_menu() {
+  local options=("$@")
+  local selected=0
+  local esc
+  esc=$(printf "\033")
 
+  # مخفی کردن نشانگر موس (cursor)
+  tput civis
+
+  while true; do
+    # چاپ گزینه‌ها
+    for i in "${!options[@]}"; do
+      if [ $i -eq $selected ]; then
+        # آیتم انتخاب‌شده با رنگ زرد (کد ANSI 33 برای رنگ زرد)
+        printf "${esc}[33m> %s${esc}[0m\n" "${options[$i]}"
+      else
+        printf "  %s\n" "${options[$i]}"
+      fi
+    done
+
+    # خواندن ورودی کاربر (سه کاراکتر جهت شناسایی کلیدهای فلش)
+    read -sn3 key
+
+    # بررسی کلیدهای فشار داده شده
+    if [[ "$key" == "${esc}[A" ]]; then
+      # کلید جهت بالا
+      ((selected--))
+      if [ $selected -lt 0 ]; then
+        selected=$((${#options[@]} - 1))
+      fi
+    elif [[ "$key" == "${esc}[B" ]]; then
+      # کلید جهت پایین
+      ((selected++))
+      if [ $selected -ge ${#options[@]} ]; then
+        selected=0
+      fi
+    elif [[ -z "$key" ]]; then
+      # در صورت زدن کلید اینتر (اینتر ورودی تهی است)
+      break
+    fi
+
+    # جابجایی کرسر به بالا به اندازه تعداد گزینه‌ها برای چاپ مجدد منو
+    printf "%s\n" "${esc}[${#options[@]}A"
+  done
+
+  # بازگرداندن نشانگر موس
+  tput cnorm
+
+  # چاپ آیتم انتخاب شده (می‌توانید به جای echo، مقدار را به متغیر اختصاص دهید)
+  echo "${options[$selected]}"
+}
 
 find_key_by_value() {
     local -n assoc_array=$1
@@ -36,69 +86,6 @@ find_key_by_value() {
     return 1
 }
 
-function select_menu() {
-
-    # توابع کمکی برای کنترل چاپ ترمینال و دریافت کلید
-    ESC=$(printf "\033")
-    cursor_blink_on()  { printf "%s\n" "${ESC}[?25h"; }
-    cursor_blink_off() { printf "%s\n" "${ESC}[?25l"; }
-    cursor_to()        { printf "%s\n" "${ESC}[$1;${2:-1}H"; }
-    print_option()     { printf "%s\n" "   $1 "; }
-    print_selected()   { printf "%s\n" "  ${ESC}[7m $1 ${ESC}[27m"; }
-    get_cursor_row()   {
-      IFS=';' read -r -sdR -p $'\E[6n' ROW COL; echo "${ROW#*[}";
-      export COL
-      }
-    key_input()        {
-        read -r -s -n3 key 2>/dev/null
-        if [[ $key == "${ESC}[A" ]]; then echo up; fi
-        if [[ $key == "${ESC}[B" ]]; then echo down; fi
-        if [[ -z $key ]]; then echo enter; fi
-    }
-
-    # چاپ چند خط خالی اولیه (جهت اسکرول کردن در صورت پایین بودن صفحه)
-    for opt; do printf "\n"; done
-
-    # تعیین موقعیت فعلی کرسر برای نوشتن مجدد گزینه‌ها
-    local last_row
-    last_row=$(get_cursor_row)
-    local start_row=$(( last_row - $# ))
-
-    # اطمینان از روشن شدن کرسر و بازگرداندن حالت echo در صورت قطع برنامه با ctrl+c
-    trap "cursor_blink_on; stty echo; printf '\n'; exit" SIGINT
-    cursor_blink_off
-
-    local selected=0
-    while true; do
-        # چاپ گزینه‌ها با بازنویسی خطوط آخر
-        local idx=0
-        for opt; do
-            cursor_to $(( start_row + idx ))
-            if [ $idx -eq $selected ]; then
-                print_selected "$opt"
-            else
-                print_option "$opt"
-            fi
-            ((idx++))
-        done
-
-        # کنترل کلید‌های ورودی کاربر
-        case $(key_input) in
-            enter) break ;;
-            up)    ((selected--))
-                   if [ $selected -lt 0 ]; then selected=$(( $# - 1 )); fi ;;
-            down)  ((selected++))
-                   if [ $selected -ge $# ]; then selected=0; fi ;;
-        esac
-    done
-
-    # بازگرداندن موقعیت کرسر به حالت عادی
-    cursor_to "$last_row"
-    printf "\n"
-    cursor_blink_on
-
-    return $selected
-}
 
 
 ########################################
