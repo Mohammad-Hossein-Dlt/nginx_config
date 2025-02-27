@@ -3,7 +3,7 @@ package common
 import (
 	"bufio"
 	"fmt"
-	"nginx_configure/tui"
+	"github.com/manifoldco/promptui"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -36,41 +36,41 @@ func ColoredText(color, text string) {
 
 // SelectMenu displays options to the user and returns the selected option.
 func SelectMenu(options []string) string {
-	//prompt := promptui.Select{
-	//	Label: "Select an Option",
-	//	Items: options,
-	//	Size:  len(options),
-	//}
-	//
-	//_, result, err := prompt.Run()
-	//if err != nil {
-	//	fmt.Printf("Prompt failed: %v\n", err)
-	//}
-	//
-	tui.ListUi(
-		[]tui.NestedItem{
-			{
-				Title:       "test1",
-				Description: "aaa",
-				Children: []tui.NestedItem{
-					{Title: "test2", Description: ""},
-					{Title: "test3", Description: ""},
-				},
-				Action: func() {
-					fmt.Println("Action for Child 1.1 executed!")
-				},
-			},
-			{
-				Title:       "test4",
-				Description: "bbb",
-				Children: []tui.NestedItem{
-					{Title: "test5", Description: ""},
-					{Title: "test6", Description: ""},
-				},
-			},
-		},
-	)
-	return ""
+	prompt := promptui.Select{
+		Label: "Select an Option",
+		Items: options,
+		Size:  len(options),
+	}
+
+	_, result, err := prompt.Run()
+	if err != nil {
+		fmt.Printf("Prompt failed: %v\n", err)
+	}
+
+	//tui.ListUi(
+	//	[]tui.NestedItem{
+	//		{
+	//			Title:       "test1",
+	//			Description: "aaa",
+	//			Children: []tui.NestedItem{
+	//				{Title: "test2", Description: ""},
+	//				{Title: "test3", Description: ""},
+	//			},
+	//			Action: func() {
+	//				fmt.Println("Action for Child 1.1 executed!")
+	//			},
+	//		},
+	//		{
+	//			Title:       "test4",
+	//			Description: "bbb",
+	//			Children: []tui.NestedItem{
+	//				{Title: "test5", Description: ""},
+	//				{Title: "test6", Description: ""},
+	//			},
+	//		},
+	//	},
+	//)
+	return result
 }
 
 // FindKeyByValue searches a map for a value and returns its key.
