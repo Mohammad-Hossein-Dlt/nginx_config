@@ -3,7 +3,7 @@ package common
 import (
 	"bufio"
 	"fmt"
-	"github.com/manifoldco/promptui"
+	"nginx_configure/tui"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -36,18 +36,41 @@ func ColoredText(color, text string) {
 
 // SelectMenu displays options to the user and returns the selected option.
 func SelectMenu(options []string) string {
-	prompt := promptui.Select{
-		Label: "Select an Option",
-		Items: options,
-		Size:  len(options),
-	}
-
-	_, result, err := prompt.Run()
-	if err != nil {
-		fmt.Printf("Prompt failed: %v\n", err)
-	}
-
-	return result
+	//prompt := promptui.Select{
+	//	Label: "Select an Option",
+	//	Items: options,
+	//	Size:  len(options),
+	//}
+	//
+	//_, result, err := prompt.Run()
+	//if err != nil {
+	//	fmt.Printf("Prompt failed: %v\n", err)
+	//}
+	//
+	tui.ListUi(
+		[]tui.NestedItem{
+			{
+				Title:       "test1",
+				Description: "aaa",
+				Children: []tui.NestedItem{
+					{Title: "test2", Description: ""},
+					{Title: "test3", Description: ""},
+				},
+				Action: func() {
+					fmt.Println("Action for Child 1.1 executed!")
+				},
+			},
+			{
+				Title:       "test4",
+				Description: "bbb",
+				Children: []tui.NestedItem{
+					{Title: "test5", Description: ""},
+					{Title: "test6", Description: ""},
+				},
+			},
+		},
+	)
+	return ""
 }
 
 // FindKeyByValue searches a map for a value and returns its key.
@@ -68,7 +91,7 @@ func RunCommand(name string, args ...string) error {
 	return cmd.Run()
 }
 
-// Certificates certificates scans the given certificate base path for certificate files
+// Certificates scans the given certificate base path for certificate files
 // with extensions .crt, .pem, or .cer. It returns a map where keys are the
 // base names and values are a description string.
 func Certificates(certBasePath string) map[string]string {

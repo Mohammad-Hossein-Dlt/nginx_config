@@ -375,10 +375,10 @@ func confirmPrompt(message string) bool {
 
 func Management() {
 	// Check if running as root.
-	//if os.Geteuid() != 0 {
-	//	common.ColoredText("31", "Please run as root (sudo).")
-	//	os.Exit(1)
-	//}
+	if os.Geteuid() != 0 {
+		common.ColoredText("31", "Please run as root (sudo).")
+		os.Exit(1)
+	}
 
 	// Run initial routines.
 	if err := common.FixDpkgLock(); err != nil {

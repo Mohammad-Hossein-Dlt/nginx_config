@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="251bd253-6881-4bce-b06a-42cacdb21b83" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/management/management.go" beforeDir="false" afterPath="$PROJECT_DIR$/management/management.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +74,15 @@
       <filePath value="$PROJECT_DIR$" />
       <method v="2" />
     </configuration>
+    <configuration name="go build list.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="nginx_config" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="nginx_configure" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/tui/list.go" />
+      <method v="2" />
+    </configuration>
     <configuration default="true" type="GoTestRunConfiguration" factoryName="Go Test">
       <module name="nginx_config" />
       <working_directory value="$PROJECT_DIR$" />
@@ -80,6 +92,11 @@
       <framework value="gotest" />
       <method v="2" />
     </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Go Build.go build list.go" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
@@ -102,7 +119,10 @@
       <workItem from="1740601966259" duration="24000" />
       <workItem from="1740601999725" duration="6116000" />
       <workItem from="1740641054070" duration="2318000" />
-      <workItem from="1740645459606" duration="4883000" />
+      <workItem from="1740645459606" duration="5936000" />
+      <workItem from="1740659565235" duration="15222000" />
+      <workItem from="1740677104607" duration="481000" />
+      <workItem from="1740679559438" duration="10000" />
     </task>
     <servers />
   </component>
