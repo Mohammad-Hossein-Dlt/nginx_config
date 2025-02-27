@@ -1,6 +1,6 @@
 module nginx_configure
 
-go 1.24
+go 1.24.0
 
 require github.com/manifoldco/promptui v0.9.0
 
