@@ -53,12 +53,6 @@ then
   exit 1
 fi
 
-#
-#colored_text "32" "Initializing go mod..."
-#curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/go.mod | tee go.mod | go mod tidy
-#colored_text "32" "Run..."
-#curl -Ls https://raw.githubusercontent.com/Mohammad-Hossein-Dlt/nginx_config/master/main.go | go run /dev/stdin
-
 git clone https://github.com/$REPO_URL "$TARGET_DIR"
 
 cd "$TARGET_DIR" || exit
