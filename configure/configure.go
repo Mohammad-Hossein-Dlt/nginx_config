@@ -43,118 +43,118 @@ func Configure(
 	// Build configuration based on the chosen options.
 	if cType == "SSL" && setup == "Default" {
 		config := `
-			# Define an upstream block for the backend server(s)
-			%s
-			
-			# HTTP block: Redirect all HTTP traffic to HTTPS
-			server {
-				listen %s;
-				server_name %s;
-				return 301 https://$host$request_uri;
-			}
-			
-			# HTTPS block: SSL configuration and reverse proxy settings
-			server {
-				listen %s ssl;
-				server_name %s;
-			
-				ssl_certificate %s;
-				ssl_certificate_key %s;
-			
-				ssl_protocols TLSv1.2 TLSv1.3;
-				ssl_ciphers HIGH:!aNULL:!MD5;
-			
-				location / {
-					proxy_pass http://%s;
-			
-					proxy_set_header Host $host;
-			
-					proxy_set_header X-Real-IP $remote_addr;
-					proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-					proxy_set_header X-Forwarded-Proto $scheme;
-				}
-			}
+# Define an upstream block for the backend server(s)
+%s
+
+# HTTP block: Redirect all HTTP traffic to HTTPS
+server {
+	listen %s;
+	server_name %s;
+	return 301 https://$host$request_uri;
+}
+
+# HTTPS block: SSL configuration and reverse proxy settings
+server {
+	listen %s ssl;
+	server_name %s;
+
+	ssl_certificate %s;
+	ssl_certificate_key %s;
+
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_ciphers HIGH:!aNULL:!MD5;
+
+	location / {
+		proxy_pass http://%s;
+
+		proxy_set_header Host $host;
+
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
 		`
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, domain, httpsPort, domain, certPath, keyPath, configName)
 	} else if cType == "SSL" && setup == "Websocket" {
 		config := `
-			# Define an upstream block for the backend server(s)
-			%s
-			
-			# HTTP block: Redirect all HTTP traffic to HTTPS
-			server {
-			listen %s;
-			server_name %s;
-			return 301 https://$host$request_uri;
-			}
-			
-			# HTTPS block: SSL configuration and reverse proxy settings
-			server {
-			listen %s ssl;
-			server_name %s;
-			
-			ssl_certificate %s;
-			ssl_certificate_key %s;
-			
-			ssl_protocols TLSv1.2 TLSv1.3;
-			ssl_ciphers HIGH:!aNULL:!MD5;
-			
-			location / {
-			proxy_pass http://%s;
-			
-			proxy_http_version 1.1;
-			proxy_set_header Upgrade $http_upgrade;
-			proxy_set_header Connection "upgrade";
-			
-			proxy_set_header Host $host;
-			
-			proxy_set_header X-Real-IP $remote_addr;
-			proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-			proxy_set_header X-Forwarded-Proto $scheme;
-			}
-			}
+# Define an upstream block for the backend server(s)
+%s
+
+# HTTP block: Redirect all HTTP traffic to HTTPS
+server {
+	listen %s;
+	server_name %s;
+	return 301 https://$host$request_uri;
+}
+
+# HTTPS block: SSL configuration and reverse proxy settings
+server {
+	listen %s ssl;
+	server_name %s;
+
+	ssl_certificate %s;
+	ssl_certificate_key %s;
+
+	ssl_protocols TLSv1.2 TLSv1.3;
+	ssl_ciphers HIGH:!aNULL:!MD5;
+
+	location / {
+		proxy_pass http://%s;
+
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+
+		proxy_set_header Host $host;
+
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
 		`
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, domain, httpsPort, domain, certPath, keyPath, configName)
 	} else if cType == "No SSL" && setup == "Default" {
 		config := `
-			%s
-			
-			server {
-				listen %s;
-				server_name %s;
-			
-				location / {
-					proxy_pass http://%s;
-					proxy_set_header Host $host;
-					proxy_set_header X-Real-IP $remote_addr;
-					proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-					proxy_set_header X-Forwarded-Proto $scheme;
-				}
-			}
+%s
+
+server {
+	listen %s;
+	server_name %s;
+
+	location / {
+		proxy_pass http://%s;
+		proxy_set_header Host $host;
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
 		`
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	} else if cType == "No SSL" && setup == "Websocket" {
 		config := `
-			%s
-			
-			server {
-				listen %s;
-				server_name %s;
-			
-				location / {
-					proxy_pass http://%s;
-			
-					proxy_http_version 1.1;
-					proxy_set_header Upgrade $http_upgrade;
-					proxy_set_header Connection "upgrade";
-			
-					proxy_set_header Host $host;
-			
-					proxy_set_header X-Real-IP $remote_addr;
-					proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-					proxy_set_header X-Forwarded-Proto $scheme;
-				}
-			}
+%s
+
+server {
+	listen %s;
+	server_name %s;
+
+	location / {
+		proxy_pass http://%s;
+
+		proxy_http_version 1.1;
+		proxy_set_header Upgrade $http_upgrade;
+		proxy_set_header Connection "upgrade";
+
+		proxy_set_header Host $host;
+
+		proxy_set_header X-Real-IP $remote_addr;
+		proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+		proxy_set_header X-Forwarded-Proto $scheme;
+	}
+}
 		`
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	}
