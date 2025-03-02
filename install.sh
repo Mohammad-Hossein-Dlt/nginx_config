@@ -150,12 +150,6 @@ extract_dns() {
 
 CONFIGS_BASE_PATH="/etc/nginx/conf.d"
 
-function get_domain() {
-    colored_text "32" "Please enter your domain:"
-    read -r domain
-    echo "$domain"
-}
-
 function get_ip() {
     colored_text "32" "Please enter the ip of this server:"
     read -r domain

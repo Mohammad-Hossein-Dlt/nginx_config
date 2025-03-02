@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"fmt"
 	"nginx_configure/common"
-	"nginx_configure/configure"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -375,10 +374,10 @@ func confirmPrompt(message string) bool {
 
 func Management() {
 	// Check if running as root.
-	if os.Geteuid() != 0 {
-		common.ColoredText("31", "Please run as root (sudo).")
-		os.Exit(1)
-	}
+	//if os.Geteuid() != 0 {
+	//	common.ColoredText("31", "Please run as root (sudo).")
+	//	os.Exit(1)
+	//}
 
 	// Run initial routines.
 	if err := common.FixDpkgLock(); err != nil {
@@ -422,7 +421,7 @@ func Management() {
 			} else if _, err := exec.LookPath("ufw"); err != nil {
 				common.ColoredText("31", "Firewall not installed.")
 			} else {
-				configure.Configure()
+				//configure.Configure()
 			}
 		case "Manage Configs":
 			configs, err := getConfigs()

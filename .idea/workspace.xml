@@ -7,6 +7,14 @@
     <list default="true" id="251bd253-6881-4bce-b06a-42cacdb21b83" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/common.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configure/configure.go" beforeDir="false" afterPath="$PROJECT_DIR$/configure/configure.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.mod" beforeDir="false" afterPath="$PROJECT_DIR$/go.mod" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/go.sum" beforeDir="false" afterPath="$PROJECT_DIR$/go.sum" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/install.sh" beforeDir="false" afterPath="$PROJECT_DIR$/install.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/management/management.go" beforeDir="false" afterPath="$PROJECT_DIR$/management/management.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nginx_configure" beforeDir="false" afterPath="$PROJECT_DIR$/nginx_configure" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tui/list.go" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,17 +66,27 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\tui\file_picker" />
       <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\management" />
       <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\configure" />
     </key>
   </component>
-  <component name="RunManager">
+  <component name="RunManager" selected="Go Build.go build file_picker.go">
     <configuration default="true" type="GoApplicationRunConfiguration" factoryName="Go Application">
       <module name="nginx_config" />
       <working_directory value="$PROJECT_DIR$" />
       <kind value="FILE" />
       <directory value="$PROJECT_DIR$" />
       <filePath value="$PROJECT_DIR$" />
+      <method v="2" />
+    </configuration>
+    <configuration name="go build file_picker.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
+      <module name="nginx_config" />
+      <working_directory value="$PROJECT_DIR$" />
+      <kind value="FILE" />
+      <package value="nginx_configure" />
+      <directory value="$PROJECT_DIR$" />
+      <filePath value="$PROJECT_DIR$/tui/file_picker.go" />
       <method v="2" />
     </configuration>
     <configuration name="go build list.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
@@ -91,6 +109,7 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Go Build.go build file_picker.go" />
         <item itemvalue="Go Build.go build list.go" />
       </list>
     </recent_temporary>
@@ -98,8 +117,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-jdk-9823dce3aa75-125ca727e0f0-intellij.indexing.shared.core-IU-243.24978.46" />
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-IU-243.24978.46" />
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.39" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.39" />
       </set>
     </attachedChunks>
   </component>
@@ -119,7 +138,24 @@
       <workItem from="1740645459606" duration="5936000" />
       <workItem from="1740659565235" duration="15222000" />
       <workItem from="1740677104607" duration="481000" />
-      <workItem from="1740679559438" duration="3308000" />
+      <workItem from="1740679559438" duration="10279000" />
+      <workItem from="1740691485716" duration="1000" />
+      <workItem from="1740728789250" duration="15105000" />
+      <workItem from="1740746420421" duration="11307000" />
+      <workItem from="1740757814884" duration="5542000" />
+      <workItem from="1740766263728" duration="10447000" />
+      <workItem from="1740820131179" duration="8037000" />
+      <workItem from="1740839624251" duration="6976000" />
+      <workItem from="1740850835306" duration="5784000" />
+      <workItem from="1740857457378" duration="1165000" />
+      <workItem from="1740859519561" duration="29000" />
+      <workItem from="1740863559609" duration="236000" />
+      <workItem from="1740878054461" duration="7502000" />
+      <workItem from="1740908795647" duration="3833000" />
+      <workItem from="1740918060084" duration="12259000" />
+      <workItem from="1740930937553" duration="19000" />
+      <workItem from="1740930967791" duration="108000" />
+      <workItem from="1740931081315" duration="15608000" />
     </task>
     <servers />
   </component>

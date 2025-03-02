@@ -1,10 +1,9 @@
 package common
 
 import (
-	"bufio"
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
-	//"github.com/manifoldco/promptui"
-	"nginx_configure/tui"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -37,40 +36,7 @@ func ColoredText(color, text string) {
 
 // SelectMenu displays options to the user and returns the selected option.
 func SelectMenu(options []string) string {
-	//prompt := promptui.Select{
-	//	Label: "Select an Option",
-	//	Items: options,
-	//	Size:  len(options),
-	//}
-	//
-	//_, result, err := prompt.Run()
-	//if err != nil {
-	//	fmt.Printf("Prompt failed: %v\n", err)
-	//}
 
-	tui.ListUi(
-		[]tui.NestedItem{
-			{
-				Title:       "test1",
-				Description: "aaa",
-				Children: []tui.NestedItem{
-					{Title: "test2", Description: ""},
-					{Title: "test3", Description: ""},
-				},
-				//Action: func() {
-				//	fmt.Println("Action for Child 1.1 executed!")
-				//},
-			},
-			{
-				Title:       "test4",
-				Description: "bbb",
-				Children: []tui.NestedItem{
-					{Title: "test5", Description: ""},
-					{Title: "test6", Description: ""},
-				},
-			},
-		},
-	)
 	return ""
 }
 
@@ -82,6 +48,33 @@ func FindKeyByValue(assocMap map[string]string, searchValue string) (string, boo
 		}
 	}
 	return "", false
+}
+
+func GetValues(assocMap map[string]string) []string {
+	var assoc []string
+	for _, value := range assocMap {
+		assoc = append(assoc, value)
+	}
+	return assoc
+}
+
+func ExtractKeys(assocMap map[string]string) []string {
+	var assoc []string
+	for k, _ := range assocMap {
+		assoc = append(assoc, k)
+	}
+	return assoc
+}
+
+func GetKeyByIndex(assocMap map[string]string, index int) string {
+	keys := ExtractKeys(assocMap)
+
+	for i, k := range keys {
+		if i == index {
+			return k
+		}
+	}
+	return ""
 }
 
 // RunCommand runs an external command with given arguments.
@@ -128,68 +121,33 @@ func Certificates(certBasePath string) map[string]string {
 		if err != nil || len(domains) == 0 {
 			domains = []string{"N/A"}
 		}
-		domainStr := strings.Join(domains, " // ")
+		domainStr := strings.Join(domains, ", ")
 		assoc[baseName] = fmt.Sprintf("Cert: %s | Key: %s | Domains: %s", certFile, keyFile, domainStr)
 	}
 	return assoc
 }
 
-// SelectCert calls certificates() and then asks the user to select one.
-func SelectCert(certBasePath string) string {
-	names := Certificates(certBasePath)
-	// Build menu options from the map values.
-	var options []string
-	for _, detail := range names {
-		options = append(options, detail)
-	}
-	selected := SelectMenu(options)
-	// Retrieve the base name (key) corresponding to the selection.
-	baseName, found := FindKeyByValue(names, selected)
-	if !found {
-		ColoredText("31", "Certificate selection failed.")
-		os.Exit(1)
-	}
-	return baseName
-}
-
-// ExtractDomains runs openssl to extract the Subject Alternative Names (SAN)
-// from a certificate and returns a slice of domain names.
-func ExtractDomains(certFile string) ([]string, error) {
-	cmd := exec.Command("openssl", "x509", "-in", certFile, "-noout", "-ext", "subjectAltName")
-	output, err := cmd.Output()
+func ExtractDomains(certPath string) ([]string, error) {
+	certData, err := os.ReadFile(certPath)
 	if err != nil {
-		ColoredText("93", "No domains found in certificate.")
-		os.Exit(1)
-		return nil, err
+		return nil, fmt.Errorf("error reading file: %v", err)
 	}
-	var domains []string
-	lines := strings.Split(string(output), "\n")
-	for _, line := range lines {
-		line = strings.TrimSpace(line)
-		if strings.Contains(line, "DNS:") {
-			// The line might be like: "DNS:example.com, DNS:www.example.com"
-			parts := strings.Split(line, ",")
-			for _, part := range parts {
-				part = strings.TrimSpace(part)
-				if strings.HasPrefix(part, "DNS:") {
-					domain := strings.TrimPrefix(part, "DNS:")
-					domain = strings.TrimSpace(domain)
-					if domain != "" {
-						domains = append(domains, domain)
-					}
-				}
-			}
-		}
-	}
-	return domains, nil
-}
 
-// PromptInput shows a prompt to the user and returns the entered text.
-func PromptInput(prompt string) string {
-	ColoredText("32", prompt)
-	reader := bufio.NewReader(os.Stdin)
-	input, _ := reader.ReadString('\n')
-	return strings.TrimSpace(input)
+	block, _ := pem.Decode(certData)
+	if block == nil {
+		return nil, fmt.Errorf("error decoding PEM")
+	}
+
+	cert, err := x509.ParseCertificate(block.Bytes)
+	if err != nil {
+		return nil, fmt.Errorf("error parsing certificate: %v", err)
+	}
+
+	var domains []string
+
+	domains = append(domains, cert.DNSNames...)
+
+	return domains, nil
 }
 
 // FileExists returns true if the file at path exists.

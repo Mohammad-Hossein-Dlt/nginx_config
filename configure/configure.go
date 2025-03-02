@@ -8,98 +8,40 @@ import (
 	"strings"
 )
 
-func Configure() {
-	// Check if running as root.
-	//if os.Geteuid() != 0 {
-	//	common.ColoredText("31", "Please run as root (sudo).")
-	//	os.Exit(1)
-	//}
-
-	////////////////////////////////////////
-	// Get Certification & Setup Inputs
-	////////////////////////////////////////
-
-	certification := common.SelectMenu([]string{"SSL", "No SSL"})
-	setup := common.SelectMenu([]string{"Default", "Websocket"})
-
-	////////////////////////////////////////
-	// Certificate Section (if needed)
-	////////////////////////////////////////
-
-	certBasePath := "/etc/ssl/files"
-	// Ensure certificate directory exists.
-	err := os.MkdirAll(certBasePath, 0755)
-	if err != nil {
-		return
-	}
-
-	// Variables for later use.
-	var selectedDomain, serverIP, certPath, keyPath string
-	var httpPort, httpsPort string
-
-	if certification == "SSL" {
-		certBaseName := common.SelectCert(certBasePath)
-		certFullPath := filepath.Join(certBasePath, certBaseName+".crt")
-		domains, _ := common.ExtractDomains(certFullPath)
-		selectedDomain = common.SelectMenu(domains)
-		certPath = certFullPath
-		keyFullPath := filepath.Join(certBasePath, certBaseName+".key")
-		if !common.FileExists(keyFullPath) {
-			common.ColoredText("93", "Key file not found for certificate.")
-			os.Exit(1)
-		}
-		keyPath = keyFullPath
-
-		httpPort = common.PromptInput("Please enter http port (80 is default):")
-		if httpPort == "" {
-			httpPort = "80"
-		}
-		httpsPort = common.PromptInput("Please enter https port (443 is default):")
-		if httpsPort == "" {
-			httpsPort = "443"
-		}
-	} else { // No SSL
-		serverIP = common.PromptInput("Please enter the ip of this server:")
-		selectedDomain = serverIP
-		httpPort = common.PromptInput("Please enter http port (80 is default):")
-		if httpPort == "" {
-			httpPort = "80"
-		}
-	}
-
-	////////////////////////////////////////
-	// Nginx Configuration
-	////////////////////////////////////////
-
-	configsBasePath := "/etc/nginx/conf.d"
-	// List previous configuration files.
-	common.ColoredText("36", "Please enter a unique name for config file. Previous configs are shown below:")
-	existingConfigs, _ := filepath.Glob(filepath.Join(configsBasePath, "*.conf"))
-	for _, cfg := range existingConfigs {
-		fmt.Println(cfg)
-	}
-	configName := common.PromptInput("")
+func Configure(
+	configsBasePath string,
+	certBasePath string,
+	configName string,
+	setup string,
+	upstreamIPs []string,
+	cType string,
+	certName string,
+	domain string,
+	serverIp string,
+	httpPort string,
+	httpsPort string,
+) {
+	certPath := certBasePath + certName + ".crt"
+	keyPath := certBasePath + certName + ".key"
 	configFilePath := filepath.Join(configsBasePath, configName+".conf")
 	if common.FileExists(configFilePath) {
 		common.ColoredText("93", "The name you entered already exists.")
 		os.Exit(1)
 	}
 
-	upstreamIPs := common.PromptInput("Please enter the list of upstream IP addresses (space separated):")
-	upstreamArray := strings.Fields(upstreamIPs)
 	var upstreamConf strings.Builder
 	upstreamConf.WriteString(fmt.Sprintf("upstream %s {", configName))
 	if setup == "Websocket" {
 		upstreamConf.WriteString("\n    ip_hash;")
 	}
-	for _, ip := range upstreamArray {
+	for _, ip := range upstreamIPs {
 		upstreamConf.WriteString(fmt.Sprintf("\n    server %s;", ip))
 	}
 	upstreamConf.WriteString("\n}")
 
 	var configContent string
 	// Build configuration based on the chosen options.
-	if certification == "SSL" && setup == "Default" {
+	if cType == "SSL" && setup == "Default" {
 		config := `
 			# Define an upstream block for the backend server(s)
 			%s
@@ -133,8 +75,8 @@ func Configure() {
 				}
 			}
 		`
-		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, selectedDomain, httpsPort, selectedDomain, certPath, keyPath, configName)
-	} else if certification == "SSL" && setup == "Websocket" {
+		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, domain, httpsPort, domain, certPath, keyPath, configName)
+	} else if cType == "SSL" && setup == "Websocket" {
 		config := `
 			# Define an upstream block for the backend server(s)
 			%s
@@ -172,8 +114,8 @@ func Configure() {
 			}
 			}
 		`
-		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, selectedDomain, httpsPort, selectedDomain, certPath, keyPath, configName)
-	} else if certification == "No SSL" && setup == "Default" {
+		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, domain, httpsPort, domain, certPath, keyPath, configName)
+	} else if cType == "No SSL" && setup == "Default" {
 		config := `
 			%s
 			
@@ -190,8 +132,8 @@ func Configure() {
 				}
 			}
 		`
-		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, selectedDomain, configName)
-	} else if certification == "No SSL" && setup == "Websocket" {
+		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
+	} else if cType == "No SSL" && setup == "Websocket" {
 		config := `
 			%s
 			
@@ -214,11 +156,11 @@ func Configure() {
 				}
 			}
 		`
-		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, selectedDomain, configName)
+		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	}
 
 	// Write the configuration file.
-	err = os.WriteFile(configFilePath, []byte(configContent), 0644)
+	err := os.WriteFile(configFilePath, []byte(configContent), 0644)
 	if err != nil {
 		common.ColoredText("31", "Error writing config file: "+err.Error())
 		os.Exit(1)
