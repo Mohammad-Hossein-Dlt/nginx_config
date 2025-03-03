@@ -101,12 +101,12 @@ func RunCommand(cmdStr string, ch chan<- LogMsg) {
 	cmd := exec.Command("bash", "-c", cmdStr)
 
 	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
+	//stderr, _ := cmd.StderrPipe()
 
 	_ = cmd.Start()
 
 	go sendLog(ch, stdout)
-	go sendLog(ch, stderr)
+	//go sendLog(ch, stderr)
 
 	_ = cmd.Wait()
 }
