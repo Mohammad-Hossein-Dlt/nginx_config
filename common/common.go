@@ -2,6 +2,7 @@ package common
 
 import (
 	"bufio"
+	"bytes"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
@@ -100,13 +101,15 @@ func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
 func RunCommand(cmdStr string, ch chan<- LogMsg) {
 	cmd := exec.Command("bash", "-c", cmdStr)
 
-	stdout, _ := cmd.StdoutPipe()
-	stderr, _ := cmd.StderrPipe()
+	var out bytes.Buffer
 
-	_ = cmd.Run()
+	cmd.Stdout = &out
+	cmd.Stderr = &out
 
-	go sendLog(ch, stdout)
-	go sendLog(ch, stderr)
+	go func() {
+		_ = cmd.Run()
+		ch <- LogMsg{Msg: out.String(), Color: White}
+	}()
 
 	_ = cmd.Wait()
 }
