@@ -85,9 +85,8 @@ func GetKeyByIndex(assocMap map[string]string, index int) string {
 }
 
 type LogMsg struct {
-	Msg     string
-	isError bool
-	Color   Color
+	Msg   string
+	Color Color
 }
 
 func sendLog(ch chan<- LogMsg, pipe io.ReadCloser, isError bool) {
