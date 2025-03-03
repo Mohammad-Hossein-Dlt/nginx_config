@@ -156,7 +156,10 @@ server {
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	}
 
-	fmt.Println(configFilePath, configContent)
+	//fmt.Println(configFilePath, configContent)
+
+	_ = configFilePath
+	_ = configContent
 
 	// Write the configuration file.
 	//err := os.WriteFile(configFilePath, []byte(configContent), 0644)
