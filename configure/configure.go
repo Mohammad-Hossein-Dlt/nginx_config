@@ -205,5 +205,4 @@ server {
 
 	common.ColoredText("36", "All is done.")
 
-	close(ch)
 }
