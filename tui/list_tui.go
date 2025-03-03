@@ -524,7 +524,10 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						ch,
 					)
 					return m, func() tea.Msg {
-						return <-ch
+						for newLog := range ch {
+							return newLog
+						}
+						return nil
 					}
 				}
 			}
