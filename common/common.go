@@ -89,7 +89,7 @@ type LogMsg struct {
 	Color Color
 }
 
-func sendLog(ch chan<- LogMsg, pipe io.ReadCloser, isError bool) {
+func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
 	newScanner := bufio.NewScanner(pipe)
 	for newScanner.Scan() {
 		ch <- LogMsg{Msg: newScanner.Text(), Color: White}
@@ -105,8 +105,8 @@ func RunCommand(cmdStr string, ch chan<- LogMsg) {
 
 	_ = cmd.Start()
 
-	go sendLog(ch, stdout, false)
-	go sendLog(ch, stderr, true)
+	go sendLog(ch, stdout)
+	go sendLog(ch, stderr)
 
 	_ = cmd.Wait()
 }
