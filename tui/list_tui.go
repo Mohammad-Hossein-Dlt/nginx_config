@@ -523,11 +523,8 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.newConfig.HttpsPort,
 						ch,
 					)
-					return m, func() tea.Msg {
-						for newLog := range ch {
-							return newLog
-						}
-						return nil
+					for newLog := range ch {
+						m.logs = append(m.logs, newLog)
 					}
 				}
 			}
