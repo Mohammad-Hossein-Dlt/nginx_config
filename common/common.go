@@ -99,6 +99,7 @@ func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
 
 // RunCommand runs an external command with given arguments.
 func RunCommand(cmdStr string, ch chan<- LogMsg) {
+	fmt.Println(cmdStr)
 	cmd := exec.Command("bash", "-c", cmdStr)
 
 	var out bytes.Buffer
