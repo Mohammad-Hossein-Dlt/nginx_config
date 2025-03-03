@@ -100,16 +100,18 @@ type model struct {
 
 	textInput  textinput.Model
 	filePicker filepicker.Model
+	//-------------------------
+	logs []common.LogMsg
 }
 
-func initialModel() model {
+func initialModel() *model {
 
 	ti := textinput.New()
 
 	fp := filepicker.New()
 	fp.AllowedTypes = []string{}
 
-	return model{
+	return &model{
 		state: MainList,
 		mainMenu: ListModel{
 			Options: []string{
@@ -167,11 +169,11 @@ func initialModel() model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m *model) Init() tea.Cmd {
 	return nil
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmdS []tea.Cmd
 		cmd  tea.Cmd
@@ -327,14 +329,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
-
 			}
 		case DeleteNginx:
 			switch key {
 			case "ctrl+b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 				value := m.textInput.Value()
 				if value == "yes" {
@@ -349,7 +350,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+c":
 				return m, tea.Quit
 			case "ctrl+b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 				value := m.textInput.Value()
 				if value != "" {
@@ -359,7 +360,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.newConfig.DuplicateName = true
 					} else {
 						m.newConfig.DuplicateName = false
-						m.state = Setup
+						m.SetState(Setup, nil)
 					}
 
 				}
@@ -370,7 +371,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.setups.ListIndex--
@@ -383,19 +384,19 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.newConfig.Setup = menu.Options[menu.ListIndex]
 				m.textInput.SetValue("")
 				m.textInput.Focus()
-				m.state = Upstreams
+				m.SetState(Upstreams, nil)
 			}
 		case Upstreams:
 			switch key {
 			case "ctrl+c":
 				return m, tea.Quit
 			case "ctrl+b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 				value := m.textInput.Value()
 				if value != "" {
 					m.newConfig.Upstreams = strings.Fields(value)
-					m.state = CType
+					m.SetState(CType, nil)
 				}
 			}
 		case CType:
@@ -404,7 +405,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.cTypes.ListIndex--
@@ -416,13 +417,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				m.newConfig.CType = menu.Options[menu.ListIndex]
 				if m.newConfig.CType == "SSL" {
-					certs := common.Certificates(CertBasePath)
+					certs, logMsg := common.Certificates(CertBasePath)
 					m.certs = CertListModel{Options: certs}
-					m.state = SelectCert
+					m.SetState(SelectCert, &logMsg)
 				} else {
 					m.textInput.SetValue("")
 					m.textInput.Focus()
-					m.state = ServerIp
+					m.SetState(ServerIp, nil)
 				}
 			}
 		case SelectCert:
@@ -431,7 +432,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.cTypes.ListIndex--
@@ -441,11 +442,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					m.cTypes.ListIndex++
 				}
 			case "enter":
-
 				m.newConfig.CertName = common.GetKeyByIndex(m.certs.Options, m.certs.ListIndex)
 				domains, _ := common.ExtractDomains(CertBasePath + m.newConfig.CertName + ".crt")
 				m.domains = ListModel{Options: domains}
-				m.state = Domains
+				m.SetState(Domains, nil)
 			}
 		case Domains:
 			menu := m.domains
@@ -453,7 +453,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.domains.ListIndex--
@@ -466,21 +466,21 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.newConfig.Domain = m.domains.Options[m.domains.ListIndex]
 				m.textInput.SetValue("")
 				m.textInput.Focus()
-				m.state = HttpPort
+				m.SetState(HttpPort, nil)
 			}
 		case ServerIp:
 			switch key {
 			case "ctrl+c":
 				return m, tea.Quit
 			case "ctrl+b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 				value := m.textInput.Value()
 				if value != "" {
 					m.newConfig.ServerIp = value
 					m.textInput.SetValue("")
 					m.textInput.Focus()
-					m.state = HttpPort
+					m.SetState(HttpPort, nil)
 				}
 			}
 		case HttpPort:
@@ -488,14 +488,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+c":
 				return m, tea.Quit
 			case "ctrl+b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 				value := m.textInput.Value()
 				if value != "" {
 					m.newConfig.HttpPort = value
 					m.textInput.SetValue("")
 					m.textInput.Focus()
-					m.state = HttpsPort
+					m.SetState(HttpsPort, nil)
 				}
 			}
 		case HttpsPort:
@@ -503,13 +503,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+c":
 				return m, tea.Quit
 			case "ctrl+b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 				value := m.textInput.Value()
 				if value != "" {
 					m.newConfig.HttpsPort = value
-					fmt.Println(m.newConfig)
-					configure.Configure(
+					ch := make(chan common.LogMsg)
+					go configure.Configure(
 						configsBasePath,
 						CertBasePath,
 						m.newConfig.Name,
@@ -521,7 +521,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.newConfig.ServerIp,
 						m.newConfig.HttpPort,
 						m.newConfig.HttpsPort,
+						ch,
 					)
+					return m, func() tea.Msg {
+						return <-ch
+					}
 				}
 			}
 		case ManageConfigs:
@@ -529,7 +533,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = NginxManagement
+				m.SetState(NginxManagement, nil)
 			case "enter":
 
 			}
@@ -537,10 +541,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 	}
+
 	return m, tea.Batch(cmdS...)
 }
 
-func (m model) View() string {
+func (m *model) SetState(s state, log *common.LogMsg) {
+	m.state = s
+	if log != nil {
+		m.logs = append(m.logs, *log)
+	} else {
+		m.logs = nil
+	}
+}
+
+func (m *model) View() string {
 
 	var sb strings.Builder
 
@@ -599,7 +613,15 @@ func (m model) View() string {
 
 	}
 
-	return sb.String()
+	for _, logMsg := range m.logs {
+		if logMsg.Color != "" {
+			sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
+		} else {
+			sb.WriteString(itemStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg + "\n"))
+		}
+	}
+
+	return strings.Trim(sb.String(), "!¡")
 }
 
 func buildListItems(menu ListModel) string {

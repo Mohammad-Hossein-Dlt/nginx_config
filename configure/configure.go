@@ -20,14 +20,11 @@ func Configure(
 	serverIp string,
 	httpPort string,
 	httpsPort string,
+	ch chan<- common.LogMsg,
 ) {
 	certPath := certBasePath + certName + ".crt"
 	keyPath := certBasePath + certName + ".key"
 	configFilePath := filepath.Join(configsBasePath, configName+".conf")
-	if common.FileExists(configFilePath) {
-		common.ColoredText("93", "The name you entered already exists.")
-		os.Exit(1)
-	}
 
 	var upstreamConf strings.Builder
 	upstreamConf.WriteString(fmt.Sprintf("upstream %s {", configName))
@@ -159,12 +156,14 @@ server {
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	}
 
+	fmt.Println(configFilePath, configContent)
+
 	// Write the configuration file.
-	err := os.WriteFile(configFilePath, []byte(configContent), 0644)
-	if err != nil {
-		common.ColoredText("31", "Error writing config file: "+err.Error())
-		os.Exit(1)
-	}
+	//err := os.WriteFile(configFilePath, []byte(configContent), 0644)
+	//if err != nil {
+	//	common.ColoredText("31", "Error writing config file: "+err.Error())
+	//	os.Exit(1)
+	//}
 	common.ColoredText("32", "Creating configuration file for load balancer and reverse proxy:")
 
 	// Remove default configuration files if they exist.
@@ -178,16 +177,13 @@ server {
 
 	// Test the nginx configuration.
 	common.ColoredText("32", "Testing nginx configuration...")
-	if err := common.RunCommand("nginx", "-t"); err != nil {
-		common.ColoredText("31", "Error in nginx configuration. Please check the config files.")
-		os.Exit(1)
-	}
+	common.RunCommand("nginx -t", ch)
 
 	// Reload and enable nginx.
 	common.ColoredText("32", "Reloading nginx...")
-	_ = common.RunCommand("systemctl", "reload", "nginx")
+	common.RunCommand("systemctl reload nginx", ch)
 	common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
-	_ = common.RunCommand("systemctl", "enable", "nginx")
+	common.RunCommand("systemctl enable nginx", ch)
 
 	common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
 
@@ -196,13 +192,15 @@ server {
 	////////////////////////////////////////
 
 	common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
-	_ = common.RunCommand("ufw", "allow", "9011/tcp")
-	_ = common.RunCommand("ufw", "allow", "22/tcp")
-	_ = common.RunCommand("ufw", "allow", "80/tcp")
-	_ = common.RunCommand("ufw", "allow", "443/tcp")
+	common.RunCommand("ufw allow 9011/tcp", ch)
+	common.RunCommand("ufw allow 22/tcp", ch)
+	common.RunCommand("ufw allow 80/tcp", ch)
+	common.RunCommand("ufw allow 443/tcp", ch)
 
 	// Enable ufw (this may prompt for confirmation).
-	_ = common.RunCommand("ufw", "--force", "enable")
+	common.RunCommand("ufw --force enable", ch)
 
 	common.ColoredText("36", "All is done.")
+
+	close(ch)
 }

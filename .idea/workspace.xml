@@ -6,7 +6,10 @@
   <component name="ChangeListManager">
     <list default="true" id="251bd253-6881-4bce-b06a-42cacdb21b83" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/common/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/common.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/configure/configure.go" beforeDir="false" afterPath="$PROJECT_DIR$/configure/configure.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/nginx_configure" beforeDir="false" afterPath="$PROJECT_DIR$/nginx_configure" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tui/list_tui.go" beforeDir="false" afterPath="$PROJECT_DIR$/tui/list_tui.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -109,8 +112,8 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-gosdk-d297c17c1fbd-57c114c3cede-org.jetbrains.plugins.go.sharedIndexes.bundled-GO-243.24978.59" />
-        <option value="bundled-js-predefined-d6986cc7102b-76f8388c3a79-JavaScript-GO-243.24978.59" />
+        <option value="bundled-jdk-9823dce3aa75-a94e463ab2e7-intellij.indexing.shared.core-IU-243.25659.39" />
+        <option value="bundled-js-predefined-d6986cc7102b-1632447f56bf-JavaScript-IU-243.25659.39" />
       </set>
     </attachedChunks>
   </component>
@@ -147,7 +150,9 @@
       <workItem from="1740918060084" duration="12259000" />
       <workItem from="1740930937553" duration="19000" />
       <workItem from="1740930967791" duration="108000" />
-      <workItem from="1740931081315" duration="16082000" />
+      <workItem from="1740931081315" duration="18178000" />
+      <workItem from="1740990479921" duration="3197000" />
+      <workItem from="1741005348973" duration="17433000" />
     </task>
     <servers />
   </component>

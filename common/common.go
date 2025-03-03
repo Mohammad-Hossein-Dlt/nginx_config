@@ -1,23 +1,36 @@
 package common
 
 import (
+	"bufio"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 )
 
+type Color string
+
+const (
+	White Color = "#FCFCFC"
+	Gold        = "#FFD700"
+	Blue        = "#1E90FF"
+	Green       = "#32CD32"
+	Red         = "#FF4500"
+)
+
 // FixDpkgLock attempts to kill process 8001 and run dpkg --configure -a.
-func FixDpkgLock() error {
-	ColoredText("36", "Fix the dpkg lock")
-	if err := RunCommand("sudo", "kill", "8001"); err != nil {
-		ColoredText("31", "Failed to kill process 8001: "+err.Error())
-	}
-	return RunCommand("dpkg", "--configure", "-a")
-}
+//func FixDpkgLock() error {
+//	ColoredText("36", "Fix the dpkg lock")
+//	if err := RunCommand("sudo", "kill", "8001"); err != nil {
+//		ColoredText("31", "Failed to kill process 8001: "+err.Error())
+//	}
+//	return RunCommand("dpkg", "--configure", "-a")
+//}
 
 // ClearCache mimics cache clearing by removing a file.
 func ClearCache() {
@@ -28,16 +41,10 @@ func ClearCache() {
 
 // ColoredText prints the given text in a terminal color (using ANSI escape codes).
 func ColoredText(color, text string) {
-	_, err := fmt.Fprintf(os.Stderr, "\033[%sm%s\033[0m\n", color, text)
-	if err != nil {
-		return
-	}
-}
-
-// SelectMenu displays options to the user and returns the selected option.
-func SelectMenu(options []string) string {
-
-	return ""
+	tea.Printf("\033[%sm%s\033[0m\n", color, text)
+	//if err != nil {
+	//	return
+	//}
 }
 
 // FindKeyByValue searches a map for a value and returns its key.
@@ -77,34 +84,52 @@ func GetKeyByIndex(assocMap map[string]string, index int) string {
 	return ""
 }
 
+type LogMsg struct {
+	Msg     string
+	isError bool
+	Color   Color
+}
+
+func sendLog(ch chan<- LogMsg, pipe io.ReadCloser, isError bool) {
+	newScanner := bufio.NewScanner(pipe)
+	for newScanner.Scan() {
+		ch <- LogMsg{Msg: newScanner.Text(), Color: White}
+	}
+}
+
 // RunCommand runs an external command with given arguments.
-func RunCommand(name string, args ...string) error {
-	cmd := exec.Command(name, args...)
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	return cmd.Run()
+func RunCommand(cmdStr string, ch chan<- LogMsg) {
+	cmd := exec.Command("bash", "-c", cmdStr)
+
+	stdout, _ := cmd.StdoutPipe()
+	stderr, _ := cmd.StderrPipe()
+
+	_ = cmd.Start()
+
+	go sendLog(ch, stdout, false)
+	go sendLog(ch, stderr, true)
+
+	_ = cmd.Wait()
 }
 
 // Certificates scans the given certificate base path for certificate files
 // with extensions .crt, .pem, or .cer. It returns a map where keys are the
 // base names and values are a description string.
-func Certificates(certBasePath string) map[string]string {
+func Certificates(certBasePath string) (map[string]string, LogMsg) {
 	assoc := make(map[string]string)
 	var certFiles []string
 	exists := []string{"*.crt", "*.pem", "*.cer"}
 	for _, ext := range exists {
 		matches, err := filepath.Glob(filepath.Join(certBasePath, ext))
 		if err != nil {
-			ColoredText("31", "Error scanning certificates: "+err.Error())
-			os.Exit(1)
+			return nil, LogMsg{Msg: "Error scanning certificates: " + err.Error(), Color: Red}
 		}
 		certFiles = append(certFiles, matches...)
 	}
 
 	if len(certFiles) == 0 {
-		ColoredText("93", "No certificates found.")
-		os.Exit(1)
+		return nil, LogMsg{Msg: "No certificates found.", Color: Gold}
+		//os.Exit(1)
 	}
 
 	for _, cert := range certFiles {
@@ -124,7 +149,7 @@ func Certificates(certBasePath string) map[string]string {
 		domainStr := strings.Join(domains, ", ")
 		assoc[baseName] = fmt.Sprintf("Cert: %s | Key: %s | Domains: %s", certFile, keyFile, domainStr)
 	}
-	return assoc
+	return assoc, LogMsg{Msg: ""}
 }
 
 func ExtractDomains(certPath string) ([]string, error) {
