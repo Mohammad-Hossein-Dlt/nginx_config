@@ -90,16 +90,16 @@ type LogMsg struct {
 
 func RunCommand(cmd string) tea.Cmd {
 	return func() tea.Msg {
-		command := exec.Command("bash", "-c", cmd)
+		command := exec.Command("bash", cmd)
 
 		// Get output pipes for both stdout and stderr
 		stdout, err := command.StdoutPipe()
 		if err != nil {
 			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StdoutPipe: %v", err)}
 		}
-		stderr, err := command.StderrPipe()
-		if err != nil {
-			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StderrPipe: %v", err)}
+		stderr, err2 := command.StderrPipe()
+		if err2 != nil {
+			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StderrPipe: %v", err2)}
 		}
 
 		// Start the command
