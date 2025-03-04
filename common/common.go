@@ -125,14 +125,15 @@ func RunCommand(cmd string) tea.Cmd {
 			}
 		}()
 
+		_ = command.Wait()
+
 		// Send the logs to the UI (live)
 		for log := range logChan {
 			return LogMsg{Msg: log}
 		}
 
-		// Wait for command to finish execution
-		_ = command.Wait()
 		close(logChan)
+		// Wait for command to finish execution
 
 		// Return a final message when done
 		return LogMsg{Msg: fmt.Sprintf("✅ Command `%s` executed successfully.", cmd)}
