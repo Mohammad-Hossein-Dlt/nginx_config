@@ -101,6 +101,8 @@ var (
 	files             = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("170"))
 	itemStyle         = lipgloss.NewStyle().MarginLeft(2)
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
+	logStyle          = lipgloss.NewStyle().Margin(0, 0, 0, 2)
+	simpleStyle       = lipgloss.NewStyle().Margin(0, 0, 0, 2)
 )
 
 func initial() *CLIModel {
@@ -536,7 +538,6 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case common.LogMsg:
-		m.Logs = nil
 		m.Logs = append(m.Logs, msg) // Append new log message
 	}
 
@@ -555,6 +556,15 @@ func (m *CLIModel) SetState(s State, log *common.LogMsg) {
 func (m *CLIModel) View() string {
 
 	var sb strings.Builder
+
+	for _, logMsg := range m.Logs {
+		if logMsg.Color != "" {
+			sb.WriteString(logStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg) + "\n")
+		} else {
+			sb.WriteString(logStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg) + "\n")
+			//sb.WriteString(logMsg.Msg + "\n")
+		}
+	}
 
 	switch m.State {
 	case MainList:
@@ -589,11 +599,11 @@ func (m *CLIModel) View() string {
 		if m.NewConfig.DuplicateName {
 			text += "The name you entered already exists."
 		}
-		sb.WriteString(text)
+		sb.WriteString(simpleStyle.Render(text))
 	case Setup:
 		sb.WriteString(buildListItems(m.Setups))
 	case Upstreams:
-		sb.WriteString("Please enter the list of upstream IP addresses (space separated):\n" + m.TextInput.View() + "\n")
+		sb.WriteString(simpleStyle.Render("Please enter the list of upstream IP addresses (space separated):\n"+m.TextInput.View()) + "\n")
 	case CType:
 		sb.WriteString(buildListItems(m.CTypes))
 	case SelectCert:
@@ -601,22 +611,14 @@ func (m *CLIModel) View() string {
 	case Domains:
 		sb.WriteString(buildListItems(m.Domains))
 	case ServerIp:
-		sb.WriteString("Please enter the ip of this server:\n" + m.TextInput.View() + "\n")
+		sb.WriteString(simpleStyle.Render("Please enter the ip of this server:\n"+m.TextInput.View()) + "\n")
 	case HttpPort:
-		sb.WriteString("Please enter http port (80 is default):\n" + m.TextInput.View() + "\n")
+		sb.WriteString(simpleStyle.Render("Please enter http port (80 is default):\n"+m.TextInput.View()) + "\n")
 	case HttpsPort:
-		sb.WriteString("Please enter https port (443 is default):\n" + m.TextInput.View() + "\n")
+		sb.WriteString(simpleStyle.Render("Please enter https port (443 is default):\n"+m.TextInput.View()) + "\n")
 	case ManageConfigs:
 		sb.WriteString(itemStyle.Render("Manage Configs"))
 
-	}
-
-	for _, logMsg := range m.Logs {
-		if logMsg.Color != "" {
-			sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
-		} else {
-			sb.WriteString(itemStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg + "\n"))
-		}
 	}
 
 	return strings.Trim(sb.String(), "!¡")

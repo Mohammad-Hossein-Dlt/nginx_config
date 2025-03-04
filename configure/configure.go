@@ -23,7 +23,7 @@ func Configure(
 	httpsPort string,
 
 ) tea.Cmd {
-	var cmds []tea.Cmd
+	//var cmds []tea.Cmd
 
 	certPath := certBasePath + certName + ".crt"
 	keyPath := certBasePath + certName + ".key"
@@ -183,17 +183,13 @@ server {
 
 	// Test the nginx configuration.
 	common.ColoredText("32", "Testing nginx configuration...")
-	cmd1 := common.RunCommand("nginx -t")
-
-	cmds = append(cmds, cmd1)
+	cmd1 := "nginx -t"
 
 	// Reload and enable nginx.
 	common.ColoredText("32", "Reloading nginx...")
-	cmd2 := common.RunCommand("systemctl reload nginx")
-	cmds = append(cmds, cmd2)
+	cmd2 := "systemctl reload nginx"
 	common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
-	cmd3 := common.RunCommand("systemctl enable nginx")
-	cmds = append(cmds, cmd3)
+	cmd3 := "systemctl enable nginx"
 
 	common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
 
@@ -202,21 +198,25 @@ server {
 	////////////////////////////////////////
 
 	common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
-	cmd4 := common.RunCommand("ufw allow 9011/tcp")
-	cmds = append(cmds, cmd4)
-	cmd5 := common.RunCommand("ufw allow 22/tcp")
-	cmds = append(cmds, cmd5)
-	cmd6 := common.RunCommand("ufw allow 80/tcp")
-	cmds = append(cmds, cmd6)
-	cmd7 := common.RunCommand("ufw allow 443/tcp")
-	cmds = append(cmds, cmd7)
+	cmd4 := "ufw allow 9011/tcp"
+	cmd5 := "ufw allow 22/tcp"
+	cmd6 := "ufw allow 80/tcp"
+	cmd7 := "ufw allow 443/tcp"
 
 	// Enable ufw (this may prompt for confirmation).
-	cmd8 := common.RunCommand("ufw --force enable")
-	cmds = append(cmds, cmd8)
+	cmd8 := "ufw --force enable"
 
 	common.ColoredText("36", "All is done.")
 
-	return tea.Batch(cmds...)
+	return tea.Sequence(
+		common.RunCommand(cmd1),
+		common.RunCommand(cmd2),
+		common.RunCommand(cmd3),
+		common.RunCommand(cmd4),
+		common.RunCommand(cmd5),
+		common.RunCommand(cmd6),
+		common.RunCommand(cmd7),
+		common.RunCommand(cmd8),
+	)
 
 }
