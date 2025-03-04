@@ -133,14 +133,13 @@ func RunCommand(cmd string) tea.Cmd {
 			}
 		}()
 
-		_ = command.Wait()
-
 		// Send the logs to the UI (live)
 		for log := range logChan {
 			time.Sleep(200 * time.Millisecond)
 			return LogMsg{Msg: log}
 		}
 
+		_ = command.Wait()
 		close(logChan)
 
 		// Return a final message when done
