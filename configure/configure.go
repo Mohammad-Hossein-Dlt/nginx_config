@@ -181,13 +181,13 @@ server {
 
 	// Test the nginx configuration.
 	common.ColoredText("32", "Testing nginx configuration...")
-	cmd1 := "nginx -t"
+	cmd1 := "sudo nginx -t"
 
 	// Reload and enable nginx.
 	common.ColoredText("32", "Reloading nginx...")
-	cmd2 := "systemctl reload nginx"
+	cmd2 := "sudo systemctl reload nginx"
 	common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
-	cmd3 := "systemctl enable nginx"
+	cmd3 := "sudo systemctl enable nginx"
 
 	common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
 
@@ -196,13 +196,13 @@ server {
 	////////////////////////////////////////
 
 	common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
-	cmd4 := "ufw allow 9011/tcp"
-	cmd5 := "ufw allow 22/tcp"
-	cmd6 := "ufw allow 80/tcp"
-	cmd7 := "ufw allow 443/tcp"
+	cmd4 := "sudo ufw allow 9011/tcp"
+	cmd5 := "sudo ufw allow 22/tcp"
+	cmd6 := "sudo ufw allow 80/tcp"
+	cmd7 := "sudo ufw allow 443/tcp"
 
 	// Enable ufw (this may prompt for confirmation).
-	cmd8 := "ufw --force enable"
+	cmd8 := "sudo ufw --force enable"
 
 	common.ColoredText("36", "All is done.")
 
