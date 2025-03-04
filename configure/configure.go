@@ -159,15 +159,12 @@ server {
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	}
 
-	_ = configFilePath
-	_ = configContent
-
 	//Write the configuration file.
-	//err := os.WriteFile(configFilePath, []byte(configContent), 0644)
-	//if err != nil {
-	//	common.ColoredText("31", "Error writing config file: "+err.Error())
-	//	os.Exit(1)
-	//}
+	err := os.WriteFile(configFilePath, []byte(configContent), 0644)
+	if err != nil {
+		common.ColoredText("31", "Error writing config file: "+err.Error())
+		os.Exit(1)
+	}
 	//common.ColoredText("32", "Creating configuration file for load balancer and reverse proxy:")
 
 	// Remove default configuration files if they exist.
