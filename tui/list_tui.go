@@ -511,7 +511,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				value := m.TextInput.Value()
 				if value != "" {
 					m.NewConfig.HttpsPort = value
-					//m.Logs = append(m.Logs, common.LogMsg{Msg: "test"})
+					m.Logs = nil
 					return m, configure.Configure(
 						configsBasePath,
 						CertBasePath,
