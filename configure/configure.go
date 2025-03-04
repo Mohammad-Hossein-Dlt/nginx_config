@@ -23,7 +23,7 @@ func Configure(
 	httpsPort string,
 
 ) tea.Cmd {
-	var cmds []tea.Msg
+	var cmds []tea.Cmd
 
 	certPath := certBasePath + certName + ".crt"
 	keyPath := certBasePath + certName + ".key"
@@ -217,6 +217,6 @@ server {
 
 	common.ColoredText("36", "All is done.")
 
-	return tea.Batch(cmd1)
+	return tea.Batch(cmds...)
 
 }
