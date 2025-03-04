@@ -2,6 +2,7 @@ package configure
 
 import (
 	"fmt"
+	tea "github.com/charmbracelet/bubbletea"
 	"nginx_configure/common"
 	"os"
 	"path/filepath"
@@ -20,8 +21,9 @@ func Configure(
 	serverIp string,
 	httpPort string,
 	httpsPort string,
-	ch chan<- common.LogMsg,
-) {
+) tea.Cmd {
+	cmds := []tea.Cmd{}
+
 	certPath := certBasePath + certName + ".crt"
 	keyPath := certBasePath + certName + ".key"
 	configFilePath := filepath.Join(configsBasePath, configName+".conf")
@@ -180,29 +182,34 @@ server {
 
 	// Test the nginx configuration.
 	common.ColoredText("32", "Testing nginx configuration...")
-	common.RunCommand("nginx -t", ch)
+	cmd := common.StartCommand("nginx -t")
 
-	// Reload and enable nginx.
-	common.ColoredText("32", "Reloading nginx...")
-	common.RunCommand("systemctl reload nginx", ch)
-	common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
-	common.RunCommand("systemctl enable nginx", ch)
+	cmds = append(cmds, common.ReadLog(cmd.OutCh))
 
-	common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
+	return tea.Batch(cmds...)
 
-	////////////////////////////////////////
-	// Firewall (ufw) Setup
-	////////////////////////////////////////
-
-	common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
-	common.RunCommand("ufw allow 9011/tcp", ch)
-	common.RunCommand("ufw allow 22/tcp", ch)
-	common.RunCommand("ufw allow 80/tcp", ch)
-	common.RunCommand("ufw allow 443/tcp", ch)
-
-	// Enable ufw (this may prompt for confirmation).
-	common.RunCommand("ufw --force enable", ch)
-
-	common.ColoredText("36", "All is done.")
+	//
+	//// Reload and enable nginx.
+	//common.ColoredText("32", "Reloading nginx...")
+	//common.RunCommand("systemctl reload nginx")
+	//common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
+	//common.RunCommand("systemctl enable nginx")
+	//
+	//common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
+	//
+	//////////////////////////////////////////
+	//// Firewall (ufw) Setup
+	//////////////////////////////////////////
+	//
+	//common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
+	//common.RunCommand("ufw allow 9011/tcp")
+	//common.RunCommand("ufw allow 22/tcp")
+	//common.RunCommand("ufw allow 80/tcp")
+	//common.RunCommand("ufw allow 443/tcp")
+	//
+	//// Enable ufw (this may prompt for confirmation).
+	//common.RunCommand("ufw --force enable")
+	//
+	//common.ColoredText("36", "All is done.")
 
 }

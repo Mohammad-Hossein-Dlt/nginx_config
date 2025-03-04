@@ -101,7 +101,7 @@ type model struct {
 	textInput  textinput.Model
 	filePicker filepicker.Model
 	//-------------------------
-	logs []common.LogMsg
+	logs []*common.LogMsg
 }
 
 func initialModel() *model {
@@ -508,8 +508,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				value := m.textInput.Value()
 				if value != "" {
 					m.newConfig.HttpsPort = value
-					ch := make(chan common.LogMsg)
-					go configure.Configure(
+					return m, configure.Configure(
 						configsBasePath,
 						CertBasePath,
 						m.newConfig.Name,
@@ -521,11 +520,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 						m.newConfig.ServerIp,
 						m.newConfig.HttpPort,
 						m.newConfig.HttpsPort,
-						ch,
 					)
-					for newLog := range ch {
-						m.logs = append(m.logs, newLog)
-					}
 				}
 			}
 		case ManageConfigs:
@@ -537,7 +532,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 
 			}
+		}
 
+	case common.Msg:
+		for _, cl := range m.logs {
+			return m, common.ReadLog(cl.OutCh)
 		}
 
 	}
@@ -548,7 +547,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *model) SetState(s state, log *common.LogMsg) {
 	m.state = s
 	if log != nil {
-		m.logs = append(m.logs, *log)
+		m.logs = append(m.logs, log)
 	} else {
 		m.logs = nil
 	}
@@ -614,6 +613,7 @@ func (m *model) View() string {
 	}
 
 	for _, logMsg := range m.logs {
+		sb.WriteString("///////")
 		if logMsg.Color != "" {
 			sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
 		} else {

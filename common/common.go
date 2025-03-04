@@ -88,6 +88,7 @@ func GetKeyByIndex(assocMap map[string]string, index int) string {
 type LogMsg struct {
 	Msg   string
 	Color Color
+	OutCh chan string
 }
 
 func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
@@ -113,6 +114,49 @@ func RunCommand(cmdStr string, ch chan<- LogMsg) {
 	}()
 
 	_ = cmd.Wait()
+}
+
+func StartCommand(cmdStr string) *LogMsg {
+	outCh := make(chan string)
+	cl := &LogMsg{Msg: "", OutCh: outCh}
+	go func() {
+		cmd := exec.Command("bash", "-c", cmdStr)
+		stdout, err := cmd.StdoutPipe()
+		if err != nil {
+			outCh <- fmt.Sprintf("خطا در ایجاد pipe: %v", err)
+			close(outCh)
+			return
+		}
+		if err := cmd.Start(); err != nil {
+			outCh <- fmt.Sprintf("خطا در اجرای دستور: %v", err)
+			close(outCh)
+			return
+		}
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			outCh <- scanner.Text()
+		}
+		if err := scanner.Err(); err != nil {
+			outCh <- fmt.Sprintf("خطا در خواندن خروجی: %v", err)
+		}
+		_ = cmd.Wait()
+		close(outCh)
+	}()
+	return cl
+}
+
+type Msg struct {
+	Msg string
+}
+
+func ReadLog(outCh chan string) tea.Cmd {
+	return func() tea.Msg {
+		line, ok := <-outCh
+		if !ok {
+			return nil
+		}
+		return Msg{Msg: line}
+	}
 }
 
 // Certificates scans the given certificate base path for certificate files
