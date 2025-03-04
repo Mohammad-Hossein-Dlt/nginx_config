@@ -2,12 +2,10 @@ package common
 
 import (
 	"bufio"
-	"bytes"
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
 	tea "github.com/charmbracelet/bubbletea"
-	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -91,44 +89,57 @@ type LogMsg struct {
 	OutCh chan string
 }
 
-func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
-	newScanner := bufio.NewScanner(pipe)
-	for newScanner.Scan() {
-		ch <- LogMsg{Msg: newScanner.Text(), Color: White}
-	}
+//
+//func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
+//	newScanner := bufio.NewScanner(pipe)
+//	for newScanner.Scan() {
+//		ch <- LogMsg{Msg: newScanner.Text(), Color: White}
+//	}
+//}
+//
+//// RunCommand runs an external command with given arguments.
+//func RunCommand(cmdStr string, ch chan<- LogMsg) {
+//	fmt.Println(cmdStr)
+//	cmd := exec.Command("bash", "-c", cmdStr)
+//
+//	var out bytes.Buffer
+//
+//	cmd.Stdout = &out
+//	cmd.Stderr = &out
+//
+//	go func() {
+//		_ = cmd.Run()
+//		ch <- LogMsg{Msg: out.String(), Color: White}
+//	}()
+//
+//	_ = cmd.Wait()
+//}
+
+type LogMsg2 struct {
+	Id    string
+	Line  string
+	Color string
 }
 
-// RunCommand runs an external command with given arguments.
-func RunCommand(cmdStr string, ch chan<- LogMsg) {
-	fmt.Println(cmdStr)
-	cmd := exec.Command("bash", "-c", cmdStr)
-
-	var out bytes.Buffer
-
-	cmd.Stdout = &out
-	cmd.Stderr = &out
-
-	go func() {
-		_ = cmd.Run()
-		ch <- LogMsg{Msg: out.String(), Color: White}
-	}()
-
-	_ = cmd.Wait()
+type CommandLog struct {
+	Id    string
+	Logs  []string
+	OutCh chan string
 }
 
-func StartCommand(cmdStr string) *LogMsg {
+func StartCommand(id, cmdStr string) *CommandLog {
 	outCh := make(chan string)
-	cl := &LogMsg{Msg: "", OutCh: outCh}
+	cl := &CommandLog{Id: id, Logs: []string{}, OutCh: outCh}
 	go func() {
 		cmd := exec.Command("bash", "-c", cmdStr)
 		stdout, err := cmd.StdoutPipe()
 		if err != nil {
-			outCh <- fmt.Sprintf("خطا در ایجاد pipe: %v", err)
+			outCh <- fmt.Sprintf("Error in create pipe: %v", err)
 			close(outCh)
 			return
 		}
 		if err := cmd.Start(); err != nil {
-			outCh <- fmt.Sprintf("خطا در اجرای دستور: %v", err)
+			outCh <- fmt.Sprintf("Error run: %v", err)
 			close(outCh)
 			return
 		}
@@ -137,7 +148,7 @@ func StartCommand(cmdStr string) *LogMsg {
 			outCh <- scanner.Text()
 		}
 		if err := scanner.Err(); err != nil {
-			outCh <- fmt.Sprintf("خطا در خواندن خروجی: %v", err)
+			outCh <- fmt.Sprintf("Error reading output: %v", err)
 		}
 		_ = cmd.Wait()
 		close(outCh)
@@ -145,17 +156,14 @@ func StartCommand(cmdStr string) *LogMsg {
 	return cl
 }
 
-type Msg struct {
-	Msg string
-}
-
-func ReadLog(outCh chan string) tea.Cmd {
+func ReadLog(id string, outCh chan string) tea.Cmd {
 	return func() tea.Msg {
 		line, ok := <-outCh
 		if !ok {
+
 			return nil
 		}
-		return Msg{Msg: line}
+		return LogMsg2{Id: id, Line: line}
 	}
 }
 

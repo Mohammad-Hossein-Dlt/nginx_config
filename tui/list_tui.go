@@ -101,7 +101,7 @@ type model struct {
 	textInput  textinput.Model
 	filePicker filepicker.Model
 	//-------------------------
-	logs []*common.LogMsg
+	logs map[string]*common.CommandLog
 }
 
 func initialModel() *model {
@@ -534,9 +534,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 
-	case common.Msg:
-		for _, cl := range m.logs {
-			return m, common.ReadLog(cl.OutCh)
+	case common.LogMsg2:
+		if cl, ok := m.logs[msg.Id]; ok {
+			cl.Logs = append(cl.Logs, msg.Line)
+			// زمان‌بندی خواندن خط بعدی از همان کانال در صورت وجود.
+			return m, common.ReadLog(msg.Id, cl.OutCh)
 		}
 
 	}
@@ -547,7 +549,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *model) SetState(s state, log *common.LogMsg) {
 	m.state = s
 	if log != nil {
-		m.logs = append(m.logs, log)
+		//m.logs = append(m.logs, log)
 	} else {
 		m.logs = nil
 	}
@@ -612,13 +614,21 @@ func (m *model) View() string {
 
 	}
 
-	for _, logMsg := range m.logs {
-		sb.WriteString("///////")
-		if logMsg.Color != "" {
-			sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
-		} else {
-			sb.WriteString(itemStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg + "\n"))
+	//for _, logMsg := range m.logs {
+	//	if logMsg.Color != "" {
+	//		sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
+	//	} else {
+	//		sb.WriteString(itemStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg + "\n"))
+	//	}
+	//}
+
+	for id, cl := range m.logs {
+		s := fmt.Sprintf("Logs for command %s:\n", id)
+		for _, line := range cl.Logs {
+			s += line + "\n"
 		}
+		s += "\n"
+		sb.WriteString(s)
 	}
 
 	return strings.Trim(sb.String(), "!¡")

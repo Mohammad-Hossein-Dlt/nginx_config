@@ -182,9 +182,9 @@ server {
 
 	// Test the nginx configuration.
 	common.ColoredText("32", "Testing nginx configuration...")
-	cmd := common.StartCommand("nginx -t")
+	cmd := common.StartCommand("nginx test", "nginx -t")
 
-	cmds = append(cmds, common.ReadLog(cmd.OutCh))
+	cmds = append(cmds, common.ReadLog("nginx test", cmd.OutCh))
 
 	return tea.Batch(cmds...)
 
