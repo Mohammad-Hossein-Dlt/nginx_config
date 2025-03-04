@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 type Color string
@@ -89,46 +88,7 @@ type LogMsg struct {
 	Color Color
 }
 
-//func RunCommand(cmd string) LogMsg {
-//
-//	command := exec.Command("bash", "-c", cmd)
-//
-//	stdout, _ := command.StdoutPipe()
-//	stderr, _ := command.StderrPipe()
-//
-//	if err := command.Start(); err != nil {
-//		//tea.Println(err)
-//		return LogMsg{Log: fmt.Sprintf("❌ Error executing %s: %v", cmd, err)}
-//	}
-//
-//	logChan := make(chan string)
-//
-//	go func() {
-//		scanner := bufio.NewScanner(stdout)
-//		for scanner.Scan() {
-//			logChan <- scanner.Text()
-//		}
-//		close(logChan)
-//	}()
-//
-//	go func() {
-//		scanner := bufio.NewScanner(stderr)
-//		for scanner.Scan() {
-//			logChan <- scanner.Text()
-//		}
-//	}()
-//
-//	for log := range logChan {
-//		time.Sleep(100 * time.Millisecond)
-//		return LogMsg{Log: log}
-//	}
-//
-//	_ = command.Wait()
-//	return LogMsg{Log: fmt.Sprintf("✅ Command `%s` executed.", cmd)}
-//
-//}
-
-func RunCommand(cmd string, args ...string) tea.Cmd {
+func RunCommand(cmd string) tea.Cmd {
 	return func() tea.Msg {
 		command := exec.Command("bash", "-c", cmd)
 
@@ -143,7 +103,7 @@ func RunCommand(cmd string, args ...string) tea.Cmd {
 		}
 
 		// Start the command
-		if err := command.Start(); err != nil {
+		if err := command.Run(); err != nil {
 			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err)}
 		}
 
@@ -167,7 +127,6 @@ func RunCommand(cmd string, args ...string) tea.Cmd {
 
 		// Send the logs to the UI (live)
 		for log := range logChan {
-			time.Sleep(100 * time.Millisecond) // Slight delay for smoother output
 			return LogMsg{Msg: log}
 		}
 
@@ -175,7 +134,7 @@ func RunCommand(cmd string, args ...string) tea.Cmd {
 		_ = command.Wait()
 		close(logChan)
 
-		// Return final message when done
+		// Return a final message when done
 		return LogMsg{Msg: fmt.Sprintf("✅ Command `%s` executed successfully.", cmd)}
 	}
 }
