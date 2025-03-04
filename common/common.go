@@ -156,7 +156,6 @@ func RunCommand(cmd string, args ...string) tea.Cmd {
 			for stdoutScanner.Scan() {
 				logChan <- stdoutScanner.Text()
 			}
-			close(logChan)
 		}()
 
 		go func() {
@@ -174,6 +173,7 @@ func RunCommand(cmd string, args ...string) tea.Cmd {
 
 		// Wait for command to finish execution
 		_ = command.Wait()
+		close(logChan)
 
 		// Return final message when done
 		return LogMsg{Msg: fmt.Sprintf("✅ Command `%s` executed successfully.", cmd)}
