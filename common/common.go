@@ -113,7 +113,7 @@ func RunCommand(cmd string) tea.Cmd {
 		}
 
 		// Start the command
-		if err3 := command.Start(); err3 != nil {
+		if err3 := command.Run(); err3 != nil {
 			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err3)}
 		}
 
