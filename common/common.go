@@ -89,6 +89,8 @@ type LogMsg struct {
 	Color Color
 }
 
+type Done struct{}
+
 func LogMessage(msg string, color Color) tea.Cmd {
 	return func() tea.Msg {
 
@@ -143,7 +145,7 @@ func RunCommand(cmd string) tea.Cmd {
 		close(logChan)
 
 		// Return a final message when done
-		return LogMsg{Msg: fmt.Sprintf("✅ Command `%s` executed successfully.", cmd)}
+		return Done{}
 	}
 }
 
