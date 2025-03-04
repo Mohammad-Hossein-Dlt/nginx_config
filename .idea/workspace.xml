@@ -7,8 +7,6 @@
     <list default="true" id="251bd253-6881-4bce-b06a-42cacdb21b83" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/common.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configure/configure.go" beforeDir="false" afterPath="$PROJECT_DIR$/configure/configure.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx_configure" beforeDir="false" afterPath="$PROJECT_DIR$/nginx_configure" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tui/list_tui.go" beforeDir="false" afterPath="$PROJECT_DIR$/tui/list_tui.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -156,7 +154,7 @@
       <workItem from="1741034186825" duration="993000" />
       <workItem from="1741074533216" duration="13447000" />
       <workItem from="1741092660679" duration="5109000" />
-      <workItem from="1741101574049" duration="3232000" />
+      <workItem from="1741101574049" duration="3971000" />
     </task>
     <servers />
   </component>

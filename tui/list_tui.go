@@ -546,7 +546,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m *CLIModel) SetState(s State, log *common.LogMsg) {
 	m.State = s
 	if log != nil {
-		//m.logs = append(m.logs, log)
+		m.Logs = append(m.Logs, *log)
 	} else {
 		m.Logs = nil
 	}

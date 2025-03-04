@@ -130,7 +130,7 @@ type LogMsg struct {
 
 func RunCommand(cmd string, args ...string) tea.Cmd {
 	return func() tea.Msg {
-		command := exec.Command(cmd, args...)
+		command := exec.Command("bash", "-c", cmd)
 
 		// Get output pipes for both stdout and stderr
 		stdout, err := command.StdoutPipe()
