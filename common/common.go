@@ -10,7 +10,6 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
-	"time"
 )
 
 type Color string
@@ -133,7 +132,6 @@ func RunCommand(cmd string) tea.Cmd {
 
 		// Send the logs to the UI (live)
 		for _, log := range data {
-			time.Sleep(200 * time.Millisecond)
 			return LogMsg{Msg: log}
 		}
 
