@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Color string
@@ -103,8 +104,8 @@ func RunCommand(cmd string) tea.Cmd {
 		}
 
 		// Start the command
-		if err := command.Start(); err != nil {
-			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err)}
+		if err3 := command.Start(); err3 != nil {
+			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err3)}
 		}
 
 		// Use a channel to capture all output logs
@@ -129,11 +130,11 @@ func RunCommand(cmd string) tea.Cmd {
 
 		// Send the logs to the UI (live)
 		for log := range logChan {
+			time.Sleep(200 * time.Millisecond)
 			return LogMsg{Msg: log}
 		}
 
 		close(logChan)
-		// Wait for command to finish execution
 
 		// Return a final message when done
 		return LogMsg{Msg: fmt.Sprintf("✅ Command `%s` executed successfully.", cmd)}
