@@ -89,6 +89,13 @@ type LogMsg struct {
 	Color Color
 }
 
+func LogMessage(msg string, color Color) tea.Cmd {
+	return func() tea.Msg {
+
+		return LogMsg{Msg: msg, Color: color}
+	}
+}
+
 func RunCommand(cmd string) tea.Cmd {
 	return func() tea.Msg {
 		command := exec.Command("bash", "-c", cmd)

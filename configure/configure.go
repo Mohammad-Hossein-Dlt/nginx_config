@@ -207,14 +207,20 @@ server {
 	common.ColoredText("36", "All is done.")
 
 	return tea.Sequence(
+		common.LogMessage("Testing nginx configuration...", common.Gold),
 		common.RunCommand(cmd1),
+		common.LogMessage("Reloading nginx...", common.Gold),
 		common.RunCommand(cmd2),
+		common.LogMessage("Enabling nginx service to automatically start after reboot...", common.Gold),
 		common.RunCommand(cmd3),
+		common.LogMessage("Reverse proxy and Load balancer installation and configuration completed successfully.", common.Gold),
+		common.LogMessage("Allowing SSH on port 22 and web traffic on ports 80, 443...", common.Gold),
 		common.RunCommand(cmd4),
 		common.RunCommand(cmd5),
 		common.RunCommand(cmd6),
 		common.RunCommand(cmd7),
 		common.RunCommand(cmd8),
+		common.LogMessage("All is done.", common.Gold),
 	)
 
 }
