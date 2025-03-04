@@ -121,19 +121,15 @@ func RunCommand(cmd string) tea.Cmd {
 
 		var data []string
 
-		go func() {
-			stdoutScanner := bufio.NewScanner(stdout)
-			for stdoutScanner.Scan() {
-				data = append(data, stdoutScanner.Text())
-			}
-		}()
+		stdoutScanner := bufio.NewScanner(stdout)
+		for stdoutScanner.Scan() {
+			data = append(data, stdoutScanner.Text())
+		}
 
-		go func() {
-			stderrScanner := bufio.NewScanner(stderr)
-			for stderrScanner.Scan() {
-				data = append(data, stderrScanner.Text())
-			}
-		}()
+		stderrScanner := bufio.NewScanner(stderr)
+		for stderrScanner.Scan() {
+			data = append(data, stderrScanner.Text())
+		}
 
 		// Send the logs to the UI (live)
 		for _, log := range data {
