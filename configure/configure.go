@@ -21,8 +21,9 @@ func Configure(
 	serverIp string,
 	httpPort string,
 	httpsPort string,
+
 ) tea.Cmd {
-	cmds := []tea.Cmd{}
+	var cmds []tea.Msg
 
 	certPath := certBasePath + certName + ".crt"
 	keyPath := certBasePath + certName + ".key"
@@ -182,11 +183,11 @@ server {
 
 	// Test the nginx configuration.
 	common.ColoredText("32", "Testing nginx configuration...")
-	cmd := common.StartCommand("nginx test", "nginx -t")
+	cmd1 := common.RunCommand("nginx -t")
 
-	cmds = append(cmds, common.ReadLog("nginx test", cmd.OutCh))
+	cmds = append(cmds, cmd1)
 
-	return tea.Batch(cmds...)
+	return tea.Batch(cmd1)
 
 	//
 	//// Reload and enable nginx.

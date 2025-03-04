@@ -14,25 +14,10 @@ import (
 	"strings"
 )
 
-const (
-	configsBasePath = "/etc/nginx/conf.d/"
-	CertBasePath    = "/etc/ssl/files/"
-	//configsBasePath = ""
-)
-
-var (
-	//information       = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("#1E90FF"))
-	itemStyle1        = lipgloss.NewStyle()
-	information       = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("170"))
-	files             = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("170"))
-	itemStyle         = lipgloss.NewStyle().MarginLeft(2)
-	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
-)
-
-type state int
+type State int
 
 const (
-	MainList state = iota
+	MainList State = iota
 	InstallRequirements
 	NginxManagement
 	FirewallManagement
@@ -42,14 +27,14 @@ const (
 )
 
 const (
-	InstallNginx state = iota + 7
+	InstallNginx State = iota + 7
 	DeleteNginx
 	ConfigName
 	ManageConfigs
 )
 
 const (
-	Setup state = iota + 11
+	Setup State = iota + 11
 	Upstreams
 	CType
 	SelectCert
@@ -82,38 +67,52 @@ type NewConfig struct {
 	HttpsPort     string
 }
 
-type model struct {
-	state state
+type CLIModel struct {
+	State State
 
-	mainMenu        ListModel
-	nginxMenu       ListModel
-	firewallMenu    ListModel
-	certificateMenu ListModel
+	MainMenu        ListModel
+	NginxMenu       ListModel
+	FirewallMenu    ListModel
+	CertificateMenu ListModel
 	//-------------------------
-	newConfig NewConfig
+	NewConfig NewConfig
 
-	cTypes  ListModel
-	certs   CertListModel
-	domains ListModel
-	setups  ListModel
+	CTypes  ListModel
+	Certs   CertListModel
+	Domains ListModel
+	Setups  ListModel
 	//-------------------------
 
-	textInput  textinput.Model
-	filePicker filepicker.Model
+	TextInput  textinput.Model
+	FilePicker filepicker.Model
 	//-------------------------
-	logs map[string]*common.CommandLog
+	Logs []common.LogMsg
 }
 
-func initialModel() *model {
+const (
+	configsBasePath = "/etc/nginx/conf.d/"
+	CertBasePath    = "/etc/ssl/files/"
+)
+
+var (
+	//information       = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("#1E90FF"))
+	itemStyle1        = lipgloss.NewStyle()
+	information       = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("170"))
+	files             = lipgloss.NewStyle().Margin(0, 0, 0, 0).Padding(0, 0, 0, 0).Foreground(lipgloss.Color("170"))
+	itemStyle         = lipgloss.NewStyle().MarginLeft(2)
+	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(2).Foreground(lipgloss.Color("170"))
+)
+
+func initial() *CLIModel {
 
 	ti := textinput.New()
 
 	fp := filepicker.New()
 	fp.AllowedTypes = []string{}
 
-	return &model{
-		state: MainList,
-		mainMenu: ListModel{
+	m := CLIModel{
+		State: MainList,
+		MainMenu: ListModel{
 			Options: []string{
 				"Install Requirements",
 				"Nginx Management",
@@ -124,7 +123,7 @@ func initialModel() *model {
 			},
 			ListIndex: 0,
 		},
-		nginxMenu: ListModel{
+		NginxMenu: ListModel{
 			Options: []string{
 				"Install Nginx",
 				"Delete Nginx",
@@ -133,7 +132,7 @@ func initialModel() *model {
 			},
 			ListIndex: 0,
 		},
-		firewallMenu: ListModel{
+		FirewallMenu: ListModel{
 			Options: []string{
 				"Firewall Status",
 				"Install Firewall",
@@ -142,7 +141,7 @@ func initialModel() *model {
 			},
 			ListIndex: 0,
 		},
-		certificateMenu: ListModel{
+		CertificateMenu: ListModel{
 			Options: []string{
 				"Add Certificate",
 				"Delete All Certificates",
@@ -150,155 +149,157 @@ func initialModel() *model {
 			},
 			ListIndex: 0,
 		},
-		cTypes: ListModel{
+		CTypes: ListModel{
 			Options: []string{
 				"SSL",
 				"No SSL",
 			},
 			ListIndex: 0,
 		},
-		setups: ListModel{
+		Setups: ListModel{
 			Options: []string{
 				"Websocket",
 				"Default",
 			},
 			ListIndex: 0,
 		},
-		textInput:  ti,
-		filePicker: fp,
+		TextInput:  ti,
+		FilePicker: fp,
 	}
+
+	return &m
 }
 
-func (m *model) Init() tea.Cmd {
+func (m *CLIModel) Init() tea.Cmd {
 	return nil
 }
 
-func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var (
 		cmdS []tea.Cmd
 		cmd  tea.Cmd
 	)
 
-	m.textInput, cmd = m.textInput.Update(msg)
+	m.TextInput, cmd = m.TextInput.Update(msg)
 	cmdS = append(cmdS, cmd)
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		key := msg.String()
-		switch m.state {
+		switch m.State {
 		case MainList:
-			menu := m.mainMenu
+			menu := m.MainMenu
 			switch key {
 			case "q":
 				return m, tea.Quit
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.mainMenu.ListIndex--
+					m.MainMenu.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.mainMenu.ListIndex++
+					m.MainMenu.ListIndex++
 				}
 			case "enter":
 				switch menu.Options[menu.ListIndex] {
 				case "Install Requirements":
-					m.state = InstallRequirements
+					m.State = InstallRequirements
 				case "Nginx Management":
-					m.state = NginxManagement
+					m.State = NginxManagement
 				case "Firewall Management":
-					m.state = FirewallManagement
+					m.State = FirewallManagement
 				case "Certificate Management":
-					m.state = CertificateManagement
+					m.State = CertificateManagement
 				case "Reinstall everything":
-					m.state = ReinstallEverything
+					m.State = ReinstallEverything
 				case "Uninstall and delete everything":
-					m.state = UninstallAndDeleteEverything
+					m.State = UninstallAndDeleteEverything
 				}
 			}
 		case InstallRequirements:
-			menu := m.mainMenu
+			menu := m.MainMenu
 			switch key {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = MainList
+				m.State = MainList
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.mainMenu.ListIndex--
+					m.MainMenu.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.mainMenu.ListIndex++
+					m.MainMenu.ListIndex++
 				}
 			case "enter":
 
 			}
 
 		case NginxManagement:
-			menu := m.nginxMenu
+			menu := m.NginxMenu
 			switch key {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = MainList
+				m.State = MainList
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.nginxMenu.ListIndex--
+					m.NginxMenu.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.nginxMenu.ListIndex++
+					m.NginxMenu.ListIndex++
 				}
 			case "enter":
 				switch menu.Options[menu.ListIndex] {
 				case "Install Nginx":
-					m.state = InstallNginx
+					m.State = InstallNginx
 				case "Delete Nginx":
-					m.textInput.SetValue("")
-					m.textInput.Focus()
-					m.state = DeleteNginx
+					m.TextInput.SetValue("")
+					m.TextInput.Focus()
+					m.State = DeleteNginx
 				case "Add Configs":
-					m.textInput.SetValue("")
-					m.textInput.Focus()
-					m.state = ConfigName
+					m.TextInput.SetValue("")
+					m.TextInput.Focus()
+					m.State = ConfigName
 				case "Manage Configs":
-					m.state = ManageConfigs
+					m.State = ManageConfigs
 				}
 			}
 
 		case FirewallManagement:
-			menu := m.firewallMenu
+			menu := m.FirewallMenu
 			switch key {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = MainList
+				m.State = MainList
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.firewallMenu.ListIndex--
+					m.FirewallMenu.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.firewallMenu.ListIndex++
+					m.FirewallMenu.ListIndex++
 				}
 			case "enter":
 
 			}
 
 		case CertificateManagement:
-			menu := m.nginxMenu
+			menu := m.NginxMenu
 			switch key {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = MainList
+				m.State = MainList
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.nginxMenu.ListIndex--
+					m.NginxMenu.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.nginxMenu.ListIndex++
+					m.NginxMenu.ListIndex++
 				}
 			case "enter":
 
@@ -309,7 +310,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = MainList
+				m.State = MainList
 			case "enter":
 
 			}
@@ -318,7 +319,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.state = MainList
+				m.State = MainList
 			case "enter":
 
 			}
@@ -337,7 +338,7 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
-				value := m.textInput.Value()
+				value := m.TextInput.Value()
 				if value == "yes" {
 					fmt.Println("Deleting Nginx.")
 				} else {
@@ -352,21 +353,21 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
-				value := m.textInput.Value()
+				value := m.TextInput.Value()
 				if value != "" {
-					m.newConfig.Name = value
+					m.NewConfig.Name = value
 					configFilePath := filepath.Join(configsBasePath, value+".conf")
 					if common.FileExists(configFilePath) {
-						m.newConfig.DuplicateName = true
+						m.NewConfig.DuplicateName = true
 					} else {
-						m.newConfig.DuplicateName = false
+						m.NewConfig.DuplicateName = false
 						m.SetState(Setup, nil)
 					}
 
 				}
 			}
 		case Setup:
-			menu := m.setups
+			menu := m.Setups
 			switch key {
 			case "q":
 				return m, tea.Quit
@@ -374,16 +375,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.setups.ListIndex--
+					m.Setups.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.setups.ListIndex++
+					m.Setups.ListIndex++
 				}
 			case "enter":
-				m.newConfig.Setup = menu.Options[menu.ListIndex]
-				m.textInput.SetValue("")
-				m.textInput.Focus()
+				m.NewConfig.Setup = menu.Options[menu.ListIndex]
+				m.TextInput.SetValue("")
+				m.TextInput.Focus()
 				m.SetState(Upstreams, nil)
 			}
 		case Upstreams:
@@ -393,14 +394,14 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
-				value := m.textInput.Value()
+				value := m.TextInput.Value()
 				if value != "" {
-					m.newConfig.Upstreams = strings.Fields(value)
+					m.NewConfig.Upstreams = strings.Fields(value)
 					m.SetState(CType, nil)
 				}
 			}
 		case CType:
-			menu := m.cTypes
+			menu := m.CTypes
 			switch key {
 			case "q":
 				return m, tea.Quit
@@ -408,26 +409,26 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.cTypes.ListIndex--
+					m.CTypes.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.cTypes.ListIndex++
+					m.CTypes.ListIndex++
 				}
 			case "enter":
-				m.newConfig.CType = menu.Options[menu.ListIndex]
-				if m.newConfig.CType == "SSL" {
+				m.NewConfig.CType = menu.Options[menu.ListIndex]
+				if m.NewConfig.CType == "SSL" {
 					certs, logMsg := common.Certificates(CertBasePath)
-					m.certs = CertListModel{Options: certs}
+					m.Certs = CertListModel{Options: certs}
 					m.SetState(SelectCert, &logMsg)
 				} else {
-					m.textInput.SetValue("")
-					m.textInput.Focus()
+					m.TextInput.SetValue("")
+					m.TextInput.Focus()
 					m.SetState(ServerIp, nil)
 				}
 			}
 		case SelectCert:
-			menu := m.certs
+			menu := m.Certs
 			switch key {
 			case "q":
 				return m, tea.Quit
@@ -435,20 +436,20 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.cTypes.ListIndex--
+					m.CTypes.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.cTypes.ListIndex++
+					m.CTypes.ListIndex++
 				}
 			case "enter":
-				m.newConfig.CertName = common.GetKeyByIndex(m.certs.Options, m.certs.ListIndex)
-				domains, _ := common.ExtractDomains(CertBasePath + m.newConfig.CertName + ".crt")
-				m.domains = ListModel{Options: domains}
+				m.NewConfig.CertName = common.GetKeyByIndex(m.Certs.Options, m.Certs.ListIndex)
+				domains, _ := common.ExtractDomains(CertBasePath + m.NewConfig.CertName + ".crt")
+				m.Domains = ListModel{Options: domains}
 				m.SetState(Domains, nil)
 			}
 		case Domains:
-			menu := m.domains
+			menu := m.Domains
 			switch key {
 			case "q":
 				return m, tea.Quit
@@ -456,16 +457,16 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.SetState(NginxManagement, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
-					m.domains.ListIndex--
+					m.Domains.ListIndex--
 				}
 			case "down", "s":
 				if menu.ListIndex < len(menu.Options)-1 {
-					m.domains.ListIndex++
+					m.Domains.ListIndex++
 				}
 			case "enter":
-				m.newConfig.Domain = m.domains.Options[m.domains.ListIndex]
-				m.textInput.SetValue("")
-				m.textInput.Focus()
+				m.NewConfig.Domain = m.Domains.Options[m.Domains.ListIndex]
+				m.TextInput.SetValue("")
+				m.TextInput.Focus()
 				m.SetState(HttpPort, nil)
 			}
 		case ServerIp:
@@ -475,11 +476,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
-				value := m.textInput.Value()
+				value := m.TextInput.Value()
 				if value != "" {
-					m.newConfig.ServerIp = value
-					m.textInput.SetValue("")
-					m.textInput.Focus()
+					m.NewConfig.ServerIp = value
+					m.TextInput.SetValue("")
+					m.TextInput.Focus()
 					m.SetState(HttpPort, nil)
 				}
 			}
@@ -490,11 +491,11 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
-				value := m.textInput.Value()
+				value := m.TextInput.Value()
 				if value != "" {
-					m.newConfig.HttpPort = value
-					m.textInput.SetValue("")
-					m.textInput.Focus()
+					m.NewConfig.HttpPort = value
+					m.TextInput.SetValue("")
+					m.TextInput.Focus()
 					m.SetState(HttpsPort, nil)
 				}
 			}
@@ -505,21 +506,22 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "ctrl+b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
-				value := m.textInput.Value()
+				value := m.TextInput.Value()
 				if value != "" {
-					m.newConfig.HttpsPort = value
+					m.NewConfig.HttpsPort = value
+					//m.Logs = append(m.Logs, common.LogMsg{Msg: "test"})
 					return m, configure.Configure(
 						configsBasePath,
 						CertBasePath,
-						m.newConfig.Name,
-						m.newConfig.Setup,
-						m.newConfig.Upstreams,
-						m.newConfig.CType,
-						m.newConfig.CertName,
-						m.newConfig.Domain,
-						m.newConfig.ServerIp,
-						m.newConfig.HttpPort,
-						m.newConfig.HttpsPort,
+						m.NewConfig.Name,
+						m.NewConfig.Setup,
+						m.NewConfig.Upstreams,
+						m.NewConfig.CType,
+						m.NewConfig.CertName,
+						m.NewConfig.Domain,
+						m.NewConfig.ServerIp,
+						m.NewConfig.HttpPort,
+						m.NewConfig.HttpsPort,
 					)
 				}
 			}
@@ -533,45 +535,40 @@ func (m *model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			}
 		}
-
-	case common.LogMsg2:
-		if cl, ok := m.logs[msg.Id]; ok {
-			cl.Logs = append(cl.Logs, msg.Line)
-			// زمان‌بندی خواندن خط بعدی از همان کانال در صورت وجود.
-			return m, common.ReadLog(msg.Id, cl.OutCh)
-		}
-
+	case common.LogMsg:
+		m.Logs = nil
+		m.Logs = append(m.Logs, msg) // Append new log message
 	}
 
 	return m, tea.Batch(cmdS...)
 }
 
-func (m *model) SetState(s state, log *common.LogMsg) {
-	m.state = s
+func (m *CLIModel) SetState(s State, log *common.LogMsg) {
+	m.State = s
 	if log != nil {
 		//m.logs = append(m.logs, log)
 	} else {
-		m.logs = nil
+		m.Logs = nil
 	}
 }
 
-func (m *model) View() string {
+func (m *CLIModel) View() string {
 
 	var sb strings.Builder
 
-	switch m.state {
+	switch m.State {
 	case MainList:
-		sb.WriteString(buildListItems(m.mainMenu))
+		sb.WriteString(buildListItems(m.MainMenu))
 	case InstallRequirements:
 		sb.WriteString(itemStyle.Render("Install Requirements"))
 	case NginxManagement:
-		sb.WriteString(buildListItems(m.nginxMenu))
+		sb.WriteString(buildListItems(m.NginxMenu))
 
 	case FirewallManagement:
-		sb.WriteString(buildListItems(m.firewallMenu))
+		sb.WriteString(buildListItems(m.FirewallMenu))
 
 	case CertificateManagement:
-		sb.WriteString(buildListItems(m.certificateMenu))
+		sb.WriteString(buildListItems(m.CertificateMenu))
 
 	case ReinstallEverything:
 		sb.WriteString(itemStyle.Render("Reinstall Everything"))
@@ -581,54 +578,45 @@ func (m *model) View() string {
 	case InstallNginx:
 		sb.WriteString(itemStyle.Render("Install Nginx"))
 	case DeleteNginx:
-		sb.WriteString("Do you really want to uninstall nginx? (yes/y to confirm, no/n to cancel):\n" + m.textInput.View() + "\n")
+		sb.WriteString("Do you really want to uninstall nginx? (yes/y to confirm, no/n to cancel):\n" + m.TextInput.View() + "\n")
 	case ConfigName:
 		text := "Please enter a unique name for config file. Previous configs are shown below:\n"
 		existingConfigs, _ := filepath.Glob(filepath.Join(configsBasePath, "*.conf"))
 		for _, cfg := range existingConfigs {
 			text += cfg + "\n"
 		}
-		text += m.textInput.View() + "\n"
-		if m.newConfig.DuplicateName {
+		text += m.TextInput.View() + "\n"
+		if m.NewConfig.DuplicateName {
 			text += "The name you entered already exists."
 		}
 		sb.WriteString(text)
 	case Setup:
-		sb.WriteString(buildListItems(m.setups))
+		sb.WriteString(buildListItems(m.Setups))
 	case Upstreams:
-		sb.WriteString("Please enter the list of upstream IP addresses (space separated):\n" + m.textInput.View() + "\n")
+		sb.WriteString("Please enter the list of upstream IP addresses (space separated):\n" + m.TextInput.View() + "\n")
 	case CType:
-		sb.WriteString(buildListItems(m.cTypes))
+		sb.WriteString(buildListItems(m.CTypes))
 	case SelectCert:
-		sb.WriteString(buildCertListItems(m.certs))
+		sb.WriteString(buildCertListItems(m.Certs))
 	case Domains:
-		sb.WriteString(buildListItems(m.domains))
+		sb.WriteString(buildListItems(m.Domains))
 	case ServerIp:
-		sb.WriteString("Please enter the ip of this server:\n" + m.textInput.View() + "\n")
+		sb.WriteString("Please enter the ip of this server:\n" + m.TextInput.View() + "\n")
 	case HttpPort:
-		sb.WriteString("Please enter http port (80 is default):\n" + m.textInput.View() + "\n")
+		sb.WriteString("Please enter http port (80 is default):\n" + m.TextInput.View() + "\n")
 	case HttpsPort:
-		sb.WriteString("Please enter https port (443 is default):\n" + m.textInput.View() + "\n")
+		sb.WriteString("Please enter https port (443 is default):\n" + m.TextInput.View() + "\n")
 	case ManageConfigs:
 		sb.WriteString(itemStyle.Render("Manage Configs"))
 
 	}
 
-	//for _, logMsg := range m.logs {
-	//	if logMsg.Color != "" {
-	//		sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
-	//	} else {
-	//		sb.WriteString(itemStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg + "\n"))
-	//	}
-	//}
-
-	for id, cl := range m.logs {
-		s := fmt.Sprintf("Logs for command %s:\n", id)
-		for _, line := range cl.Logs {
-			s += line + "\n"
+	for _, logMsg := range m.Logs {
+		if logMsg.Color != "" {
+			sb.WriteString(itemStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg + "\n"))
+		} else {
+			sb.WriteString(itemStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg + "\n"))
 		}
-		s += "\n"
-		sb.WriteString(s)
 	}
 
 	return strings.Trim(sb.String(), "!¡")
@@ -679,7 +667,7 @@ func buildCertListItems(menu CertListModel) string {
 }
 
 func RunApp() {
-	p := tea.NewProgram(initialModel())
+	p := tea.NewProgram(initial())
 	if _, err := p.Run(); err != nil {
 		log.Fatal("Error: " + err.Error())
 	}

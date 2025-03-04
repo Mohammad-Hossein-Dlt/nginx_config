@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 type Color string
@@ -86,84 +87,96 @@ func GetKeyByIndex(assocMap map[string]string, index int) string {
 type LogMsg struct {
 	Msg   string
 	Color Color
-	OutCh chan string
 }
 
+//func RunCommand(cmd string) LogMsg {
 //
-//func sendLog(ch chan<- LogMsg, pipe io.ReadCloser) {
-//	newScanner := bufio.NewScanner(pipe)
-//	for newScanner.Scan() {
-//		ch <- LogMsg{Msg: newScanner.Text(), Color: White}
+//	command := exec.Command("bash", "-c", cmd)
+//
+//	stdout, _ := command.StdoutPipe()
+//	stderr, _ := command.StderrPipe()
+//
+//	if err := command.Start(); err != nil {
+//		//tea.Println(err)
+//		return LogMsg{Log: fmt.Sprintf("❌ Error executing %s: %v", cmd, err)}
 //	}
-//}
 //
-//// RunCommand runs an external command with given arguments.
-//func RunCommand(cmdStr string, ch chan<- LogMsg) {
-//	fmt.Println(cmdStr)
-//	cmd := exec.Command("bash", "-c", cmdStr)
-//
-//	var out bytes.Buffer
-//
-//	cmd.Stdout = &out
-//	cmd.Stderr = &out
+//	logChan := make(chan string)
 //
 //	go func() {
-//		_ = cmd.Run()
-//		ch <- LogMsg{Msg: out.String(), Color: White}
+//		scanner := bufio.NewScanner(stdout)
+//		for scanner.Scan() {
+//			logChan <- scanner.Text()
+//		}
+//		close(logChan)
 //	}()
 //
-//	_ = cmd.Wait()
+//	go func() {
+//		scanner := bufio.NewScanner(stderr)
+//		for scanner.Scan() {
+//			logChan <- scanner.Text()
+//		}
+//	}()
+//
+//	for log := range logChan {
+//		time.Sleep(100 * time.Millisecond)
+//		return LogMsg{Log: log}
+//	}
+//
+//	_ = command.Wait()
+//	return LogMsg{Log: fmt.Sprintf("✅ Command `%s` executed.", cmd)}
+//
 //}
 
-type LogMsg2 struct {
-	Id    string
-	Line  string
-	Color string
-}
-
-type CommandLog struct {
-	Id    string
-	Logs  []string
-	OutCh chan string
-}
-
-func StartCommand(id, cmdStr string) *CommandLog {
-	outCh := make(chan string)
-	cl := &CommandLog{Id: id, Logs: []string{}, OutCh: outCh}
-	go func() {
-		cmd := exec.Command("bash", "-c", cmdStr)
-		stdout, err := cmd.StdoutPipe()
-		if err != nil {
-			outCh <- fmt.Sprintf("Error in create pipe: %v", err)
-			close(outCh)
-			return
-		}
-		if err := cmd.Start(); err != nil {
-			outCh <- fmt.Sprintf("Error run: %v", err)
-			close(outCh)
-			return
-		}
-		scanner := bufio.NewScanner(stdout)
-		for scanner.Scan() {
-			outCh <- scanner.Text()
-		}
-		if err := scanner.Err(); err != nil {
-			outCh <- fmt.Sprintf("Error reading output: %v", err)
-		}
-		_ = cmd.Wait()
-		close(outCh)
-	}()
-	return cl
-}
-
-func ReadLog(id string, outCh chan string) tea.Cmd {
+func RunCommand(cmd string, args ...string) tea.Cmd {
 	return func() tea.Msg {
-		line, ok := <-outCh
-		if !ok {
+		command := exec.Command(cmd, args...)
 
-			return nil
+		// Get output pipes for both stdout and stderr
+		stdout, err := command.StdoutPipe()
+		if err != nil {
+			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StdoutPipe: %v", err)}
 		}
-		return LogMsg2{Id: id, Line: line}
+		stderr, err := command.StderrPipe()
+		if err != nil {
+			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StderrPipe: %v", err)}
+		}
+
+		// Start the command
+		if err := command.Start(); err != nil {
+			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err)}
+		}
+
+		// Use a channel to capture all output logs
+		logChan := make(chan string)
+
+		// Read stdout and stderr
+		go func() {
+			stdoutScanner := bufio.NewScanner(stdout)
+			for stdoutScanner.Scan() {
+				logChan <- stdoutScanner.Text()
+			}
+			close(logChan)
+		}()
+
+		go func() {
+			stderrScanner := bufio.NewScanner(stderr)
+			for stderrScanner.Scan() {
+				logChan <- stderrScanner.Text()
+			}
+		}()
+
+		// Send the logs to the UI (live)
+		for log := range logChan {
+			time.Sleep(100 * time.Millisecond) // Slight delay for smoother output
+			return LogMsg{Msg: log}
+		}
+
+		// Wait for command to finish execution
+		_ = command.Wait()
+
+		// Return final message when done
+		return LogMsg{Msg: fmt.Sprintf("✅ Command `%s` executed successfully.", cmd)}
 	}
 }
 
