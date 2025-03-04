@@ -117,32 +117,31 @@ func RunCommand(cmd string) tea.Cmd {
 			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err3)}
 		}
 
-		// Use a channel to capture all output logs
-		logChan := make(chan string)
-
 		// Read stdout and stderr
+
+		var data []string
+
 		go func() {
 			stdoutScanner := bufio.NewScanner(stdout)
 			for stdoutScanner.Scan() {
-				logChan <- stdoutScanner.Text()
+				data = append(data, stdoutScanner.Text())
 			}
 		}()
 
 		go func() {
 			stderrScanner := bufio.NewScanner(stderr)
 			for stderrScanner.Scan() {
-				logChan <- stderrScanner.Text()
+				data = append(data, stderrScanner.Text())
 			}
 		}()
 
 		// Send the logs to the UI (live)
-		for log := range logChan {
+		for _, log := range data {
 			time.Sleep(200 * time.Millisecond)
 			return LogMsg{Msg: log}
 		}
 
 		_ = command.Wait()
-		close(logChan)
 
 		// Return a final message when done
 		return Done{}
