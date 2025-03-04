@@ -187,30 +187,36 @@ server {
 
 	cmds = append(cmds, cmd1)
 
-	return tea.Batch(cmd1)
+	// Reload and enable nginx.
+	common.ColoredText("32", "Reloading nginx...")
+	cmd2 := common.RunCommand("systemctl reload nginx")
+	cmds = append(cmds, cmd2)
+	common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
+	cmd3 := common.RunCommand("systemctl enable nginx")
+	cmds = append(cmds, cmd3)
 
-	//
-	//// Reload and enable nginx.
-	//common.ColoredText("32", "Reloading nginx...")
-	//common.RunCommand("systemctl reload nginx")
-	//common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
-	//common.RunCommand("systemctl enable nginx")
-	//
-	//common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
-	//
-	//////////////////////////////////////////
-	//// Firewall (ufw) Setup
-	//////////////////////////////////////////
-	//
-	//common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
-	//common.RunCommand("ufw allow 9011/tcp")
-	//common.RunCommand("ufw allow 22/tcp")
-	//common.RunCommand("ufw allow 80/tcp")
-	//common.RunCommand("ufw allow 443/tcp")
-	//
-	//// Enable ufw (this may prompt for confirmation).
-	//common.RunCommand("ufw --force enable")
-	//
-	//common.ColoredText("36", "All is done.")
+	common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
+
+	////////////////////////////////////////
+	// Firewall (ufw) Setup
+	////////////////////////////////////////
+
+	common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
+	cmd4 := common.RunCommand("ufw allow 9011/tcp")
+	cmds = append(cmds, cmd4)
+	cmd5 := common.RunCommand("ufw allow 22/tcp")
+	cmds = append(cmds, cmd5)
+	cmd6 := common.RunCommand("ufw allow 80/tcp")
+	cmds = append(cmds, cmd6)
+	cmd7 := common.RunCommand("ufw allow 443/tcp")
+	cmds = append(cmds, cmd7)
+
+	// Enable ufw (this may prompt for confirmation).
+	cmd8 := common.RunCommand("ufw --force enable")
+	cmds = append(cmds, cmd8)
+
+	common.ColoredText("36", "All is done.")
+
+	return tea.Batch(cmd1)
 
 }
