@@ -538,7 +538,8 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case common.LogMsg:
-		m.Logs = append(m.Logs, msg) // Append new log message
+		m.Logs = append(m.Logs, msg)
+		return m, nil // Append new log message
 	case common.Done:
 		return m, nil
 	}
