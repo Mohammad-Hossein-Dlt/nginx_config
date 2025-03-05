@@ -6,12 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="251bd253-6881-4bce-b06a-42cacdb21b83" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/common/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/common.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configure/configure.go" beforeDir="false" afterPath="$PROJECT_DIR$/management/nginx/configure_nginx.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/management/management.go" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/nginx_configure" beforeDir="false" afterPath="$PROJECT_DIR$/nginx_configure" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tui/list_tui.go" beforeDir="false" afterPath="$PROJECT_DIR$/tui/list_tui.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/management/nginx/install_nginx.go" beforeDir="false" afterPath="$PROJECT_DIR$/management/nginx/install_nginx.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -164,6 +159,7 @@
       <workItem from="1741182805276" duration="720000" />
       <workItem from="1741189477104" duration="4088000" />
       <workItem from="1741194597264" duration="587000" />
+      <workItem from="1741196798800" duration="336000" />
     </task>
     <servers />
   </component>

@@ -11,5 +11,6 @@ func Install() tea.Cmd {
 		common.RunCommandWithLogs("apt-get update -y"),
 		common.LogMessage("Installing nginx...", common.Gold),
 		common.RunCommandWithLogs("apt-get install nginx -y"),
+		common.LogMessage("All is done.", common.Green),
 	)
 }
