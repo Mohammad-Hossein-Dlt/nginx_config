@@ -7,7 +7,9 @@
     <list default="true" id="251bd253-6881-4bce-b06a-42cacdb21b83" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/common/common.go" beforeDir="false" afterPath="$PROJECT_DIR$/common/common.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/configure/configure.go" beforeDir="false" afterPath="$PROJECT_DIR$/configure/configure.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/configure/configure.go" beforeDir="false" afterPath="$PROJECT_DIR$/management/nginx/configure_nginx.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/management/management.go" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/nginx_configure" beforeDir="false" afterPath="$PROJECT_DIR$/nginx_configure" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tui/list_tui.go" beforeDir="false" afterPath="$PROJECT_DIR$/tui/list_tui.go" afterDir="false" />
     </list>
@@ -61,6 +63,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\management\nginx" />
       <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\tui\file_picker" />
       <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\management" />
       <recent name="C:\Users\PCMOD\Desktop\avida\automation\nginx_config\configure" />
@@ -157,7 +160,10 @@
       <workItem from="1741074533216" duration="13447000" />
       <workItem from="1741092660679" duration="5109000" />
       <workItem from="1741101574049" duration="19551000" />
-      <workItem from="1741169204747" duration="4755000" />
+      <workItem from="1741169204747" duration="5697000" />
+      <workItem from="1741182805276" duration="720000" />
+      <workItem from="1741189477104" duration="4088000" />
+      <workItem from="1741194597264" duration="587000" />
     </task>
     <servers />
   </component>

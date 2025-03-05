@@ -1,14 +1,13 @@
 package tui
 
 import (
-	"fmt"
 	"github.com/charmbracelet/bubbles/filepicker"
 	"github.com/charmbracelet/bubbles/textinput"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"log"
 	"nginx_configure/common"
-	"nginx_configure/configure"
+	"nginx_configure/management/nginx"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -224,7 +223,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.State = MainList
+				m.SetState(MainList, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.MainMenu.ListIndex--
@@ -243,7 +242,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.State = MainList
+				m.SetState(MainList, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.NginxMenu.ListIndex--
@@ -275,7 +274,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.State = MainList
+				m.SetState(MainList, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.FirewallMenu.ListIndex--
@@ -294,7 +293,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.State = MainList
+				m.SetState(MainList, nil)
 			case "up", "w":
 				if menu.ListIndex > 0 {
 					m.NginxMenu.ListIndex--
@@ -312,7 +311,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.State = MainList
+				m.SetState(MainList, nil)
 			case "enter":
 
 			}
@@ -321,7 +320,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "q":
 				return m, tea.Quit
 			case "b":
-				m.State = MainList
+				m.SetState(MainList, nil)
 			case "enter":
 
 			}
@@ -334,6 +333,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "b":
 				m.SetState(NginxManagement, nil)
 			case "enter":
+				return m, nginx.Install()
 			}
 		case DeleteNginx:
 			switch key {
@@ -342,11 +342,13 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			case "enter":
 				value := m.TextInput.Value()
 				if value == "yes" {
-					fmt.Println("Deleting Nginx.")
+					m.SetState(NginxManagement, nil)
+					return m, nginx.Delete()
 				} else {
-					fmt.Println("Keep Nginx Installed.")
+					m.SetState(NginxManagement, nil)
+					return m, common.LogMessage("Keep Nginx Installed.", common.Blue)
 				}
-				return m, tea.Quit
+
 			}
 		case ConfigName:
 			switch key {
@@ -512,7 +514,7 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				if value != "" {
 					m.NewConfig.HttpsPort = value
 					m.Logs = nil
-					return m, configure.Configure(
+					return m, nginx.Configure(
 						configsBasePath,
 						CertBasePath,
 						m.NewConfig.Name,
@@ -575,7 +577,6 @@ func (m *CLIModel) View() string {
 		sb.WriteString(itemStyle.Render("Install Requirements"))
 	case NginxManagement:
 		sb.WriteString(buildListItems(m.NginxMenu))
-
 	case FirewallManagement:
 		sb.WriteString(buildListItems(m.FirewallMenu))
 
