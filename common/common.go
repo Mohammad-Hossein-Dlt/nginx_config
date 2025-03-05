@@ -19,7 +19,8 @@ const (
 	Gold        = "#FFD700"
 	Blue        = "#1E90FF"
 	Green       = "#32CD32"
-	Red         = "#FF4500"
+	//Red         = "#E63946"
+	Red = "#FF6F61"
 )
 
 // FixDpkgLock attempts to kill process 8001 and run dpkg --configure -a.
@@ -83,17 +84,38 @@ func GetKeyByIndex(assocMap map[string]string, index int) string {
 	return ""
 }
 
-type LogMsg struct {
+type LogData struct {
+	Messages []LogItem
+}
+
+type LogItem struct {
 	Msg   string
 	Color Color
 }
 
-type Done struct{}
+func CreateLogItems(logs []string, color Color) []LogItem {
+	var items []LogItem
+	for _, log := range logs {
+		items = append(items, LogItem{Msg: log, Color: color})
+	}
+	return items
+}
+
+func CreateSingleLog(msg string, color Color) LogData {
+	return LogData{
+		Messages: []LogItem{
+			{Msg: msg, Color: color},
+		},
+	}
+}
 
 func LogMessage(msg string, color Color) tea.Cmd {
 	return func() tea.Msg {
-
-		return LogMsg{Msg: msg, Color: color}
+		return LogData{
+			Messages: []LogItem{
+				{Msg: msg, Color: color},
+			},
+		}
 	}
 }
 
@@ -104,16 +126,16 @@ func RunCommand(cmd string) tea.Cmd {
 		// Get output pipes for both stdout and stderr
 		stdout, err := command.StdoutPipe()
 		if err != nil {
-			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StdoutPipe: %v", err)}
+			return CreateSingleLog(fmt.Sprintf("❌ Error setting up StdoutPipe: %v", err), Red)
 		}
 		stderr, err2 := command.StderrPipe()
 		if err2 != nil {
-			return LogMsg{Msg: fmt.Sprintf("❌ Error setting up StderrPipe: %v", err2)}
+			return CreateSingleLog(fmt.Sprintf("❌ Error setting up StderrPipe: %v", err2), Red)
 		}
 
 		// Start the command
 		if err3 := command.Start(); err3 != nil {
-			return LogMsg{Msg: fmt.Sprintf("❌ Error executing command %s: %v", cmd, err3)}
+			return CreateSingleLog(fmt.Sprintf("❌ Error executing command %s: %v", cmd, err3), Red)
 		}
 
 		// Read stdout and stderr
@@ -130,36 +152,30 @@ func RunCommand(cmd string) tea.Cmd {
 			data = append(data, stderrScanner.Text())
 		}
 
-		// Send the logs to the UI (live)
-		for _, log := range data {
-			return LogMsg{Msg: log}
-		}
-
 		_ = command.Wait()
 
 		// Return a final message when done
-		return Done{}
+		return LogData{Messages: CreateLogItems(data, White)}
 	}
 }
 
 // Certificates scans the given certificate base path for certificate files
 // with extensions .crt, .pem, or .cer. It returns a map where keys are the
 // base names and values are a description string.
-func Certificates(certBasePath string) (map[string]string, LogMsg) {
+func Certificates(certBasePath string) (map[string]string, LogData) {
 	assoc := make(map[string]string)
 	var certFiles []string
 	exists := []string{"*.crt", "*.pem", "*.cer"}
 	for _, ext := range exists {
 		matches, err := filepath.Glob(filepath.Join(certBasePath, ext))
 		if err != nil {
-			return nil, LogMsg{Msg: "Error scanning certificates: " + err.Error(), Color: Red}
+			return nil, CreateSingleLog(fmt.Sprintf("Error scanning certificates: %v", err), Red)
 		}
 		certFiles = append(certFiles, matches...)
 	}
 
 	if len(certFiles) == 0 {
-		return nil, LogMsg{Msg: "No certificates found.", Color: Gold}
-		//os.Exit(1)
+		return nil, CreateSingleLog("No certificates found.", Gold)
 	}
 
 	for _, cert := range certFiles {
@@ -179,7 +195,7 @@ func Certificates(certBasePath string) (map[string]string, LogMsg) {
 		domainStr := strings.Join(domains, ", ")
 		assoc[baseName] = fmt.Sprintf("Cert: %s | Key: %s | Domains: %s", certFile, keyFile, domainStr)
 	}
-	return assoc, LogMsg{Msg: ""}
+	return assoc, LogData{}
 }
 
 func ExtractDomains(certPath string) ([]string, error) {

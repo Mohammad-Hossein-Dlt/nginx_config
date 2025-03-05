@@ -159,65 +159,48 @@ server {
 		configContent = fmt.Sprintf(config, upstreamConf.String(), httpPort, serverIp, configName)
 	}
 
-	//Write the configuration file.
-	err := os.WriteFile(configFilePath, []byte(configContent), 0644)
-	if err != nil {
-		common.ColoredText("31", "Error writing config file: "+err.Error())
-		os.Exit(1)
-	}
-	//common.ColoredText("32", "Creating configuration file for load balancer and reverse proxy:")
-
-	// Remove default configuration files if they exist.
-	defaultFiles := []string{"/etc/nginx/sites-enabled/default", "/etc/nginx/conf.d/default.conf"}
-	for _, df := range defaultFiles {
-		if common.FileExists(df) {
-			common.ColoredText("32", "Removing default configuration at "+df)
-			_ = os.Remove(df)
-		}
-	}
-
-	// Test the nginx configuration.
-	common.ColoredText("32", "Testing nginx configuration...")
-	cmd1 := "nginx -t"
-
-	// Reload and enable nginx.
-	common.ColoredText("32", "Reloading nginx...")
-	cmd2 := "systemctl reload nginx"
-	common.ColoredText("32", "Enabling nginx service to automatically start after reboot...")
-	cmd3 := "systemctl enable nginx"
-
-	common.ColoredText("36", "Reverse proxy and Load balancer installation and configuration completed successfully.")
-
-	////////////////////////////////////////
-	// Firewall (ufw) Setup
-	////////////////////////////////////////
-
-	common.ColoredText("32", "Allowing SSH on port 22 and web traffic on ports 80, 443...")
-	cmd4 := "ufw allow 9011/tcp"
-	cmd5 := "ufw allow 22/tcp"
-	cmd6 := "ufw allow 80/tcp"
-	cmd7 := "ufw allow 443/tcp"
-
-	// Enable ufw (this may prompt for confirmation).
-	cmd8 := "ufw --force enable"
-
-	common.ColoredText("36", "All is done.")
-
 	return tea.Sequence(
+		common.LogMessage("Creating config file...", common.Gold),
+		func() tea.Msg {
+			err := os.WriteFile(configFilePath, []byte(configContent), 0644)
+			if err != nil {
+				return common.CreateSingleLog("Error writing config file: "+err.Error(), common.Red)
+			}
+			return common.CreateSingleLog("Config file created successfully.", common.Gold)
+		},
+		func() tea.Msg {
+			defaultFiles := []string{"/etc/nginx/sites-enabled/default", "/etc/nginx/conf.d/default.conf"}
+			var logs []common.LogItem
+			haveError := false
+			for _, df := range defaultFiles {
+				if common.FileExists(df) {
+					logs = append(logs, common.LogItem{Msg: "Removing default configuration at " + df, Color: common.White})
+					err := os.Remove(df)
+					if err != nil {
+						logs = append(logs, common.LogItem{Msg: "Error Removing default configuration at " + df, Color: common.Red})
+						haveError = true
+					}
+				}
+			}
+			if !haveError {
+				logs = append(logs, common.LogItem{Msg: "Default files removed.", Color: common.Gold})
+			}
+			return common.LogData{Messages: logs}
+		},
 		common.LogMessage("Testing nginx configuration...", common.Gold),
-		common.RunCommand(cmd1),
+		common.RunCommand("nginx -t"),
 		common.LogMessage("Reloading nginx...", common.Gold),
-		common.RunCommand(cmd2),
+		common.RunCommand("systemctl reload nginx"),
 		common.LogMessage("Enabling nginx service to automatically start after reboot...", common.Gold),
-		common.RunCommand(cmd3),
+		common.RunCommand("systemctl enable nginx"),
 		common.LogMessage("Reverse proxy and Load balancer installation and configuration completed successfully.", common.Gold),
 		common.LogMessage("Allowing SSH on port 22 and web traffic on ports 80, 443...", common.Gold),
-		common.RunCommand(cmd4),
-		common.RunCommand(cmd5),
-		common.RunCommand(cmd6),
-		common.RunCommand(cmd7),
-		common.RunCommand(cmd8),
-		common.LogMessage("All is done.", common.Gold),
+		common.RunCommand("ufw allow 9011/tcp"),
+		common.RunCommand("ufw allow 22/tcp"),
+		common.RunCommand("ufw allow 80/tcp"),
+		common.RunCommand("ufw allow 443/tcp"),
+		common.RunCommand("ufw --force enable"),
+		common.LogMessage("All is done.", common.Green),
 	)
 
 }

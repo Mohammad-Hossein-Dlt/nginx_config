@@ -86,7 +86,7 @@ type CLIModel struct {
 	TextInput  textinput.Model
 	FilePicker filepicker.Model
 	//-------------------------
-	Logs []common.LogMsg
+	Logs []common.LogData
 }
 
 const (
@@ -537,17 +537,15 @@ func (m *CLIModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 			}
 		}
-	case common.LogMsg:
+	case common.LogData:
 		m.Logs = append(m.Logs, msg)
 		return m, nil // Append new log message
-	case common.Done:
-		return m, nil
 	}
 
 	return m, tea.Batch(cmdS...)
 }
 
-func (m *CLIModel) SetState(s State, log *common.LogMsg) {
+func (m *CLIModel) SetState(s State, log *common.LogData) {
 	m.State = s
 	if log != nil {
 		m.Logs = append(m.Logs, *log)
@@ -561,11 +559,12 @@ func (m *CLIModel) View() string {
 	var sb strings.Builder
 
 	for _, logMsg := range m.Logs {
-		if logMsg.Color != "" {
-			sb.WriteString(logStyle.Foreground(lipgloss.Color(logMsg.Color)).Render(logMsg.Msg) + "\n")
-		} else {
-			sb.WriteString(logStyle.Foreground(lipgloss.Color(common.White)).Render(logMsg.Msg) + "\n")
-			//sb.WriteString(logMsg.Msg + "\n")
+		for _, msg := range logMsg.Messages {
+			if msg.Color != "" {
+				sb.WriteString(logStyle.Foreground(lipgloss.Color(msg.Color)).Render(msg.Msg) + "\n")
+			} else {
+				sb.WriteString(logStyle.Foreground(lipgloss.Color(common.White)).Render(msg.Msg) + "\n")
+			}
 		}
 	}
 
